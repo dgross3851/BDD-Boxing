@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <radialGradient id="emberGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C94A1F" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#6F1F14" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#141414" stop-opacity="0"/>
+    </radialGradient>
+    
+    <linearGradient id="metalSilver" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="30%" stop-color="#E1E1E1"/>
+      <stop offset="70%" stop-color="#A9A9A9"/>
+      <stop offset="100%" stop-color="#555555"/>
+    </linearGradient>
+
+    <linearGradient id="emberGold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C94A1F"/>
+      <stop offset="50%" stop-color="#A83218"/>
+      <stop offset="100%" stop-color="#6F1F14"/>
+    </linearGradient>
+
+    <linearGradient id="darkShield" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D2D2D"/>
+      <stop offset="50%" stop-color="#141414"/>
+      <stop offset="100%" stop-color="#090909"/>
+    </linearGradient>
+
+    <!-- Filters for Glow -->
+    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="subtleGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- BACKGROUND GLOW (Red Ember Accent) -->
+  <circle cx="250" cy="230" r="180" fill="url(#emberGlow)" />
+
+  <!-- OUTER SHIELD / BADGE -->
+  <!-- Outer Shield Outline -->
+  <path d="M 250,30 L 390,95 L 390,260 C 390,360 250,440 250,440 C 250,440 110,360 110,260 L 110,95 Z" 
+        fill="url(#darkShield)" stroke="#2D2D2D" stroke-width="6" />
+  
+  <!-- Inner Shield Border -->
+  <path d="M 250,45 L 375,103 L 375,255 C 375,345 250,420 250,420 C 250,420 125,345 125,255 L 125,103 Z" 
+        fill="none" stroke="#C94A1F" stroke-width="2.5" opacity="0.85" />
+  
+  <!-- Rivets/Dots on Shield -->
+  <circle cx="145" cy="120" r="3" fill="#A9A9A9" />
+  <circle cx="355" cy="120" r="3" fill="#A9A9A9" />
+  <circle cx="140" cy="180" r="3" fill="#A9A9A9" />
+  <circle cx="360" cy="180" r="3" fill="#A9A9A9" />
+  <circle cx="145" cy="245" r="3" fill="#A9A9A9" />
+  <circle cx="355" cy="245" r="3" fill="#A9A9A9" />
+  <circle cx="170" cy="310" r="3" fill="#A9A9A9" />
+  <circle cx="330" cy="310" r="3" fill="#A9A9A9" />
+
+  <!-- ORANGE GLOW ACCENT BEHIND FIST -->
+  <circle cx="250" cy="230" r="75" fill="url(#emberGold)" opacity="0.15" filter="url(#glowEffect)" />
+  
+  <!-- LAURELS / LEAVES (Ember Orange Accent) -->
+  <g fill="url(#emberGold)" opacity="0.9">
+    <!-- Left Leaf Branch -->
+    <path d="M 135,280 Q 145,320 175,350 Q 165,335 155,300 Z" />
+    <path d="M 145,295 Q 160,315 180,330 Q 170,315 160,295 Z" />
+    <path d="M 155,315 Q 175,330 190,340 Q 180,325 168,310 Z" />
+    <!-- Right Leaf Branch -->
+    <path d="M 365,280 Q 355,320 325,350 Q 335,335 345,300 Z" />
+    <path d="M 355,295 Q 340,315 320,330 Q 330,315 340,295 Z" />
+    <path d="M 345,315 Q 325,330 310,340 Q 320,325 332,310 Z" />
+  </g>
+
+  <!-- WINGS (Flanking the Fist) -->
+  <!-- Left Wing -->
+  <g fill="#2D2D2D" stroke="#090909" stroke-width="1.5">
+    <path d="M 175,170 Q 100,120 95,200 Q 140,205 170,200 Z" />
+    <path d="M 170,185 Q 110,150 105,225 Q 145,220 172,215 Z" />
+    <path d="M 168,205 Q 120,180 115,245 Q 150,235 170,230 Z" />
+    <path d="M 166,225 Q 130,210 128,260 Q 150,248 168,245 Z" />
+  </g>
+  <!-- Right Wing -->
+  <g fill="#2D2D2D" stroke="#090909" stroke-width="1.5">
+    <path d="M 325,170 Q 400,120 405,200 Q 360,205 330,200 Z" />
+    <path d="M 330,185 Q 390,150 395,225 Q 355,220 328,215 Z" />
+    <path d="M 332,205 Q 380,180 385,245 Q 350,235 330,230 Z" />
+    <path d="M 334,225 Q 370,210 372,260 Q 350,248 332,245 Z" />
+  </g>
+
+  <!-- WINGS HIGHLIGHT (Ember orange rim) -->
+  <path d="M 105,200 Q 140,205 170,200" fill="none" stroke="#C94A1F" stroke-width="1" opacity="0.6" />
+  <path d="M 395,200 Q 360,205 330,200" fill="none" stroke="#C94A1F" stroke-width="1" opacity="0.6" />
+
+  <!-- CENTRAL FIST (Detailed vector path) -->
+  <!-- Glove Wrist / Base -->
+  <path d="M 222,295 L 278,295 L 275,340 L 225,340 Z" fill="#141414" stroke="#A9A9A9" stroke-width="2" />
+  <!-- Wrist Wraps Straps Details -->
+  <path d="M 223,305 L 277,305" fill="none" stroke="#C94A1F" stroke-width="3" />
+  <path d="M 224,318 L 276,318" fill="none" stroke="#2D2D2D" stroke-width="3" />
+  <path d="M 224,328 L 276,328" fill="none" stroke="#C94A1F" stroke-width="3" />
+  
+  <!-- Main Punching Fist / Glove Body -->
+  <path d="M 210,235 C 205,200 230,178 250,178 C 270,178 295,200 290,235 C 290,265 275,295 250,295 C 225,295 210,265 210,235 Z" 
+        fill="url(#darkShield)" stroke="#A9A9A9" stroke-width="2" />
+
+  <!-- Fist Highlights and Shadow Layers -->
+  <path d="M 213,230 C 210,205 228,185 250,185" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.3" />
+  <!-- Shadow overlay for grip/knuckles -->
+  <path d="M 250,180 C 265,180 285,195 285,225 C 285,245 275,275 260,285" fill="none" stroke="#090909" stroke-width="4" opacity="0.4" />
+
+  <!-- Knuckles Details (Glove Protectors) -->
+  <g fill="#2D2D2D" stroke="#A9A9A9" stroke-width="1.5">
+    <!-- Knuckle index -->
+    <path d="M 218,208 C 218,208 223,195 233,197 C 243,199 240,212 240,212 Z" />
+    <!-- Knuckle middle -->
+    <path d="M 240,205 C 240,205 246,192 255,193 C 264,194 262,209 262,209 Z" />
+    <!-- Knuckle ring -->
+    <path d="M 262,209 C 262,209 268,198 276,201 C 284,204 280,217 280,217 Z" />
+    <!-- Knuckle pinky -->
+    <path d="M 280,217 C 280,217 285,209 292,214 C 299,219 292,230 292,230 Z" />
+  </g>
+
+  <!-- Thumb (Folded over fingers) -->
+  <path d="M 206,238 C 206,238 222,235 238,245 C 248,252 248,268 234,275 C 220,282 208,260 208,260 Z" 
+        fill="#1C1C1C" stroke="#A9A9A9" stroke-width="2" />
+  <!-- Thumb wrap line -->
+  <path d="M 212,248 C 220,248 230,252 233,260" fill="none" stroke="#C94A1F" stroke-width="1.5" />
+
+  <!-- Mini Knuckle Letters "B D D" -->
+  <text x="226" y="210" font-family="'Outfit', 'Impact', sans-serif" font-size="9" font-weight="900" fill="#FFFFFF" text-anchor="middle">B</text>
+  <text x="251" y="207" font-family="'Outfit', 'Impact', sans-serif" font-size="9" font-weight="900" fill="#FFFFFF" text-anchor="middle">D</text>
+  <text x="272" y="213" font-family="'Outfit', 'Impact', sans-serif" font-size="9" font-weight="900" fill="#FFFFFF" text-anchor="middle">D</text>
+
+  <!-- SHIELD TOP HEADER TEXT ("BDD") -->
+  <g filter="url(#subtleGlow)">
+    <text x="250" y="145" font-family="'Outfit', 'Impact', sans-serif" font-size="72" font-weight="900" 
+          fill="url(#metalSilver)" stroke="#090909" stroke-width="3" text-anchor="middle" letter-spacing="4">BDD</text>
+  </g>
+  <text x="250" y="145" font-family="'Outfit', 'Impact', sans-serif" font-size="72" font-weight="900" 
+        fill="url(#metalSilver)" text-anchor="middle" letter-spacing="4">BDD</text>
+
+  <!-- SHIELD BOTTOM HEADER TEXT ("BOXING") -->
+  <g filter="url(#subtleGlow)">
+    <text x="250" y="380" font-family="'Outfit', 'Impact', sans-serif" font-size="52" font-weight="900" 
+          fill="#FFFFFF" stroke="#090909" stroke-width="4" text-anchor="middle" letter-spacing="2">BOXING</text>
+  </g>
+  <text x="250" y="380" font-family="'Outfit', 'Impact', sans-serif" font-size="52" font-weight="900" 
+        fill="#F3F3F3" text-anchor="middle" letter-spacing="2">BOXING</text>
+
+  <!-- BOTTOM BANNER ("DETERMINATION. POWER. DISCIPLINE.") -->
+  <g>
+    <!-- Banner Plate -->
+    <path d="M 140,400 L 360,400 L 345,425 L 155,425 Z" fill="#141414" stroke="#C94A1F" stroke-width="1.5" />
+    <text x="250" y="416" font-family="'Inter', sans-serif" font-size="8" font-weight="800" 
+          fill="#A9A9A9" text-anchor="middle" letter-spacing="1.5">DETERMINATION. POWER. DISCIPLINE.</text>
+  </g>
+</svg>
