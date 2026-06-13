@@ -46,7 +46,7 @@
           <li><a href="#training" class="nav-link">Training</a></li>
           <li><a href="#schedule" class="nav-link">Schedule</a></li>
           <li><a href="#events" class="nav-link">Events</a></li>
-          <li><a href="#faq" class="nav-link">FAQ</a></li>
+          <li class="mobile-only"><a href="#faq" class="nav-link">FAQ</a></li>
           <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
 
@@ -59,7 +59,7 @@
     <!-- 2. HERO SECTION WITH LOOPS VIDEO -->
     <div class="hero-section" id="hero">
       <!-- Muted, Autoplay, Loop, Plays Inline Video Background -->
-      <video class="hero-video-bg" autoplay muted loop playsinline poster="assets/hero_bg.png" id="hero-video">
+      <video class="hero-video-bg" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/hero_bg.png" id="hero-video">
         <source src="assets/bdd-hero-bw.mp4" type="video/mp4">
       </video>
       <div class="hero-overlay"></div>
@@ -283,7 +283,7 @@
             <div class="coach-video-card">
               <div class="video-label">Coach In Action</div>
               <div class="video-container">
-                <video autoplay muted loop playsinline id="coach-video">
+                <video autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/coach-photo.jpeg" id="coach-video">
                   <source src="assets/coach-bag-work.mp4" type="video/mp4">
                 </video>
               </div>
@@ -825,11 +825,9 @@
               <span>Phone:</span> (Add later)
             </div>
             
-            <!-- Mini Dark Map Card Placeholder -->
-            <div class="footer-map-card">
-              <div class="map-grid-lines"></div>
-              <div class="map-pulse-pin"></div>
-              <span class="map-label">BDD Boxing Location</span>
+            <!-- Real Google Maps Embed Container -->
+            <div class="footer-map-container">
+              <iframe src="https://maps.google.com/maps?q=1012%203rd%20Ave%20NW%2C%20Hickory%2C%20NC%2028601&t=&z=14&ie=UTF8&iwloc=&output=embed" width="100%" height="150" style="border:0; filter: grayscale(1) invert(0.92) contrast(1.2) brightness(0.95);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
           </div>
         </div>

@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (introScreen) introScreen.style.display = 'none';
         sessionStorage.setItem('bdd_intro_played', 'true');
       }, 800);
-    }, 1900); // 1.9 seconds total duration before start of fade-out (0.5s fade-in + 1.4s hold)
+    }, 2100); // 2.1 seconds total duration before start of fade-out (0.5s fade-in + 1.6s hold)
   }
 
   // 2. HEADER SCROLL EFFECT
@@ -150,43 +150,37 @@ document.addEventListener('DOMContentLoaded', () => {
     handleCtaVisibility(); // Initial check
   }
 
-  // 7. SCROLL-REVEAL FOR MOBILE GALLERY (Intersection Observer)
-  // On mobile screens, trigger image details and color transition as user scrolls them into focus
-  const galleryItems = document.querySelectorAll('.gallery-item');
-  
-  if (galleryItems.length > 0) {
-    const galleryOptions = {
-      root: null,
-      rootMargin: '-15% 0px -15% 0px', // middle 70% of screen
-      threshold: 0.35 // 35% of item visible
-    };
-
-    const galleryObserver = new IntersectionObserver((entries) => {
-      if (window.innerWidth <= 768) { // Only run scroll-reveal active state on touch/mobile devices
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('active');
-          } else {
-            entry.target.classList.remove('active');
-          }
-        });
-      } else {
-        // Clear active classes if window gets resized back to desktop
-        entries.forEach(entry => {
-          entry.target.classList.remove('active');
-        });
-      }
-    }, galleryOptions);
-
-    galleryItems.forEach(item => galleryObserver.observe(item));
+  // 7. VIDEO AUTOPLAY FALLBACK & COMPATIBILITY
+  const attemptAutoplay = (videoEl) => {
+    if (!videoEl) return;
+    videoEl.muted = true;
+    videoEl.defaultMuted = true;
     
-    // Clear styles on resize
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        galleryItems.forEach(item => item.classList.remove('active'));
-      }
-    });
-  }
+    const playPromise = videoEl.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        // Playback started successfully
+      }).catch(error => {
+        console.log("Programmatic autoplay blocked for element: ", videoEl.id, error);
+      });
+    }
+  };
+
+  const heroVid = document.getElementById('hero-video');
+  const coachVid = document.getElementById('coach-video');
+
+  attemptAutoplay(heroVid);
+  attemptAutoplay(coachVid);
+
+  // Autoplay recovery on first user interaction
+  const resumeVideos = () => {
+    if (heroVid && heroVid.paused) attemptAutoplay(heroVid);
+    if (coachVid && coachVid.paused) attemptAutoplay(coachVid);
+    document.removeEventListener('click', resumeVideos);
+    document.removeEventListener('touchstart', resumeVideos);
+  };
+  document.addEventListener('click', resumeVideos);
+  document.addEventListener('touchstart', resumeVideos);
 
   // 8. GALLERY LIGHTBOX MODAL
   const lightbox = document.getElementById('gallery-lightbox');
