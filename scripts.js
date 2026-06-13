@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         if (introScreen) introScreen.style.display = 'none';
         sessionStorage.setItem('bdd_intro_played', 'true');
-      }, 500);
-    }, 1800); // 1.8 seconds total duration
+      }, 800);
+    }, 1900); // 1.9 seconds total duration before start of fade-out (0.5s fade-in + 1.4s hold)
   }
 
   // 2. HEADER SCROLL EFFECT

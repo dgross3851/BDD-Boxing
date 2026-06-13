@@ -182,15 +182,21 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .intro-logo-container {
-  width: 280px;
-  max-width: 80%;
+  width: clamp(220px, 34vw, 460px);
+  max-width: 75%;
   text-align: center;
-  animation: introReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   position: relative;
+}
+
+#intro-logo-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  animation: introReveal 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .intro-logo-container::after {
@@ -198,36 +204,36 @@ img {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 180px;
-  height: 180px;
+  width: 70%;
+  height: 70%;
   background: var(--red-ember);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   filter: blur(80px);
   opacity: 0.45;
   z-index: -1;
-  animation: glowPulse 1.2s ease-in-out infinite alternate;
+  animation: glowPulse 2.6s ease-in-out infinite;
 }
 
 @keyframes introReveal {
   0% {
     opacity: 0;
-    transform: scale(0.85);
+    transform: scale(0.8);
     filter: blur(10px);
   }
-  15% {
+  20% {
     opacity: 1;
     transform: scale(1);
     filter: blur(0);
   }
-  85% {
+  73% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1.02);
     filter: blur(0);
   }
   100% {
     opacity: 0;
-    transform: scale(1.08);
+    transform: scale(1.12);
     filter: blur(5px);
   }
 }
@@ -237,9 +243,13 @@ img {
     opacity: 0.3;
     transform: translate(-50%, -50%) scale(0.9);
   }
-  100% {
+  50% {
     opacity: 0.6;
     transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0.9);
   }
 }
 
@@ -247,7 +257,6 @@ img {
 .intro-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: scale(1.05);
 }
 
 /* --- MAIN PAGE CONTENT --- */
