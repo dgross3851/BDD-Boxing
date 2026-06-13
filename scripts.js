@@ -187,4 +187,57 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 8. GALLERY LIGHTBOX MODAL
+  const lightbox = document.getElementById('gallery-lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxClose = document.querySelector('.lightbox-close');
+  
+  if (lightbox && lightboxImg) {
+    const galleryImages = document.querySelectorAll('.gallery-item img');
+    
+    galleryImages.forEach(img => {
+      img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.style.display = 'flex';
+        // Trigger reflow to ensure transition works
+        lightbox.offsetHeight;
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden'; // Lock background scroll
+      });
+    });
+    
+    const closeLightbox = () => {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = ''; // Restore scroll
+      
+      // Wait for CSS transition to finish before hiding display
+      setTimeout(() => {
+        if (!lightbox.classList.contains('open')) {
+          lightbox.style.display = 'none';
+          lightboxImg.src = ''; // Clear source
+        }
+      }, 400); // matches transition duration
+    };
+    
+    if (lightboxClose) {
+      lightboxClose.addEventListener('click', closeLightbox);
+    }
+    
+    // Close on click outside the image
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox || e.target === lightboxClose) {
+        closeLightbox();
+      }
+    });
+    
+    // Close on Escape key press
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+        closeLightbox();
+      }
+    });
+  }
 });
