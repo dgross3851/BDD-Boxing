@@ -57,6 +57,16 @@ body {
   line-height: 1.6;
 }
 
+/* Subpage Layout Container */
+.subpage-container {
+  padding-top: 100px;
+}
+@media (max-width: 768px) {
+  .subpage-container {
+    padding-top: 80px;
+  }
+}
+
 /* Gritty Texture Overlay */
 body::before {
   content: "";

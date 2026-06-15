@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Premium detail: Skip intro if already seen in current session
   const introPlayed = sessionStorage.getItem('bdd_intro_played');
   
-  if (introPlayed) {
+  if (introPlayed || !introScreen) {
     // Skip intro and show main site immediately
     if (introScreen) introScreen.style.display = 'none';
     if (mainContent) mainContent.classList.add('visible');
@@ -69,30 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
-  // 4. ACTIVE NAV LINK ON SCROLL (Intersection Observer)
-  const sections = document.querySelectorAll('section[id], header, div.hero-section');
-  const observerOptions = {
-    root: null,
-    rootMargin: '-20% 0px -60% 0px', // focused in the upper-middle of viewport
-    threshold: 0
-  };
-
-  const navObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.getAttribute('id');
-        navLinks.forEach(link => {
-          link.classList.remove('active');
-          if (id && link.getAttribute('href') === `#${id}`) {
-            link.classList.add('active');
-          }
-        });
-      }
-    });
-  }, observerOptions);
-
-  sections.forEach(section => navObserver.observe(section));
 
   // 5. FAQ ACCORDION LOGIC
   const faqItems = document.querySelectorAll('.faq-item');
