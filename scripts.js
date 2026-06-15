@@ -151,29 +151,70 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 7. VIDEO AUTOPLAY FALLBACK & COMPATIBILITY
-  const autoplayVideos = document.querySelectorAll("video[autoplay]");
+  const heroVideo = document.querySelector(".hero-video");
+  const coachVideo = document.querySelector(".coach-video");
 
-  autoplayVideos.forEach((video) => {
+  const setupVideo = (video) => {
+    if (!video) return;
+
     video.muted = true;
     video.defaultMuted = true;
+    video.autoplay = true;
+    video.loop = true;
     video.playsInline = true;
+    video.controls = false;
 
     video.setAttribute("muted", "");
+    video.setAttribute("autoplay", "");
+    video.setAttribute("loop", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
+    video.setAttribute("preload", "auto");
     video.removeAttribute("controls");
+  };
 
-    const tryPlay = () => {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.play().catch(() => {});
-    };
+  const tryPlay = async (video) => {
+    if (!video) return false;
 
-    tryPlay();
+    setupVideo(video);
 
-    document.addEventListener("touchstart", tryPlay, { once: true });
-    document.addEventListener("click", tryPlay, { once: true });
+    try {
+      await video.play();
+      video.closest(".video-wrapper")?.classList.add("video-playing");
+      video.closest(".video-wrapper")?.classList.remove("video-autoplay-failed");
+      return true;
+    } catch (error) {
+      video.closest(".video-wrapper")?.classList.add("video-autoplay-failed");
+      return false;
+    }
+  };
+
+  setupVideo(heroVideo);
+  setupVideo(coachVideo);
+
+  tryPlay(heroVideo);
+  tryPlay(coachVideo);
+
+  const retryCoachVideo = () => {
+    setupVideo(coachVideo);
+    tryPlay(coachVideo);
+  };
+
+  ["touchstart", "click", "pointerdown", "scroll"].forEach((eventName) => {
+    document.addEventListener(eventName, retryCoachVideo, { once: true, passive: true });
   });
+
+  if (coachVideo && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
+          retryCoachVideo();
+        }
+      });
+    }, { threshold: [0.3] });
+
+    observer.observe(coachVideo);
+  }
 
   // 8. GALLERY LIGHTBOX MODAL
   const lightbox = document.getElementById('gallery-lightbox');

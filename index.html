@@ -59,9 +59,12 @@
     <!-- 2. HERO SECTION WITH LOOPS VIDEO -->
     <div class="hero-section" id="hero">
       <!-- Muted, Autoplay, Loop, Plays Inline Video Background -->
-      <video class="hero-video hero-video-bg" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/hero_bg.png" id="hero-video">
-        <source src="assets/bdd-hero-bw.mp4" type="video/mp4">
-      </video>
+      <div class="hero-video-wrapper video-wrapper">
+        <video class="hero-video hero-video-bg" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/hero_bg.png" id="hero-video">
+          <source src="assets/bdd-hero-bw.mp4" type="video/mp4">
+        </video>
+        <div class="video-poster-fallback" style="background-image: url('assets/official-bdd-logo.jpeg');"></div>
+      </div>
       <div class="hero-overlay"></div>
       
       <div class="hero-content">
@@ -282,10 +285,11 @@
             <!-- Coach Action Video Card -->
             <div class="coach-video-card">
               <div class="video-label">Coach In Action</div>
-              <div class="video-container">
+              <div class="video-container video-wrapper">
                 <video class="coach-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/coach-photo.jpeg" id="coach-video">
                   <source src="assets/coach-bag-work.mp4" type="video/mp4">
                 </video>
+                <div class="video-poster-fallback" style="background-image: url('assets/coach-bagwork.jpeg');"></div>
               </div>
               <div class="video-caption">Real bag work. Real boxing experience.</div>
             </div>
