@@ -1230,6 +1230,15 @@ section {
   grid-row: span 2;
 }
 
+.gallery-grid img,
+.training-gallery img,
+.gallery-image,
+.gallery-item img {
+  max-width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
 .gallery-item img {
   width: 100%;
   height: 100%;
@@ -1281,6 +1290,49 @@ section {
     opacity: 0.2;
   }
 }
+
+/* Disable hover color reveal on touch devices */
+@media (hover: none), (pointer: coarse) {
+  .gallery-image,
+  .training-gallery img,
+  .gallery-grid img,
+  .gallery-item img {
+    filter: grayscale(100%) !important;
+    transform: none !important;
+  }
+
+  .gallery-image:hover,
+  .training-gallery img:hover,
+  .gallery-grid img:hover,
+  .gallery-item:hover img,
+  .gallery-image:active,
+  .training-gallery img:active,
+  .gallery-grid img:active,
+  .gallery-item:active img,
+  .gallery-image:focus,
+  .training-gallery img:focus,
+  .gallery-grid img:focus,
+  .gallery-item:focus img {
+    filter: grayscale(100%) !important;
+    transform: none !important;
+  }
+
+  .gallery-item::before,
+  .gallery-item:hover::before,
+  .gallery-item:active::before,
+  .gallery-item:focus::before {
+    opacity: 0 !important;
+    display: none !important;
+  }
+
+  .gallery-item::after,
+  .gallery-item:hover::after,
+  .gallery-item:active::after,
+  .gallery-item:focus::after {
+    opacity: 1 !important;
+  }
+}
+
 
 /* --- LIGHTBOX MODAL OVERLAY --- */
 .lightbox-modal {
@@ -1832,9 +1884,11 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .gallery-grid {
+  .gallery-grid,
+  .training-gallery {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
+    gap: 22px;
   }
   
   .gallery-item.featured {
@@ -2029,9 +2083,11 @@ footer {
     grid-template-columns: 1fr;
   }
   
-  .gallery-grid {
+  .gallery-grid,
+  .training-gallery {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 22px;
   }
   
   .gallery-item.featured {
@@ -2129,9 +2185,11 @@ footer {
     --section-padding: 64px 20px;
   }
 
-  .gallery-grid {
+  .gallery-grid,
+  .training-gallery {
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 18px;
   }
   
   .gallery-item.featured {
