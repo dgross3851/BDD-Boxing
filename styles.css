@@ -1707,6 +1707,96 @@ footer {
 /* --- MEDIA QUERIES (RESPONSIVE) --- */
 
 @media (max-width: 1024px) {
+  :root {
+    --section-padding: 88px 32px;
+  }
+
+  .hero-eyebrow,
+  .hero-trust-markers,
+  .trust-bar {
+    display: none !important;
+  }
+
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  .hero-headline, .hero-title {
+    text-align: center;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 0.95;
+    font-size: clamp(2.4rem, 11vw, 4.6rem);
+  }
+
+  .hero-subheadline, .hero-subtitle {
+    text-align: center;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.55;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-ctas, .hero-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .hero-actions .primary-btn,
+  .hero-actions .btn-primary,
+  .hero-ctas .btn-primary,
+  .hero-ctas .btn {
+    width: min(100%, 340px) !important;
+    max-width: 340px !important;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-actions .secondary-btn,
+  .hero-actions .btn-secondary,
+  .hero-ctas .btn-secondary {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .coach-cta-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+
+  .coach-cta-wrapper .btn {
+    width: min(100%, 340px) !important;
+    max-width: 340px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
   .pillars-grid, .steps-grid, .testimonials-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.75rem;
@@ -1740,7 +1830,7 @@ footer {
 
 @media (max-width: 768px) {
   :root {
-    --section-padding: var(--section-padding-mobile);
+    --section-padding: 72px 24px;
   }
   
   /* Mobile Navigation */
@@ -1803,7 +1893,7 @@ footer {
   .hero-section {
     height: auto;
     min-height: 100svh;
-    padding: 120px 20px 60px 20px;
+    padding: 120px 24px 60px 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1939,6 +2029,14 @@ footer {
   .coach-bio { order: 5; margin-bottom: 1.5rem; }
   .coach-video-card { order: 6; max-width: 450px; margin: 0 auto; width: 100%; }
   .coach-cta-wrapper { order: 7; margin-top: 1rem; }
+  .coach-cta-wrapper .btn {
+    width: min(100%, 320px) !important;
+    max-width: 320px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
   
   /* Trust Bar */
   .trust-bar-content {
@@ -1988,6 +2086,10 @@ footer {
 }
 
 @media (max-width: 480px) {
+  :root {
+    --section-padding: 64px 20px;
+  }
+
   .gallery-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -2039,6 +2141,27 @@ footer {
   .hero-content {
     padding-left: 20px !important;
     padding-right: 20px !important;
+  }
+
+  .hero-actions .primary-btn,
+  .hero-actions .btn-primary,
+  .hero-ctas .btn-primary,
+  .hero-ctas .btn {
+    width: min(100%, 300px) !important;
+    max-width: 300px !important;
+  }
+
+  .coach-cta-wrapper .btn {
+    width: min(100%, 300px) !important;
+    max-width: 300px !important;
+  }
+
+  .testimonial-card {
+    padding: 1.75rem 1.25rem !important;
+  }
+
+  .transformation-card {
+    padding: 1.5rem 1.15rem !important;
   }
 }
 
