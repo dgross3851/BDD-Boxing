@@ -48,6 +48,7 @@
           <li><a href="#events" class="nav-link">Events</a></li>
           <li class="mobile-only"><a href="#faq" class="nav-link">FAQ</a></li>
           <li><a href="#contact" class="nav-link">Contact</a></li>
+          <li class="mobile-cta-menu-item"><a href="#contact" class="btn btn-primary mobile-menu-cta">Book First Session</a></li>
         </ul>
 
         <div class="header-cta">
@@ -709,7 +710,7 @@
         </div>
 
         <form action="#" style="display: flex; flex-direction: column; gap: 1.5rem;" onsubmit="event.preventDefault(); alert('Session booking request sent! Coach Jrob will contact you shortly.');">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-row">
             <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
               <label for="form-name" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Full Name</label>
               <input type="text" id="form-name" required placeholder="John Doe" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast);">
@@ -720,7 +721,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-row">
             <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
               <label for="form-phone" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Phone Number</label>
               <input type="tel" id="form-phone" required placeholder="(123) 456-7890" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast);">

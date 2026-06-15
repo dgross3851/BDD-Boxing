@@ -330,6 +330,10 @@ header.scrolled {
   display: none !important;
 }
 
+.mobile-cta-menu-item {
+  display: none;
+}
+
 .nav-link {
   font-family: var(--font-headline);
   font-weight: 700;
@@ -1558,6 +1562,13 @@ section {
   margin-bottom: 3rem;
 }
 
+/* Booking Form Row Layout */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 /* --- FOOTER --- */
 footer {
   background-color: var(--black);
@@ -1764,6 +1775,19 @@ footer {
   .mobile-only {
     display: block !important;
   }
+
+  .mobile-cta-menu-item {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+
+  .mobile-menu-cta {
+    display: block;
+    text-align: center;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+  }
   
   /* Mobile Intro Logo Override */
   .intro-logo-container {
@@ -1776,8 +1800,17 @@ footer {
   }
   
   /* Hero Styles */
+  .hero-content {
+    padding: 2.5rem 1rem;
+    border-radius: 12px !important;
+    background: radial-gradient(circle, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.65) 70%, rgba(5, 5, 5, 0.1) 100%) !important;
+    margin-top: 80px;
+    width: 100%;
+    max-width: 100%;
+  }
+
   .hero-headline {
-    font-size: 2.3rem;
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
   
   .hero-ctas {
@@ -1865,6 +1898,26 @@ footer {
   /* Show Sticky CTA */
   #sticky-mobile-cta {
     display: block;
+  }
+
+  /* Card Padding adjustments on mobile */
+  .transformation-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .program-card {
+    padding: 1.75rem 1.25rem;
+    min-height: auto;
+  }
+
+  /* Booking Form mobile stacking */
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  #contact form .btn {
+    width: 100%;
   }
 }
 

@@ -59,8 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = isOpen ? 'hidden' : '';
     });
 
-    // Close menu when clicking on nav link
-    navLinks.forEach(link => {
+    // Close menu when clicking on nav link or mobile menu CTA button
+    const closeLinks = document.querySelectorAll('.nav-link, .mobile-menu-cta');
+    closeLinks.forEach(link => {
       link.addEventListener('click', () => {
         navMenu.classList.remove('open');
         mobileMenuBtn.classList.remove('open');
