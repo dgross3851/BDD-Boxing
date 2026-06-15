@@ -2062,6 +2062,11 @@ footer {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
+
+  .who-we-train-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2346,6 +2351,11 @@ footer {
   
   .mission-intro {
     text-align: center;
+  }
+
+  .who-we-train-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 }
 
