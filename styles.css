@@ -1773,6 +1773,65 @@ section {
   margin: 0;
 }
 
+/* --- TRAINING STANDARDS SECTION --- */
+.standards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 3.5rem;
+}
+
+.standard-card {
+  background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
+  border: 1px solid var(--steel-border);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.standard-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(196, 59, 36, 0.4);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+}
+
+.standard-card h3 {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--off-white);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.standard-accent-line {
+  width: 30px;
+  height: 3px;
+  background-color: var(--red-ember);
+  margin-bottom: 1.25rem;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.standard-card:hover .standard-accent-line {
+  width: 50px;
+  box-shadow: 0 0 8px var(--red-ember);
+}
+
+.standard-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted-gray);
+  margin: 0;
+}
+
 /* --- TRAINING GALLERY --- */
 .gallery-grid {
   display: grid;
@@ -2506,6 +2565,11 @@ footer {
   .helps-cta-wrapper .btn {
     max-width: 340px !important;
   }
+
+  .standards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2814,6 +2878,11 @@ footer {
 
   .helps-cta-wrapper .btn {
     max-width: 320px !important;
+  }
+
+  .standards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 }
 
