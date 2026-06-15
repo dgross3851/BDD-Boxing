@@ -842,6 +842,8 @@ section {
   align-items: flex-start;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .audience-card:hover {
@@ -883,7 +885,22 @@ section {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--off-white);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.audience-accent-line {
+  width: 35px;
+  height: 3px;
+  background-color: var(--red-ember);
+  margin-bottom: 1.25rem;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 5px rgba(196, 59, 36, 0.3);
+}
+
+.audience-card:hover .audience-accent-line {
+  width: 55px;
+  box-shadow: 0 0 10px var(--red-ember);
 }
 
 .audience-card p {
@@ -891,6 +908,21 @@ section {
   line-height: 1.6;
   color: var(--muted-gray);
   margin: 0;
+}
+
+.who-we-train-cta {
+  text-align: center;
+  margin-top: 3.5rem;
+  width: 100%;
+}
+
+.who-we-train-cta .btn {
+  display: inline-flex;
+  width: 100%;
+  max-width: 280px;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
 }
 
 /* --- TRANSFORMATION SECTION --- */
@@ -2067,6 +2099,10 @@ footer {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
+
+  .who-we-train-cta .btn {
+    max-width: 340px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2357,6 +2393,10 @@ footer {
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }
+
+  .who-we-train-cta .btn {
+    max-width: 320px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2447,6 +2487,10 @@ footer {
 
   .mission-statement-card {
     padding: 1.75rem 1.25rem !important;
+  }
+
+  .who-we-train-cta .btn {
+    max-width: 300px !important;
   }
 }
 
