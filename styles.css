@@ -1482,11 +1482,196 @@ section {
   text-transform: uppercase;
 }
 
-.coach-bio {
+.coach-stats .stat-number-text {
+  font-family: var(--font-headline);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--off-white);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* --- COACHING PHILOSOPHY SECTION --- */
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 3.5rem;
+}
+
+.philosophy-card {
+  background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
+  border: 1px solid var(--steel-border);
+  padding: 2.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.philosophy-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(196, 59, 36, 0.4);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+}
+
+.philosophy-card h3 {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--off-white);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.philosophy-accent-line {
+  width: 30px;
+  height: 3px;
+  background-color: var(--red-ember);
+  margin-bottom: 1.25rem;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.philosophy-card:hover .philosophy-accent-line {
+  width: 50px;
+  box-shadow: 0 0 8px var(--red-ember);
+}
+
+.philosophy-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
   color: var(--muted-gray);
-  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* --- MISSION CONNECTION SECTION --- */
+.mission-connection-container {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.mission-highlight-card {
+  background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
+  border: 1px solid var(--steel-border);
+  border-left: 4px solid var(--red-ember);
+  padding: 3rem 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  margin: 2.5rem 0;
+  transition: all 0.4s ease;
+}
+
+.mission-highlight-card:hover {
+  border-color: rgba(196, 59, 36, 0.35);
+  border-left-color: var(--hover-accent);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+}
+
+.mission-highlight-card p {
+  color: var(--off-white);
+  font-family: var(--font-headline);
+  font-size: clamp(1.2rem, 2.5vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.mission-connection-supporting {
+  color: var(--muted-gray);
+  font-size: 1.1rem;
   line-height: 1.7;
-  margin-bottom: 2.5rem;
+  max-width: 750px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* --- WHO COACH JROB HELPS SECTION --- */
+.helps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 3.5rem;
+}
+
+.helps-card {
+  background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
+  border: 1px solid var(--steel-border);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.helps-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(196, 59, 36, 0.4);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+}
+
+.helps-card h3 {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--off-white);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.helps-accent-line {
+  width: 30px;
+  height: 3px;
+  background-color: var(--red-ember);
+  margin-bottom: 1.25rem;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.helps-card:hover .helps-accent-line {
+  width: 50px;
+  box-shadow: 0 0 8px var(--red-ember);
+}
+
+.helps-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted-gray);
+  margin: 0;
+}
+
+.helps-cta-wrapper {
+  text-align: center;
+  margin-top: 3.5rem;
+}
+
+.helps-cta-wrapper .btn {
+  display: inline-flex;
+  width: 100%;
+  max-width: 280px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- COACH IN ACTION SECTION --- */
+.coach-in-action-video-container {
+  max-width: 800px;
+  margin: 2.5rem auto 0 auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--steel-border);
 }
 
 /* --- WHAT TO EXPECT --- */
@@ -2311,6 +2496,16 @@ footer {
   .final-cta-buttons .btn {
     max-width: 340px !important;
   }
+
+  .philosophy-grid,
+  .helps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .helps-cta-wrapper .btn {
+    max-width: 340px !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2610,6 +2805,16 @@ footer {
   .final-cta-buttons .btn {
     max-width: 320px !important;
   }
+
+  .philosophy-grid,
+  .helps-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .helps-cta-wrapper .btn {
+    max-width: 320px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2708,6 +2913,10 @@ footer {
 
   .not-sure-cta-wrapper .btn,
   .final-cta-buttons .btn {
+    max-width: 300px !important;
+  }
+
+  .helps-cta-wrapper .btn {
     max-width: 300px !important;
   }
 }
