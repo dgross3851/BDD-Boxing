@@ -1780,10 +1780,17 @@ footer {
     --section-padding: 88px 32px;
   }
 
-  .hero-eyebrow,
   .hero-trust-markers,
   .trust-bar {
     display: none !important;
+  }
+
+  .hero-eyebrow {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 1.25rem;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    letter-spacing: 0.12em;
   }
 
   .hero-content {
