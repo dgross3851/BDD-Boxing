@@ -409,6 +409,10 @@ header.scrolled {
 }
 
 /* Video Background styles */
+.hero-video {
+  pointer-events: none;
+}
+
 .hero-video-bg {
   position: absolute;
   top: 0;

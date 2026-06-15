@@ -151,36 +151,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 7. VIDEO AUTOPLAY FALLBACK & COMPATIBILITY
-  const attemptAutoplay = (videoEl) => {
-    if (!videoEl) return;
-    videoEl.muted = true;
-    videoEl.defaultMuted = true;
-    
-    const playPromise = videoEl.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        // Playback started successfully
-      }).catch(error => {
-        console.log("Programmatic autoplay blocked for element: ", videoEl.id, error);
-      });
-    }
-  };
+  const autoplayVideos = document.querySelectorAll("video[autoplay]");
 
-  const heroVid = document.getElementById('hero-video');
-  const coachVid = document.getElementById('coach-video');
+  autoplayVideos.forEach((video) => {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
 
-  attemptAutoplay(heroVid);
-  attemptAutoplay(coachVid);
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.removeAttribute("controls");
 
-  // Autoplay recovery on first user interaction
-  const resumeVideos = () => {
-    if (heroVid && heroVid.paused) attemptAutoplay(heroVid);
-    if (coachVid && coachVid.paused) attemptAutoplay(coachVid);
-    document.removeEventListener('click', resumeVideos);
-    document.removeEventListener('touchstart', resumeVideos);
-  };
-  document.addEventListener('click', resumeVideos);
-  document.addEventListener('touchstart', resumeVideos);
+    const tryPlay = () => {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.play().catch(() => {});
+    };
+
+    tryPlay();
+
+    document.addEventListener("touchstart", tryPlay, { once: true });
+    document.addEventListener("click", tryPlay, { once: true });
+  });
 
   // 8. GALLERY LIGHTBOX MODAL
   const lightbox = document.getElementById('gallery-lightbox');
