@@ -825,6 +825,74 @@ section {
   letter-spacing: 0.02em;
 }
 
+/* --- WHO WE TRAIN SECTION --- */
+.who-we-train-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-top: 3.5rem;
+}
+
+.audience-card {
+  background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
+  border: 1px solid var(--steel-border);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.audience-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(196, 59, 36, 0.4);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+}
+
+.audience-icon-wrapper {
+  background-color: var(--black);
+  border: 1px solid var(--steel-border);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  transition: var(--transition-fast);
+}
+
+.audience-card:hover .audience-icon-wrapper {
+  border-color: var(--red-ember);
+  background-color: var(--red-ember);
+}
+
+.audience-icon {
+  color: var(--red-ember);
+  transition: var(--transition-fast);
+}
+
+.audience-card:hover .audience-icon {
+  color: var(--off-white);
+}
+
+.audience-card h3 {
+  font-family: var(--font-headline);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--off-white);
+  margin-bottom: 1rem;
+}
+
+.audience-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted-gray);
+  margin: 0;
+}
+
 /* --- TRANSFORMATION SECTION --- */
 .transformation-split {
   display: grid;
