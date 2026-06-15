@@ -759,6 +759,72 @@ section {
   line-height: 1.6;
 }
 
+/* --- BRAND MISSION SECTION --- */
+.mission-split {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+.mission-header-col {
+  text-align: left;
+}
+
+.mission-header-col .section-eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.mission-header-col .section-title {
+  margin: 0;
+  line-height: 1.15;
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+}
+
+.mission-content-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mission-intro {
+  color: var(--muted-gray);
+  font-size: 1.1rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.mission-statement-card {
+  background-color: var(--card-charcoal);
+  border-left: 4px solid var(--red-ember);
+  border-top: 1px solid var(--steel-border);
+  border-right: 1px solid var(--steel-border);
+  border-bottom: 1px solid var(--steel-border);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  transition: var(--transition-normal);
+}
+
+.mission-statement-card:hover {
+  background-color: var(--elevated-charcoal);
+  box-shadow: 0 15px 35px var(--deep-rust-shadow);
+  border-color: rgba(196, 59, 36, 0.35);
+  border-left-color: var(--hover-accent);
+}
+
+.mission-statement {
+  color: var(--off-white);
+  font-family: var(--font-headline);
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
 /* --- TRANSFORMATION SECTION --- */
 .transformation-split {
   display: grid;
@@ -1923,6 +1989,11 @@ footer {
     margin: 0 auto;
     width: 100%;
   }
+
+  .mission-split {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2195,6 +2266,19 @@ footer {
   #contact form .btn {
     width: 100%;
   }
+
+  .mission-split {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .mission-header-col {
+    text-align: center;
+  }
+  
+  .mission-intro {
+    text-align: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2281,6 +2365,10 @@ footer {
   #transformation-cta {
     width: min(100%, 300px) !important;
     max-width: 300px !important;
+  }
+
+  .mission-statement-card {
+    padding: 1.75rem 1.25rem !important;
   }
 }
 
