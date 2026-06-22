@@ -181,6 +181,17 @@ img {
 }
 
 /* --- INTRO EXPERIENCE --- */
+.intro-screen,
+.logo-intro,
+.intro-overlay,
+#intro-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  width: 100%;
+}
+
 #intro-screen {
   position: fixed;
   top: 0;
@@ -189,36 +200,55 @@ img {
   height: 100vh;
   background-color: var(--black);
   z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .intro-logo-container {
-  width: min(70vw, 560px);
-  max-width: 560px;
+  width: min(78vw, 620px);
+  max-width: 620px;
   text-align: center;
   position: relative;
 }
 
 @media (max-width: 1024px) {
   .intro-logo-container {
-    width: min(72vw, 440px);
+    width: min(78vw, 480px);
   }
 }
 
 @media (max-width: 480px) {
   .intro-logo-container {
-    width: min(78vw, 320px);
+    width: min(82vw, 340px);
   }
 }
 
+.intro-logo,
 #intro-logo-img {
-  width: 100%;
+  width: min(78vw, 620px);
+  max-width: 620px;
   height: auto;
+  object-fit: contain;
   display: block;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   animation: introReveal 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 1024px) {
+  .intro-logo,
+  #intro-logo-img {
+    width: min(78vw, 480px);
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-logo,
+  #intro-logo-img {
+    width: min(82vw, 340px);
+    max-width: 340px;
+  }
 }
 
 .intro-logo-container::after {
@@ -2637,8 +2667,8 @@ footer {
   
   /* Mobile Intro Logo Override */
   .intro-logo-container {
-    width: min(78vw, 360px) !important;
-    max-width: 85% !important;
+    width: min(78vw, 480px) !important;
+    max-width: 480px !important;
   }
   
   .header-cta {
@@ -2899,6 +2929,12 @@ footer {
 }
 
 @media (max-width: 480px) {
+  /* Mobile Intro Logo Override (Smaller Screens) */
+  .intro-logo-container {
+    width: min(82vw, 340px) !important;
+    max-width: 340px !important;
+  }
+
   :root {
     --section-padding: 64px 20px;
   }
