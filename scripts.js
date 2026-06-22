@@ -245,4 +245,49 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 9. BOOKING FORM MAILTO FALLBACK & SMOOTH FOCUS SCROLL
+  const bookingForm = document.getElementById('booking-request-form');
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('form-name').value;
+      const email = document.getElementById('form-email').value;
+      const phone = document.getElementById('form-phone').value;
+      const path = document.getElementById('form-path').value;
+      const goals = document.getElementById('form-msg').value;
+      
+      const subject = encodeURIComponent('BDD Boxing Training Request');
+      
+      const bodyText = `BDD Boxing Training Request\n\n` +
+                       `Full Name: ${name}\n` +
+                       `Email: ${email}\n` +
+                       `Phone: ${phone}\n` +
+                       `Training Path: ${path}\n\n` +
+                       `Goals & Availability:\n${goals}`;
+                       
+      const body = encodeURIComponent(bodyText);
+      
+      window.location.href = `mailto:bddboxing@gmail.com?subject=${subject}&body=${body}`;
+    });
+  }
+
+  const ctaButtons = [document.getElementById('hero-submit-cta'), document.getElementById('final-submit-cta')];
+  ctaButtons.forEach(btn => {
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = btn.getAttribute('href').substring(1);
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            const nameInput = document.getElementById('form-name');
+            if (nameInput) nameInput.focus();
+          }, 600);
+        }
+      });
+    }
+  });
 });

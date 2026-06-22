@@ -59,119 +59,158 @@
     </header>
 
     <main class="subpage-container">
-      <!-- 8. WHAT TO EXPECT SECTION -->
-      <section class="section-charcoal" id="expectations">
-        <div class="container">
-          <div class="section-header">
-            <span class="section-eyebrow">Your First Session</span>
-            <h2 class="section-title">Your First Session Is Simple, Structured, And Beginner-Friendly.</h2>
-            <p class="section-subtitle">No pressure, no sparring. Just a clean introduction to the fundamentals of boxing coaching.</p>
-          </div>
-
-          <div class="steps-grid-wrapper">
-            <div class="steps-timeline-line"></div>
-            <div class="steps-grid">
-              <!-- Step 1 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">01</span>
-                  <h3 class="step-title">Talk Through Your Goals</h3>
-                </div>
-                <p class="step-description">We start with a quick assessment of your fitness background, medical history, and what you want to achieve.</p>
-              </div>
-              <!-- Step 2 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">02</span>
-                  <h3 class="step-title">Learn Your Stance</h3>
-                </div>
-                <p class="step-description">We establish your boxing base: orthodox or southpaw, balancing weight correctly, and securing your guard.</p>
-              </div>
-              <!-- Step 3 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">03</span>
-                  <h3 class="step-title">Build Fundamentals</h3>
-                </div>
-                <p class="step-description">Learn the jab and cross, straight punching mechanics, breathing, and basic defensive head movement.</p>
-              </div>
-              <!-- Step 4 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">04</span>
-                  <h3 class="step-title">Work Mitts Or Bag</h3>
-                </div>
-                <p class="step-description">Put your punches to the test. Coach holds focus pads to call out combos, working your distance and timing.</p>
-              </div>
-              <!-- Step 5 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">05</span>
-                  <h3 class="step-title">Condition With Purpose</h3>
-                </div>
-                <p class="step-description">Finish with a solid, boxing-specific conditioning block of core work, interval jumps, or bodyweight exercises.</p>
-              </div>
-              <!-- Step 6 -->
-              <div class="step-card">
-                <div class="step-card-header">
-                  <span class="step-badge">06</span>
-                  <h3 class="step-title">Leave With A Plan</h3>
-                </div>
-                <p class="step-description">We recap the session, analyze technique corrections, and map out a structured roadmap to hit your goals.</p>
-              </div>
-            </div>
+      <!-- 1. CONTACT PAGE HERO -->
+      <section class="subpage-hero">
+        <div class="subpage-hero-content">
+          <span class="hero-eyebrow">Get Started</span>
+          <h1 class="hero-headline">Book Your First Session With Coach Jrob.</h1>
+          <p class="hero-subheadline">Ready to start training? Fill out the form below and Coach Jrob will follow up with you about your goals, availability, and the best training path for you.</p>
+          <div class="hero-ctas">
+            <a href="#booking-form-container" class="btn btn-primary" id="hero-submit-cta">Submit Booking Request</a>
+            <a href="programs.html" class="btn btn-secondary">View Programs</a>
           </div>
         </div>
       </section>
 
       <div class="divider-line"></div>
 
-      <!-- Booking Form Section (Anchor for CTAs) -->
-      <section class="section-dark" id="contact">
-        <div class="container" style="max-width: 650px;">
-          <div class="section-header">
-            <span class="section-eyebrow">Get Started</span>
-            <h2 class="section-title">Book Your First Session</h2>
-            <p class="section-subtitle">Fill out the details below, and Coach Jrob will contact you directly to schedule your introductory session.</p>
+      <!-- 2. CONTACT DETAILS & BOOKING SECTION -->
+      <section class="section-dark" id="booking-section">
+        <div class="container">
+          <div class="contact-grid">
+            
+            <!-- LEFT COLUMN: BOOKING FORM -->
+            <div class="contact-form-container" id="booking-form-container">
+              <div class="contact-form-header">
+                <h3>Start Your Training Request</h3>
+                <p>Share your information, training goals, and availability so Coach Jrob can help guide you toward the right program.</p>
+              </div>
+              
+              <form action="#" class="contact-form" id="booking-request-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="form-name">Full Name</label>
+                    <input type="text" id="form-name" name="name" required placeholder="Your full name">
+                  </div>
+                  <div class="form-group">
+                    <label for="form-email">Email Address</label>
+                    <input type="email" id="form-email" name="email" required placeholder="yourname@example.com">
+                  </div>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="form-phone">Phone Number</label>
+                    <input type="tel" id="form-phone" name="phone" required placeholder="(828) 475-5762">
+                  </div>
+                  <div class="form-group">
+                    <label for="form-path">Training Path</label>
+                    <select id="form-path" name="path">
+                      <option value="Private Boxing Training">Private Boxing Training</option>
+                      <option value="Beginner Boxing">Beginner Boxing</option>
+                      <option value="Youth Boxing">Youth Boxing</option>
+                      <option value="Boxing Fitness">Boxing Fitness</option>
+                      <option value="Fighter Development">Fighter Development</option>
+                      <option value="Small Group Training">Small Group Training</option>
+                      <option value="Not Sure Yet">Not Sure Yet</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="form-msg">Goals &amp; Availability</label>
+                  <textarea id="form-msg" name="goals" rows="6" placeholder="Tell Coach Jrob about your experience, goals, and when you are available to train."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Booking Request</button>
+                
+                <p class="form-note">After submitting, Coach Jrob will follow up using the contact information provided. If the form is not yet connected, please email or call directly.</p>
+              </form>
+            </div>
+            
+            <!-- RIGHT COLUMN: SIDEBAR DETAILS -->
+            <div class="contact-details-sidebar">
+              
+              <!-- SECTION 3: CONTACT INFO -->
+              <div class="contact-info-card">
+                <h3>Contact Coach Jrob</h3>
+                <p>Have questions before booking? Reach out directly and Coach Jrob can help you choose the right training path.</p>
+                <ul class="info-list">
+                  <li class="info-item">
+                    <div class="info-item-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </div>
+                    <div class="info-item-content">
+                      <strong>Phone</strong>
+                      <a href="tel:8284755762">(828) 475-5762</a>
+                    </div>
+                  </li>
+                  <li class="info-item">
+                    <div class="info-item-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </div>
+                    <div class="info-item-content">
+                      <strong>Email</strong>
+                      <a href="mailto:bddboxing@gmail.com">bddboxing@gmail.com</a>
+                    </div>
+                  </li>
+                  <li class="info-item">
+                    <div class="info-item-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="info-item-content">
+                      <strong>Coach</strong>
+                      <span style="font-size: 1.1rem; font-weight: 600; color: var(--off-white);">Coach Jrob</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              
+              <!-- SECTION 4: LOCATION + MAP -->
+              <div class="contact-map-card">
+                <h3>Find BDD Boxing</h3>
+                <p>Training takes place in Hickory, NC. Use the map below to find the location and get directions.</p>
+                <div class="info-list" style="margin-bottom: 1.5rem;">
+                  <li class="info-item">
+                    <div class="info-item-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div class="info-item-content">
+                      <strong>Gym Location</strong>
+                      <address><strong>1012 3rd Ave NW</strong><br>Hickory, NC 28601</address>
+                    </div>
+                  </li>
+                </div>
+                
+                <div class="contact-map-container">
+                  <iframe src="https://maps.google.com/maps?q=1012%203rd%20Ave%20NW%2C%20Hickory%2C%20NC%2028601&t=&z=14&ie=UTF8&iwloc=&output=embed" width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                
+                <a href="https://www.google.com/maps/search/?api=1&query=1012%203rd%20Ave%20NW%2C%20Hickory%2C%20NC%2028601" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm maps-btn" style="display: inline-flex; width: max-content; align-items: center; gap: 0.5rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                  Open in Google Maps
+                </a>
+              </div>
+              
+              <!-- SECTION 5: SOCIAL MEDIA -->
+              <div class="contact-socials-card">
+                <h3>Follow BDD Boxing</h3>
+                <p>Stay connected for training updates, events, videos, and future boxing showcases.</p>
+                <div class="social-grid">
+                  <a href="https://www.facebook.com/people/B-D-D-B-O-X-I-N-G/61590171946987/" target="_blank" rel="noopener noreferrer" class="contact-social-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    Facebook
+                  </a>
+                  <a href="https://www.youtube.com/@BDDBoxing" target="_blank" rel="noopener noreferrer" class="contact-social-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"/><polygon points="10 15 15 12 10 9"/></svg>
+                    YouTube
+                  </a>
+                </div>
+              </div>
+              
+            </div>
+            
           </div>
-
-          <form action="#" style="display: flex; flex-direction: column; gap: 1.5rem;" onsubmit="event.preventDefault(); alert('Session booking request sent! Coach Jrob will contact you shortly.');">
-            <div class="form-row">
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
-                <label for="form-name" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Full Name</label>
-                <input type="text" id="form-name" required placeholder="John Doe" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast);">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
-                <label for="form-email" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Email Address</label>
-                <input type="email" id="form-email" required placeholder="john@example.com" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast);">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
-                <label for="form-phone" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Phone Number</label>
-                <input type="tel" id="form-phone" required placeholder="(123) 456-7890" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast);">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
-                <label for="form-path" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Choose Path</label>
-                <select id="form-path" style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast); cursor: pointer;">
-                  <option value="private">Private Boxing Training (1-on-1)</option>
-                  <option value="beginner">Beginner Boxing (Intro)</option>
-                  <option value="youth">Youth Boxing (Ages 8-16)</option>
-                  <option value="fitness">Boxing Fitness</option>
-                  <option value="fighter">Fighter Development</option>
-                  <option value="group">Small Group Training</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
-              <label for="form-msg" style="font-family: var(--font-headline); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">Your Goals &amp; Availability</label>
-              <textarea id="form-msg" rows="4" placeholder="Tell us about your experience, goals, and when you are free to train..." style="background-color: var(--card-charcoal); border: 1px solid var(--steel-border); color: var(--off-white); padding: 0.85rem; border-radius: 0; outline: none; transition: var(--transition-fast); resize: vertical;"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Submit Booking Request</button>
-          </form>
         </div>
       </section>
 
@@ -267,6 +306,21 @@
           </div>
         </div>
       </section>
+
+      <div class="divider-line"></div>
+
+      <!-- 6. FINAL CTA / REASSURANCE SECTION -->
+      <section class="section-dark" id="reassurance-cta">
+        <div class="container text-center" style="max-width: 800px; text-align: center; margin: 0 auto;">
+          <span class="section-eyebrow">Ready When You Are</span>
+          <h2 class="section-title">Start With Structure. Grow With Purpose.</h2>
+          <p class="section-subtitle" style="margin-bottom: 2.5rem;">Whether you are new to boxing, building confidence, training for fitness, or developing as an athlete, BDD Boxing gives you a focused place to start.</p>
+          <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+            <a href="#booking-form-container" class="btn btn-primary" id="final-submit-cta">Submit Booking Request</a>
+            <a href="schedule.html" class="btn btn-secondary">View Schedule</a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- FOOTER -->
@@ -279,13 +333,10 @@
           </div>
           <p>Structured boxing training and fighter development built on determination, power, and discipline.</p>
           <div class="footer-socials">
-            <a href="#" class="social-icon" aria-label="Instagram">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-            </a>
-            <a href="#" class="social-icon" aria-label="Facebook">
+            <a href="https://www.facebook.com/people/B-D-D-B-O-X-I-N-G/61590171946987/" class="social-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             </a>
-            <a href="#" class="social-icon" aria-label="YouTube">
+            <a href="https://www.youtube.com/@BDDBoxing" class="social-icon" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"/><polygon points="10 15 15 12 10 9"/></svg>
             </a>
           </div>
@@ -333,10 +384,10 @@
               </a>
             </div>
             <div class="footer-contact-item">
-              <span>Email:</span> <a href="mailto:info@bddboxing.com">info@bddboxing.com</a>
+              <span>Email:</span> <a href="mailto:bddboxing@gmail.com">bddboxing@gmail.com</a>
             </div>
             <div class="footer-contact-item">
-              <span>Phone:</span> (Add later)
+              <span>Phone:</span> <a href="tel:8284755762">(828) 475-5762</a>
             </div>
             
             <!-- Real Google Maps Embed Container -->
