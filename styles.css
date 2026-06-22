@@ -8,14 +8,18 @@
 
 :root {
   /* Colors */
-  --black: #090909;
-  --deep-black: #050505;
-  --deep-charcoal: #121212;
-  --card-charcoal: #1A1A1A;
-  --elevated-charcoal: #202020;
-  --steel-border: #2C2C2C;
+  --black: #080808;                   /* Main section black */
+  --deep-black: #050505;              /* Pure black */
+  --deep-charcoal: #111111;           /* Charcoal section */
+  --soft-charcoal: #151515;           /* Softer charcoal section */
+  --card-charcoal: #1a1a1a;           /* Card background start */
+  --card-charcoal-end: #121212;       /* Card background end */
+  --elevated-charcoal: #1E1E1E;       /* Softer elevated charcoal */
+  --steel-border: rgba(255, 255, 255, 0.08); /* Card border */
   --off-white: #F4F4F4;
-  --muted-gray: #A8A8A8;
+  --muted-gray: rgba(255, 255, 255, 0.72);   /* Body text */
+  --secondary-gray: rgba(255, 255, 255, 0.62); /* Secondary copy */
+  --muted-label: rgba(255, 255, 255, 0.52);   /* Muted labels */
   --red-ember: #C43B24;
   --hover-accent: #A92E1C;
   --deep-ember-shadow: #63190F;
@@ -89,6 +93,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 900;
   letter-spacing: 0.05em;
   line-height: 1.1;
+  color: #ffffff;
 }
 
 a {
@@ -477,7 +482,7 @@ header.scrolled {
   height: 100%;
   z-index: 1;
   object-fit: cover;
-  filter: contrast(1.05) brightness(0.55); /* Brighter video for visibility */
+  filter: contrast(1.05) brightness(0.65); /* Brighter video for visibility */
 }
 
 /* Video Autoplay Fallback Styles (Low Power Mode) */
@@ -520,7 +525,7 @@ header.scrolled {
 }
 
 .hero-video-wrapper .video-poster-fallback {
-  filter: contrast(1.05) brightness(0.55);
+  filter: contrast(1.05) brightness(0.65);
 }
 
 .hero-poster-bg {
@@ -532,7 +537,7 @@ header.scrolled {
   z-index: 1;
   background-size: cover;
   background-position: center;
-  filter: contrast(1.05) brightness(0.55);
+  filter: contrast(1.05) brightness(0.65);
 }
 
 .hero-overlay {
@@ -541,10 +546,12 @@ header.scrolled {
   left: 0;
   width: 100%;
   height: 100%;
-  /* Slightly reduced overall darkness in the center, keeping vignette at the edges */
-  background: 
-    radial-gradient(circle at center, rgba(5, 5, 5, 0.05) 0%, rgba(5, 5, 5, 0.75) 95%),
-    linear-gradient(to bottom, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.15) 50%, var(--black) 98%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.48) 45%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
   z-index: 2;
 }
 
@@ -728,11 +735,13 @@ section {
 }
 
 /* Thin Red-Ember Accent Divider Line */
-.divider-line {
+.divider-line,
+.section-divider,
+.section-separator {
   height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, transparent 0%, var(--red-ember) 50%, transparent 100%);
-  opacity: 0.35;
+  background: linear-gradient(90deg, transparent 0%, rgba(202, 59, 36, 0.55) 50%, transparent 100%);
+  opacity: 1;
 }
 
 .container {
@@ -2245,11 +2254,13 @@ section {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('assets/bbd-boxing-ring.jpeg');
+  background-image: 
+    linear-gradient(180deg, rgba(5, 5, 5, 0.58) 0%, rgba(5, 5, 5, 0.68) 100%),
+    url('assets/bbd-boxing-ring.jpeg');
   background-size: cover;
   background-position: center;
-  opacity: 0.22;
-  filter: contrast(1.15) brightness(0.75) grayscale(20%);
+  opacity: 0.45;
+  filter: brightness(1.12) contrast(1.05) grayscale(20%);
   z-index: 1;
 }
 
@@ -3694,5 +3705,67 @@ footer {
     align-self: stretch;
   }
 }
+
+/* --- EXTRA CONTRAST, GLOWS, AND CARD OVERRIDES --- */
+
+/* 1. Global Card Overrides */
+.pillar-card,
+.mission-statement-card,
+.audience-card,
+.transformation-card,
+.subpage-program-card,
+.program-card,
+.coach-photo-card,
+.coach-video-card,
+.philosophy-card,
+.helps-card,
+.step-card,
+.standard-card,
+.testimonial-card,
+.schedule-card,
+.contact-socials-card,
+.not-sure-box,
+.card,
+.training-card,
+.preview-card {
+  background: linear-gradient(180deg, var(--card-charcoal) 0%, var(--card-charcoal-end) 100%) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* 2. Highlighted Card Red Border Override */
+.mission-highlight-card,
+.not-sure-box {
+  border: 1px solid rgba(202, 59, 36, 0.35) !important;
+  border-left: 4px solid var(--red-ember) !important;
+}
+
+/* 3. Radial Background Section Glows */
+#mission,
+#training-announcements,
+#faq {
+  background: radial-gradient(circle at center, rgba(202, 59, 36, 0.06) 0%, transparent 50%), var(--deep-charcoal) !important;
+}
+
+#programs,
+#featured-event,
+#upcoming-showcases,
+#booking-section,
+#reassurance-cta {
+  background: radial-gradient(circle at center, rgba(202, 59, 36, 0.06) 0%, transparent 50%), var(--black) !important;
+}
+
+/* 4. Footer Copy and Links Colors */
+.footer-brand p,
+.footer-links a,
+.footer-contact p,
+.footer-bottom p {
+  color: var(--secondary-gray);
+}
+
+.footer-links a:hover,
+.footer-contact p a:hover {
+  color: var(--red-ember);
+}
+
 
 
