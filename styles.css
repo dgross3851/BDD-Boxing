@@ -196,10 +196,22 @@ img {
 }
 
 .intro-logo-container {
-  width: clamp(300px, 42vw, 620px);
-  max-width: 90%;
+  width: min(70vw, 560px);
+  max-width: 560px;
   text-align: center;
   position: relative;
+}
+
+@media (max-width: 1024px) {
+  .intro-logo-container {
+    width: min(72vw, 440px);
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-logo-container {
+    width: min(78vw, 320px);
+  }
 }
 
 #intro-logo-img {
@@ -2919,7 +2931,7 @@ footer {
   }
   
   .nav-logo img {
-    height: 36px;
+    height: 44px;
   }
   
   .nav-container {
