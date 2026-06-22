@@ -181,8 +181,8 @@ img {
 }
 
 /* --- INTRO EXPERIENCE --- */
+.intro-logo-wrapper,
 .intro-screen,
-.logo-intro,
 .intro-overlay,
 #intro-screen {
   display: flex;
@@ -204,28 +204,28 @@ img {
 }
 
 .intro-logo-container {
-  width: min(78vw, 620px);
-  max-width: 620px;
+  width: min(80vw, 640px);
+  max-width: 640px;
   text-align: center;
   position: relative;
 }
 
 @media (max-width: 1024px) {
   .intro-logo-container {
-    width: min(78vw, 480px);
+    width: min(78vw, 500px);
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .intro-logo-container {
-    width: min(82vw, 340px);
+    width: min(82vw, 360px);
   }
 }
 
 .intro-logo,
 #intro-logo-img {
-  width: min(78vw, 620px);
-  max-width: 620px;
+  width: min(80vw, 640px);
+  max-width: 640px;
   height: auto;
   object-fit: contain;
   display: block;
@@ -238,16 +238,16 @@ img {
 @media (max-width: 1024px) {
   .intro-logo,
   #intro-logo-img {
-    width: min(78vw, 480px);
-    max-width: 480px;
+    width: min(78vw, 500px);
+    max-width: 500px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .intro-logo,
   #intro-logo-img {
-    width: min(82vw, 340px);
-    max-width: 340px;
+    width: min(82vw, 360px);
+    max-width: 360px;
   }
 }
 
@@ -2667,8 +2667,8 @@ footer {
   
   /* Mobile Intro Logo Override */
   .intro-logo-container {
-    width: min(78vw, 480px) !important;
-    max-width: 480px !important;
+    width: min(78vw, 500px) !important;
+    max-width: 500px !important;
   }
   
   .header-cta {
@@ -2931,8 +2931,8 @@ footer {
 @media (max-width: 480px) {
   /* Mobile Intro Logo Override (Smaller Screens) */
   .intro-logo-container {
-    width: min(82vw, 340px) !important;
-    max-width: 340px !important;
+    width: min(82vw, 360px) !important;
+    max-width: 360px !important;
   }
 
   :root {
