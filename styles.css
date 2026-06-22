@@ -47,16 +47,20 @@
   -webkit-font-smoothing: antialiased;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 html {
   scroll-behavior: smooth;
   background-color: var(--black);
   color: var(--off-white);
   font-family: var(--font-body);
-  overflow-x: hidden;
 }
 
 body {
-  overflow-x: hidden;
   position: relative;
   line-height: 1.6;
 }
@@ -102,8 +106,14 @@ a {
   transition: var(--transition-fast);
 }
 
-img {
+img,
+video,
+iframe {
   max-width: 100%;
+  box-sizing: border-box;
+}
+
+img {
   height: auto;
   display: block;
 }
@@ -3765,6 +3775,27 @@ footer {
 .footer-links a:hover,
 .footer-contact p a:hover {
   color: var(--red-ember);
+}
+
+/* 5. Mobile Button Alignments & Centering Override (< 640px) */
+@media (max-width: 640px) {
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .cta-button {
+    width: min(100%, 320px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+    justify-content: center !important;
+    display: inline-flex !important;
+  }
+  
+  #sticky-mobile-cta .btn {
+    width: 100% !important;
+    max-width: none !important;
+    display: flex !important;
+  }
 }
 
 
