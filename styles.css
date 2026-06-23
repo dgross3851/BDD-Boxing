@@ -16,6 +16,7 @@
   --card-charcoal-end: #121212;       /* Card background end */
   --elevated-charcoal: #1E1E1E;       /* Softer elevated charcoal */
   --steel-border: rgba(255, 255, 255, 0.08); /* Card border */
+  --steel-gray: rgba(255, 255, 255, 0.18);   /* Secondary button / scrollbar border */
   --off-white: #F4F4F4;
   --muted-gray: rgba(255, 255, 255, 0.72);   /* Body text */
   --secondary-gray: rgba(255, 255, 255, 0.62); /* Secondary copy */
@@ -89,6 +90,11 @@ body::before {
   background-position: 0 0, 12px 12px;
   opacity: 0.08;
   pointer-events: none;
+}
+
+h1, h2, h3, h4, h5, h6, p, a, span, li {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -445,6 +451,8 @@ header.scrolled {
   flex-direction: column;
   gap: 6px;
   z-index: 1001;
+  padding: 12px;
+  margin-right: -12px;
 }
 
 .mobile-menu-toggle span {
@@ -2640,6 +2648,10 @@ footer {
     --section-padding: 72px 24px;
   }
   
+  .subpage-hero {
+    padding: 7rem 0 4rem 0;
+  }
+  
   /* Mobile Navigation */
   .mobile-menu-toggle {
     display: flex;
@@ -2796,7 +2808,7 @@ footer {
   }
   
   /* Grids */
-  .pillars-grid, .steps-grid, .testimonials-grid, .programs-grid {
+  .pillars-grid, .steps-grid, .testimonials-grid, .programs-grid, .subpage-programs-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
@@ -2958,6 +2970,17 @@ footer {
 
   :root {
     --section-padding: 64px 20px;
+  }
+
+  .subpage-hero {
+    padding: 6rem 0 3rem 0;
+  }
+  .subpage-hero .hero-headline {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+  .hero-headline, .hero-title {
+    font-size: clamp(1.8rem, 9vw, 2.5rem) !important;
+    line-height: 1.15 !important;
   }
 
   .gallery-grid,
@@ -3616,27 +3639,29 @@ footer {
 }
 
 /* --- EVENTS PAGE SPECIFIC STYLES --- */
+.event-preview-card,
+.featured-event-card,
 .event-featured-split {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2.5rem;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+  gap: 48px;
   align-items: center;
   background: linear-gradient(135deg, var(--card-charcoal) 0%, var(--deep-charcoal) 100%);
   border: 1px solid var(--steel-border);
   padding: 3rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   text-align: left;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
-@media (min-width: 992px) {
+@media (max-width: 900px) {
+  .event-preview-card,
+  .featured-event-card,
   .event-featured-split {
-    grid-template-columns: 1fr 1.1fr;
-    gap: 4rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .event-featured-split {
+    grid-template-columns: 1fr !important;
+    gap: 28px;
+    text-align: center;
     padding: 2rem 1.25rem;
   }
 }
@@ -3650,6 +3675,9 @@ footer {
   position: relative;
   transition: var(--transition-normal);
   background-color: var(--black);
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
 }
 
 .event-image-container:hover {
@@ -3657,12 +3685,27 @@ footer {
   box-shadow: 0 0 25px rgba(196, 59, 36, 0.35);
 }
 
+.event-flyer,
+.event-preview-image,
+.featured-event-image,
 .event-flyer-img {
   width: 100%;
+  max-width: 420px;
   height: auto;
-  max-height: 480px;
-  object-fit: contain;
   display: block;
+  object-fit: contain;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 12px;
+}
+
+@media (max-width: 640px) {
+  .event-flyer,
+  .event-preview-image,
+  .featured-event-image,
+  .event-flyer-img {
+    max-width: 100%;
+  }
 }
 
 .event-details-content {
@@ -3670,6 +3713,13 @@ footer {
   flex-direction: column;
   gap: 1.5rem;
   text-align: left;
+}
+
+@media (max-width: 900px) {
+  .event-details-content {
+    align-items: center;
+    text-align: center;
+  }
 }
 
 .event-details-content h3 {
@@ -3689,6 +3739,7 @@ footer {
   gap: 1rem;
   border-left: 2px solid var(--red-ember);
   padding-left: 1rem;
+  text-align: left;
 }
 
 .event-meta-item strong {
@@ -3704,6 +3755,31 @@ footer {
 .event-meta-item span {
   font-weight: 500;
   color: var(--off-white);
+}
+
+.event-actions,
+.event-cta-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .event-actions,
+  .event-cta-group {
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .event-actions .btn,
+  .event-cta-group .btn {
+    width: min(100%, 320px) !important;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 .event-cta {

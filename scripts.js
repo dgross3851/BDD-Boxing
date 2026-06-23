@@ -68,6 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
       });
     });
+
+    // Close menu when clicking outside of it
+    document.addEventListener('click', (e) => {
+      if (navMenu.classList.contains('open') && 
+          !navMenu.contains(e.target) && 
+          !mobileMenuBtn.contains(e.target)) {
+        navMenu.classList.remove('open');
+        mobileMenuBtn.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
   }
 
   // 5. FAQ ACCORDION LOGIC
