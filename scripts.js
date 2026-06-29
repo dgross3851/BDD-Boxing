@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroVideo = document.querySelector(".hero-video");
   const trainingVideo = document.querySelector(".training-hero-video");
   const coachVideo = document.querySelector(".coach-video");
-  const motionVideos = document.querySelectorAll(".training-motion-video");
+  const motionVideos = document.querySelectorAll(".training-motion-video, .training-motion-video-bg");
 
   const setupVideo = (video) => {
     if (!video) return;
