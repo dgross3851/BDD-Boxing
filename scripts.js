@@ -392,18 +392,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let currentSlideIndex = 0;
     
+    // Play background video of the initial active slide
+    const initialBgVideo = slides[0]?.querySelector('.testimonial-video-bg');
+    if (initialBgVideo) {
+      initialBgVideo.play().catch(err => {
+        console.log("Initial bg video autoplay blocked: ", err);
+      });
+    }
+    
     const showSlide = (index) => {
       // Bounds check
       let targetIndex = index;
       if (targetIndex < 0) targetIndex = slides.length - 1;
       if (targetIndex >= slides.length) targetIndex = 0;
       
-      // Stop and pause the previous active video
-      const activeSlide = slides[currentSlideIndex];
-      const activeVideo = activeSlide?.querySelector('.testimonial-video-player');
-      if (activeVideo) {
-        activeVideo.pause();
-      }
+      // Stop and pause the previous active video players
+      const oldActiveSlide = slides[currentSlideIndex];
+      const oldMainVideo = oldActiveSlide?.querySelector('.testimonial-video-main');
+      const oldBgVideo = oldActiveSlide?.querySelector('.testimonial-video-bg');
+      if (oldMainVideo) oldMainVideo.pause();
+      if (oldBgVideo) oldBgVideo.pause();
       
       // Remove active class from old slide and dot
       slides[currentSlideIndex]?.classList.remove('active');
@@ -415,6 +423,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add active class to new slide and dot
       slides[currentSlideIndex]?.classList.add('active');
       dots[currentSlideIndex]?.classList.add('active');
+      
+      // Auto-play the new active slide's background video (which is muted and loops)
+      const newActiveSlide = slides[currentSlideIndex];
+      const newBgVideo = newActiveSlide?.querySelector('.testimonial-video-bg');
+      if (newBgVideo) {
+        newBgVideo.play().catch(err => {
+          console.log("Background video autoplay blocked: ", err);
+        });
+      }
     };
     
     if (prevBtn) {

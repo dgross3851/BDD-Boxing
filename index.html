@@ -359,42 +359,53 @@
 
         <div class="testimonials-carousel-wrapper">
           <!-- Previous Control Button -->
-          <button class="carousel-control prev" aria-label="Previous testimonial" id="testimonial-prev">
+          <button class="testimonial-arrow prev" aria-label="Previous testimonial" id="testimonial-prev">
             &larr;
           </button>
 
-          <!-- Carousel Slides Container -->
-          <div class="testimonials-carousel-container">
-            <!-- Testimonial Slide 1 -->
-            <div class="testimonial-slide active" data-index="0">
-              <div class="testimonial-video-card">
-                <video class="testimonial-video-player" controls playsinline preload="metadata" aria-label="Testimonial 1">
-                  <source src="assets/testimonial-one.mp4" type="video/mp4">
-                </video>
+          <!-- Carousel Frame Container -->
+          <div class="testimonial-carousel-frame">
+            <div class="testimonials-carousel-container">
+              <!-- Testimonial Slide 1 -->
+              <div class="testimonial-slide active" data-index="0">
+                <div class="testimonial-video-stage">
+                  <video class="testimonial-video-bg" muted loop playsinline preload="metadata">
+                    <source src="assets/testimonial-one.mp4" type="video/mp4">
+                  </video>
+                  <video class="testimonial-video-main" controls playsinline preload="metadata" aria-label="Testimonial 1">
+                    <source src="assets/testimonial-one.mp4" type="video/mp4">
+                  </video>
+                </div>
               </div>
-            </div>
 
-            <!-- Testimonial Slide 2 -->
-            <div class="testimonial-slide" data-index="1">
-              <div class="testimonial-video-card">
-                <video class="testimonial-video-player" controls playsinline preload="metadata" aria-label="Testimonial 2">
-                  <source src="assets/testimonial-two.mp4" type="video/mp4">
-                </video>
+              <!-- Testimonial Slide 2 -->
+              <div class="testimonial-slide" data-index="1">
+                <div class="testimonial-video-stage">
+                  <video class="testimonial-video-bg" muted loop playsinline preload="metadata">
+                    <source src="assets/testimonial-two.mp4" type="video/mp4">
+                  </video>
+                  <video class="testimonial-video-main" controls playsinline preload="metadata" aria-label="Testimonial 2">
+                    <source src="assets/testimonial-two.mp4" type="video/mp4">
+                  </video>
+                </div>
               </div>
-            </div>
 
-            <!-- Testimonial Slide 3 -->
-            <div class="testimonial-slide" data-index="2">
-              <div class="testimonial-video-card">
-                <video class="testimonial-video-player" controls playsinline preload="metadata" aria-label="Testimonial 3">
-                  <source src="assets/testimonial-three.mp4" type="video/mp4">
-                </video>
+              <!-- Testimonial Slide 3 -->
+              <div class="testimonial-slide" data-index="2">
+                <div class="testimonial-video-stage">
+                  <video class="testimonial-video-bg" muted loop playsinline preload="metadata">
+                    <source src="assets/testimonial-three.mp4" type="video/mp4">
+                  </video>
+                  <video class="testimonial-video-main" controls playsinline preload="metadata" aria-label="Testimonial 3">
+                    <source src="assets/testimonial-three.mp4" type="video/mp4">
+                  </video>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Next Control Button -->
-          <button class="carousel-control next" aria-label="Next testimonial" id="testimonial-next">
+          <button class="testimonial-arrow next" aria-label="Next testimonial" id="testimonial-next">
             &rarr;
           </button>
         </div>
