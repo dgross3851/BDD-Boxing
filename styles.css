@@ -4374,5 +4374,70 @@ footer {
   }
 }
 
+/* --- SITEWIDE MOBILE QA & RESPONSIVE POLISH --- */
+h1,
+.hero-title,
+.section-title {
+  line-height: 0.95;
+}
+
+@media (max-width: 768px) {
+  section,
+  .section-dark,
+  .section-charcoal {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .testimonial-video-stage,
+  .testimonials-carousel-container {
+    aspect-ratio: 9 / 16 !important;
+    max-height: 72vh !important;
+  }
+}
+
+@media (max-width: 640px) {
+  h1,
+  .hero-title {
+    font-size: clamp(2.35rem, 12vw, 4rem) !important;
+    line-height: 0.95 !important;
+  }
+
+  .section-title {
+    font-size: clamp(2.00rem, 9vw, 3rem) !important;
+    line-height: 1.05 !important;
+  }
+
+  p,
+  .section-copy,
+  .section-subtitle {
+    font-size: 0.98rem !important;
+    line-height: 1.65 !important;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .cta-button {
+    width: min(100%, 320px) !important;
+    min-height: 48px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+    display: inline-flex !important;
+  }
+
+  .button-group,
+  .cta-group,
+  .hero-actions,
+  .hero-ctas,
+  .final-cta-buttons {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+}
+
 
 
