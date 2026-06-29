@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 7. VIDEO AUTOPLAY FALLBACK & COMPATIBILITY
   const heroVideo = document.querySelector(".hero-video");
+  const trainingVideo = document.querySelector(".training-hero-video");
   const coachVideo = document.querySelector(".coach-video");
 
   const setupVideo = (video) => {
@@ -178,9 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   setupVideo(heroVideo);
+  setupVideo(trainingVideo);
   setupVideo(coachVideo);
 
   tryPlay(heroVideo);
+  tryPlay(trainingVideo);
   tryPlay(coachVideo);
 
   const retryCoachVideo = () => {

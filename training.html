@@ -72,8 +72,14 @@
 
     <main class="subpage-container">
       <!-- 1. TRAINING PAGE HERO -->
-      <section class="subpage-hero">
-        <div class="subpage-hero-content">
+      <section class="subpage-hero training-hero video-wrapper">
+        <video class="training-hero-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" id="training-hero-video" aria-hidden="true">
+          <source src="assets/bdd-boxing-training-page-video.mp4" type="video/mp4">
+        </video>
+        <div class="video-poster-fallback" style="background-image: url('assets/bbd-boxing-logo-metadata.png');"></div>
+        <div class="training-hero-overlay"></div>
+
+        <div class="subpage-hero-content training-hero-content">
           <span class="hero-eyebrow">Inside The Training</span>
           <h1 class="hero-headline">Real Boxing. Real Structure. Real Growth.</h1>
           <p class="hero-subheadline">BDD Boxing training is built around fundamentals, discipline, conditioning, confidence, and controlled progress. Every session is designed to help students move better, think sharper, and grow stronger inside and outside the gym.</p>
