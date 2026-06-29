@@ -308,19 +308,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 10. TRAINING MOTION VIDEOS MOBILE TAP REVEAL
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (isTouchDevice) {
-    const motionCards = document.querySelectorAll(".training-motion-card");
+  // 10. VIDEO LIGHTBOX MODAL
+  const videoLightbox = document.getElementById('video-lightbox');
+  const videoLightboxPlayer = videoLightbox?.querySelector('.video-lightbox-player');
+  const videoLightboxClose = videoLightbox?.querySelector('.video-lightbox-close');
+  const videoLightboxBackdrop = videoLightbox?.querySelector('.video-lightbox-backdrop');
+  
+  if (videoLightbox && videoLightboxPlayer) {
+    const motionCards = document.querySelectorAll('.training-motion-card');
+    
     motionCards.forEach(card => {
-      card.addEventListener("click", function(e) {
-        motionCards.forEach(otherCard => {
-          if (otherCard !== card) {
-            otherCard.classList.remove("is-active");
-          }
-        });
-        card.classList.toggle("is-active");
+      card.addEventListener('click', (e) => {
+        const video = card.querySelector('.training-motion-video');
+        const source = video?.querySelector('source');
+        const videoSrc = source ? source.getAttribute('src') : video?.getAttribute('src');
+        
+        if (videoSrc) {
+          e.stopPropagation();
+          videoLightboxPlayer.src = videoSrc;
+          videoLightbox.removeAttribute('hidden');
+          // Trigger reflow
+          videoLightbox.offsetHeight;
+          videoLightbox.classList.add('open');
+          document.body.style.overflow = 'hidden'; // Lock background scroll
+          
+          videoLightboxPlayer.play().catch(err => {
+            console.log("Auto-playing modal video was blocked: ", err);
+          });
+        }
       });
+    });
+    
+    const closeVideoLightbox = () => {
+      videoLightbox.classList.remove('open');
+      document.body.style.overflow = ''; // Restore scroll
+      
+      videoLightboxPlayer.pause();
+      
+      // Wait for CSS transition
+      setTimeout(() => {
+        if (!videoLightbox.classList.contains('open')) {
+          videoLightbox.setAttribute('hidden', '');
+          videoLightboxPlayer.src = ''; // Clear source
+        }
+      }, 400);
+    };
+    
+    if (videoLightboxClose) {
+      videoLightboxClose.addEventListener('click', closeVideoLightbox);
+    }
+    
+    if (videoLightboxBackdrop) {
+      videoLightboxBackdrop.addEventListener('click', closeVideoLightbox);
+    }
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && videoLightbox.classList.contains('open')) {
+        closeVideoLightbox();
+      }
     });
   }
 });

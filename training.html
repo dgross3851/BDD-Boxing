@@ -120,35 +120,31 @@
           <div class="training-motion-grid">
             <!-- Video 1 -->
             <div class="training-motion-card video-wrapper">
-              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip - Heavy Bag Work">
+              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip">
                 <source src="assets/boxing-training-one.mp4" type="video/mp4">
               </video>
               <div class="video-poster-fallback" style="background-image: url('assets/bbd-boxing-logo-metadata.png');"></div>
-              <span class="video-label-tag">Heavy Bag Work</span>
             </div>
             <!-- Video 2 -->
             <div class="training-motion-card video-wrapper">
-              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip - Youth & Women's Training">
+              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip">
                 <source src="assets/boxing-training-two.mp4" type="video/mp4">
               </video>
               <div class="video-poster-fallback" style="background-image: url('assets/bbd-boxing-logo-metadata.png');"></div>
-              <span class="video-label-tag">Youth & Women’s Training</span>
             </div>
             <!-- Video 3 -->
             <div class="training-motion-card video-wrapper">
-              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip - Coach-Led Fundamentals">
+              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip">
                 <source src="assets/boxing-training-three.mp4" type="video/mp4">
               </video>
               <div class="video-poster-fallback" style="background-image: url('assets/bbd-boxing-logo-metadata.png');"></div>
-              <span class="video-label-tag">Coach-Led Fundamentals</span>
             </div>
             <!-- Video 4 -->
             <div class="training-motion-card video-wrapper">
-              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip - Boxing For All Ages">
+              <video class="training-motion-video" autoplay muted loop playsinline webkit-playsinline preload="metadata" poster="assets/hero_bg.png" aria-label="BDD Boxing training video clip">
                 <source src="assets/boxing-training-four.mp4" type="video/mp4">
               </video>
               <div class="video-poster-fallback" style="background-image: url('assets/bbd-boxing-logo-metadata.png');"></div>
-              <span class="video-label-tag">Boxing For All Ages</span>
             </div>
           </div>
 
@@ -393,6 +389,15 @@
   <div id="gallery-lightbox" class="lightbox-modal">
     <span class="lightbox-close">&times;</span>
     <img class="lightbox-content" id="lightbox-img" src="" alt="Enlarged boxing training photo">
+  </div>
+
+  <!-- Video Lightbox Modal Overlay -->
+  <div id="video-lightbox" class="video-lightbox" hidden>
+    <div class="video-lightbox-backdrop"></div>
+    <div class="video-lightbox-content">
+      <button class="video-lightbox-close" aria-label="Close video">&times;</button>
+      <video class="video-lightbox-player" controls muted playsinline loop></video>
+    </div>
   </div>
 
   <!-- JavaScript -->
