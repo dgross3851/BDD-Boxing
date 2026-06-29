@@ -2389,11 +2389,14 @@ section {
 
 .testimonial-video-main {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   height: 100%;
   object-fit: contain;
   background: transparent;
+  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Control Buttons */
@@ -3132,8 +3135,50 @@ footer {
     grid-column: span 2;
     grid-row: 1;
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border-radius: 16px;
+  }
+
+  .testimonials-carousel-container {
+    width: 100%;
+    aspect-ratio: 9 / 16 !important;
+    max-height: 68vh !important;
+    min-height: 420px !important;
+  }
+
+  .testimonial-video-stage {
+    width: 100%;
+    aspect-ratio: 9 / 16 !important;
+    max-height: 68vh !important;
+    min-height: 420px !important;
+    overflow: hidden;
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at center, rgba(202, 59, 36, 0.12), transparent 48%),
+      #050505;
+  }
+
+  .testimonial-video-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at center, rgba(202, 59, 36, 0.16), transparent 50%),
+      linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.2)) !important;
+    opacity: 0.55 !important;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .testimonial-video-main {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    background: transparent;
+    z-index: 2;
+    position: relative;
   }
 
   .testimonial-arrow.prev {
@@ -4387,12 +4432,6 @@ h1,
   .section-charcoal {
     padding-left: 20px !important;
     padding-right: 20px !important;
-  }
-
-  .testimonial-video-stage,
-  .testimonials-carousel-container {
-    aspect-ratio: 9 / 16 !important;
-    max-height: 72vh !important;
   }
 }
 

@@ -392,6 +392,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let currentSlideIndex = 0;
     
+    // Auto-load/preload the first testimonial video to guarantee first frame paints on mobile Safari
+    const initialVideo = slides[0]?.querySelector('.testimonial-video-main');
+    if (initialVideo) {
+      initialVideo.setAttribute('preload', 'auto');
+      initialVideo.load();
+    }
+    
     const showSlide = (index) => {
       // Bounds check
       let targetIndex = index;
@@ -401,7 +408,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Stop and pause the previous active video player
       const oldActiveSlide = slides[currentSlideIndex];
       const oldMainVideo = oldActiveSlide?.querySelector('.testimonial-video-main');
-      if (oldMainVideo) oldMainVideo.pause();
+      if (oldMainVideo) {
+        oldMainVideo.pause();
+        oldMainVideo.setAttribute('preload', 'metadata');
+      }
       
       // Remove active class from old slide and dot
       slides[currentSlideIndex]?.classList.remove('active');
@@ -413,6 +423,14 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add active class to new slide and dot
       slides[currentSlideIndex]?.classList.add('active');
       dots[currentSlideIndex]?.classList.add('active');
+      
+      // Preload and initialize the new active video player so it displays correctly on mobile
+      const newActiveSlide = slides[currentSlideIndex];
+      const newMainVideo = newActiveSlide?.querySelector('.testimonial-video-main');
+      if (newMainVideo) {
+        newMainVideo.setAttribute('preload', 'auto');
+        newMainVideo.load();
+      }
     };
     
     if (prevBtn) {
