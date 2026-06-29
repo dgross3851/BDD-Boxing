@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroVideo = document.querySelector(".hero-video");
   const trainingVideo = document.querySelector(".training-hero-video");
   const coachVideo = document.querySelector(".coach-video");
+  const motionVideos = document.querySelectorAll(".training-motion-video");
 
   const setupVideo = (video) => {
     if (!video) return;
@@ -181,10 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
   setupVideo(heroVideo);
   setupVideo(trainingVideo);
   setupVideo(coachVideo);
+  motionVideos.forEach(video => setupVideo(video));
 
   tryPlay(heroVideo);
   tryPlay(trainingVideo);
   tryPlay(coachVideo);
+  motionVideos.forEach(video => tryPlay(video));
 
   const retryCoachVideo = () => {
     setupVideo(coachVideo);
@@ -304,4 +307,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  // 10. TRAINING MOTION VIDEOS MOBILE TAP REVEAL
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice) {
+    const motionCards = document.querySelectorAll(".training-motion-card");
+    motionCards.forEach(card => {
+      card.addEventListener("click", function(e) {
+        motionCards.forEach(otherCard => {
+          if (otherCard !== card) {
+            otherCard.classList.remove("is-active");
+          }
+        });
+        card.classList.toggle("is-active");
+      });
+    });
+  }
 });
