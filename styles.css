@@ -2301,6 +2301,120 @@ section {
   transform: scale(1.05);
 }
 
+/* --- TESTIMONIAL VIDEO CAROUSEL --- */
+.testimonials-section {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(202, 59, 36, 0.05) 0%, transparent 60%), var(--deep-charcoal) !important;
+}
+
+.testimonials-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 960px;
+  margin: 40px auto 20px auto;
+  gap: 24px;
+}
+
+.testimonials-carousel-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+    #050505;
+  border: 1px solid rgba(202, 59, 36, 0.28);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+  aspect-ratio: 16 / 9;
+}
+
+.testimonial-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  z-index: 1;
+}
+
+.testimonial-slide.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+}
+
+.testimonial-video-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+}
+
+.testimonial-video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Control Buttons */
+.carousel-control {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--steel-border);
+  color: var(--off-white);
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+
+.carousel-control:hover {
+  background-color: var(--red-ember);
+  border-color: var(--red-ember);
+  color: var(--white);
+  transform: scale(1.05);
+}
+
+/* Dot Indicators */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.carousel-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--steel-gray);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.carousel-dot.active {
+  background-color: var(--red-ember);
+  transform: scale(1.15);
+}
+
 
 /* --- LIGHTBOX MODAL OVERLAY --- */
 .lightbox-modal {
@@ -2973,6 +3087,38 @@ footer {
   .video-lightbox-player {
     width: 100%;
     max-height: 80vh;
+  }
+
+  .testimonials-carousel-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    width: min(100%, 94vw);
+    gap: 16px 20px;
+    margin: 24px auto 16px auto;
+  }
+
+  .testimonials-carousel-container {
+    grid-column: span 2;
+    grid-row: 1;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .carousel-control.prev {
+    grid-row: 2;
+    grid-column: 1;
+    justify-self: end;
+    width: 44px;
+    height: 44px;
+  }
+
+  .carousel-control.next {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+    width: 44px;
+    height: 44px;
   }
   
   /* Mobile Navigation */

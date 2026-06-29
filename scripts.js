@@ -368,4 +368,71 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 11. HOMEPAGE TESTIMONIAL VIDEO CAROUSEL
+  const testimonialContainer = document.querySelector('.testimonials-carousel-container');
+  const dotsContainer = document.querySelector('.carousel-dots');
+  
+  if (testimonialContainer && dotsContainer) {
+    const slides = Array.from(testimonialContainer.querySelectorAll('.testimonial-slide'));
+    const prevBtn = document.getElementById('testimonial-prev');
+    const nextBtn = document.getElementById('testimonial-next');
+    
+    // Clear any hardcoded indicators
+    dotsContainer.innerHTML = '';
+    
+    // Dynamically generate dot indicators for accessibility and future-proofing
+    const dots = slides.map((slide, index) => {
+      const dot = document.createElement('button');
+      dot.className = index === 0 ? 'carousel-dot active' : 'carousel-dot';
+      dot.setAttribute('aria-label', `Go to testimonial slide ${index + 1}`);
+      dotsContainer.appendChild(dot);
+      return dot;
+    });
+    
+    let currentSlideIndex = 0;
+    
+    const showSlide = (index) => {
+      // Bounds check
+      let targetIndex = index;
+      if (targetIndex < 0) targetIndex = slides.length - 1;
+      if (targetIndex >= slides.length) targetIndex = 0;
+      
+      // Stop and pause the previous active video
+      const activeSlide = slides[currentSlideIndex];
+      const activeVideo = activeSlide?.querySelector('.testimonial-video-player');
+      if (activeVideo) {
+        activeVideo.pause();
+      }
+      
+      // Remove active class from old slide and dot
+      slides[currentSlideIndex]?.classList.remove('active');
+      dots[currentSlideIndex]?.classList.remove('active');
+      
+      // Update index
+      currentSlideIndex = targetIndex;
+      
+      // Add active class to new slide and dot
+      slides[currentSlideIndex]?.classList.add('active');
+      dots[currentSlideIndex]?.classList.add('active');
+    };
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        showSlide(currentSlideIndex - 1);
+      });
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        showSlide(currentSlideIndex + 1);
+      });
+    }
+    
+    dots.forEach((dot, idx) => {
+      dot.addEventListener('click', () => {
+        showSlide(idx);
+      });
+    });
+  }
 });
