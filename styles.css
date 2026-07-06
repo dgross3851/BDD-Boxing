@@ -2237,7 +2237,9 @@ section {
   border: 1px solid rgba(255,255,255,0.12);
 }
 
-.training-social-links .facebook-link {
+.training-social-links .facebook-link,
+.training-social-links .instagram-link,
+.training-social-links .tiktok-link {
   background: rgba(255,255,255,0.04);
   color: #fff;
   border: 1px solid rgba(255,255,255,0.14);
@@ -2245,6 +2247,10 @@ section {
 
 .training-social-links a:hover {
   transform: translateY(-2px);
+}
+
+.footer-payment a:hover {
+  color: var(--red-ember) !important;
 }
 
 /* --- VIDEO LIGHTBOX MODAL OVERLAY --- */
