@@ -1243,6 +1243,32 @@ section {
   width: 100%;
 }
 
+.program-pricing {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid rgba(202, 59, 36, 0.28);
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 8px;
+}
+
+.pricing-label {
+  display: block;
+  color: var(--red-ember);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+
+.pricing-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: var(--off-white);
+  font-weight: 800;
+}
+
 /* --- NOT SURE WHERE TO START SECTION --- */
 .not-sure-box {
   max-width: 800px;
