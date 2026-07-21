@@ -438,9 +438,16 @@ header.scrolled {
   width: 100%;
 }
 
+.header-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .header-cta .btn {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
 }
 
 /* Mobile Menu Button */
@@ -3671,8 +3678,8 @@ footer {
     padding: 0.75rem 1.5rem;
   }
   .header-cta .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.85rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.75rem;
   }
 }
 

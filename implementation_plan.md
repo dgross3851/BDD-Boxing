@@ -236,9 +236,11 @@ Admin testing dashboard (protected, `role = 'admin'` required) displaying:
 
 ## Phase 1 Extension: Profile Page & Dropdown Checklist
 
-- [ ] Create `src/pages/Profile.jsx` allowing users of any role type to view and edit their profile.
-- [ ] Create `src/components/AvatarDropdown.jsx` (or inline dropdown in navigation) showing option to link to Profile page and Log Out.
-- [ ] Replace standard Log Out button on User & Admin dashboards with the new Avatar Dropdown menu.
-- [ ] Add route `/profile` in `src/App.jsx` pointing to Profile page (protected by `ProtectedRoute`).
-- [ ] Verify profile updates dynamically save to the `public.profiles` table in Supabase.
+- [x] Create `src/pages/Profile.jsx` allowing users of any role type to view and edit their profile.
+- [x] Create `src/components/AvatarDropdown.jsx` (or inline dropdown in navigation) showing option to link to Profile page and Log Out.
+- [x] Replace standard Log Out button on User & Admin dashboards with the new Avatar Dropdown menu.
+- [x] Add route `/profile` in `src/App.jsx` pointing to Profile page (protected by `ProtectedRoute`).
+- [x] Verify profile updates dynamically save to the `public.profiles` table in Supabase.
+- [x] Add Login button next to the Book Session button in all 7 public website page headers.
+- [x] Style header-cta buttons in styles.css to be smaller and align horizontally as a flex container.
 
