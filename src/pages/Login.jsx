@@ -25,10 +25,8 @@ export const Login = () => {
       setSubmitting(true);
       const data = await signIn({ email, password });
       
-      // Check role and navigate
       if (data?.user) {
-        // Fetch profile role logic handles redirect in AuthContext / Route Guard
-        navigate('/dashboard');
+        window.location.href = '/index.html';
       }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid login credentials. Please check your email and password.');

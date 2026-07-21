@@ -451,4 +451,134 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // 12. SUPABASE SESSION SYNC & AVATAR DROPDOWN
+  const initSupabaseAuth = async () => {
+    const loadSupabase = () => {
+      return new Promise((resolve, reject) => {
+        if (window.supabase) {
+          resolve(window.supabase);
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = () => resolve(window.supabase);
+        script.onerror = (err) => reject(err);
+        document.head.appendChild(script);
+      });
+    };
+
+    try {
+      const supabaseModule = await loadSupabase();
+      if (!supabaseModule) return;
+
+      const supabaseUrl = 'https://lmrpuxeossmzrnwwpiyc.supabase.co';
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxtcnB1eGVvc3NtenJud3dwaXljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjYxMTMsImV4cCI6MjA5OTUwMjExM30.EoUN4M6NBtpi0c6SjJArIL1MMEUjUgjgo8lhnjq8ckc';
+      const supabaseClient = supabaseModule.createClient(supabaseUrl, supabaseAnonKey);
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (session) {
+        // Fetch user profile info
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        const role = profile?.role || 'user';
+        const fullName = profile?.full_name || 'Fighter';
+        const email = session.user.email;
+        
+        // Get initials
+        let initials = 'U';
+        if (fullName) {
+          const parts = fullName.trim().split(/\s+/);
+          if (parts.length === 1) {
+            initials = parts[0].slice(0, 2).toUpperCase();
+          } else {
+            initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          }
+        }
+
+        const dashboardUrl = role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard';
+
+        // Find header login button and replace it with the avatar dropdown
+        const loginBtn = document.getElementById('header-login-btn');
+        if (loginBtn) {
+          const container = document.createElement('div');
+          container.className = 'avatar-dropdown-container';
+          container.style.cssText = 'position: relative; display: inline-block;';
+
+          container.innerHTML = `
+            <button class="avatar-dropdown-btn" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; cursor: pointer; padding: 0 4px; outline: none; height: 34px;">
+              <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">
+                ${initials}
+              </div>
+              <svg class="chevron-icon" style="width: 12px; height: 12px; color: #888; transition: transform 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="avatar-menu" style="display: none; position: absolute; right: 0; margin-top: 8px; width: 220px; background-color: #121212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; overflow: hidden; text-align: left;">
+              <div style="padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="font-weight: 600; color: #fff; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${fullName}
+                </div>
+                <div style="font-size: 12px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;">
+                  ${email}
+                </div>
+              </div>
+              <div style="padding: 4px; display: flex; flex-direction: column;">
+                <a href="portal.html#/profile" onmouseenter="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseleave="this.style.backgroundColor='transparent'" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ddd; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; transition: background-color 0.2s;">
+                  <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Profile
+                </a>
+                <a href="${dashboardUrl}" onmouseenter="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseleave="this.style.backgroundColor='transparent'" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ddd; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; transition: background-color 0.2s;">
+                  <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+                  Dashboard
+                </a>
+                <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 4px 0;" />
+                <button class="logout-btn" onmouseenter="this.style.backgroundColor='rgba(202,59,36,0.1)'" onmouseleave="this.style.backgroundColor='transparent'" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ff8a7a; background: transparent; border: none; text-align: left; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">
+                  <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  Log Out
+                </button>
+              </div>
+            </div>
+          `;
+
+          loginBtn.parentNode.insertBefore(container, loginBtn);
+          loginBtn.parentNode.removeChild(loginBtn);
+
+          // Add toggle event listeners
+          const toggleBtn = container.querySelector('.avatar-dropdown-btn');
+          const menu = container.querySelector('.avatar-menu');
+          const chevron = container.querySelector('.chevron-icon');
+
+          toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = menu.style.display === 'block';
+            menu.style.display = isVisible ? 'none' : 'block';
+            chevron.style.transform = isVisible ? 'none' : 'rotate(180deg)';
+          });
+
+          document.addEventListener('click', () => {
+            menu.style.display = 'none';
+            chevron.style.transform = 'none';
+          });
+
+          menu.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+
+          const logoutBtn = container.querySelector('.logout-btn');
+          logoutBtn.addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = '/index.html';
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to sync auth session:', err);
+    }
+  };
+
+  initSupabaseAuth();
 });

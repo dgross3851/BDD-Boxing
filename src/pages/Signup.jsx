@@ -25,7 +25,7 @@ export const Signup = () => {
     try {
       setSubmitting(true);
       await signUp({ email, password, fullName, phone });
-      navigate('/dashboard');
+      window.location.href = '/index.html';
     } catch (err) {
       setErrorMsg(err.message || 'Failed to create account. Please try again.');
     } finally {

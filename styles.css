@@ -396,6 +396,7 @@ header.scrolled {
 
 .nav-menu {
   display: flex;
+  align-items: center;
   list-style: none;
   gap: 2rem;
 }
@@ -445,9 +446,14 @@ header.scrolled {
 }
 
 .header-cta .btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Mobile Menu Button */

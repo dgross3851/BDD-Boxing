@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { User, LogOut, Shield, ChevronDown, LayoutDashboard } from 'lucide-react';
 
 export const AvatarDropdown = () => {
   const { user, profile, role, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const navigate = useNavigate();
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -24,7 +23,7 @@ export const AvatarDropdown = () => {
     setIsOpen(false);
     try {
       await signOut();
-      navigate('/login');
+      window.location.href = '/index.html';
     } catch (err) {
       console.error('Failed to sign out:', err);
     }
@@ -122,29 +121,27 @@ export const AvatarDropdown = () => {
               Profile
             </Link>
 
-            {role === 'admin' && (
-              <Link
-                to="/admin"
-                onClick={() => setIsOpen(false)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '10px 12px',
-                  color: '#ddd',
-                  textDecoration: 'none',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  borderRadius: '6px',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-              >
-                <Shield style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
-                Admin Panel
-              </Link>
-            )}
+            <Link
+              to={role === 'admin' ? '/admin' : '/dashboard'}
+              onClick={() => setIsOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '10px 12px',
+                color: '#ddd',
+                textDecoration: 'none',
+                fontSize: '13px',
+                fontWeight: '500',
+                borderRadius: '6px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              <LayoutDashboard style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
+              Dashboard
+            </Link>
 
             <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: '4px 0' }} />
 
