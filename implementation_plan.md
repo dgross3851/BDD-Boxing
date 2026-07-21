@@ -186,6 +186,14 @@ Login view styled with BDD Boxing dark ember aesthetics. Triggers Supabase `sign
 #### [NEW] [src/components/ProtectedRoute.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/components/ProtectedRoute.jsx)
 Wrapper component to enforce authentication and allowed role array (e.g. `allowedRoles={['admin']}`). Redirects unauthenticated users to `/login` and unauthorized users to their designated dashboard.
 
+#### [NEW] [src/pages/Profile.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/pages/Profile.jsx)
+Profile page component for any user role. Allows viewing and editing profile fields (Full Name, Phone Number) with real-time sync with Supabase `public.profiles` table.
+
+#### [NEW] [src/components/AvatarDropdown.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/components/AvatarDropdown.jsx)
+Standard profile circular avatar component with dropdown selection:
+- Shows user's name initials or fallback user placeholder.
+- Options: "Profile" (links to `/profile`) and "Log Out".
+
 ---
 
 ### 3. Mockup Dashboards for Role Testing
@@ -195,14 +203,14 @@ Client testing dashboard displaying:
 - Welcome banner with user's full name & email
 - Current Role Badge (`USER` or `CLIENT`)
 - Profile details card
-- Logout action button
+- Profile Avatar Dropdown in place of sign out button
 
 #### [NEW] [src/pages/AdminDashboardMockup.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/pages/AdminDashboardMockup.jsx)
 Admin testing dashboard (protected, `role = 'admin'` required) displaying:
 - Admin verification badge
 - Directory of registered profiles (fetched from `public.profiles`)
 - Role testing controls (e.g., button to promote/demote test users or inspect profiles)
-- Logout action button
+- Profile Avatar Dropdown in place of sign out button
 
 ---
 
@@ -223,3 +231,14 @@ Admin testing dashboard (protected, `role = 'admin'` required) displaying:
    - Log into the app with the admin account.
    - Verify access to `/admin` Mockup Dashboard.
    - Verify non-admin accounts are blocked from accessing `/admin` and gracefully redirected.
+
+---
+
+## Phase 1 Extension: Profile Page & Dropdown Checklist
+
+- [ ] Create `src/pages/Profile.jsx` allowing users of any role type to view and edit their profile.
+- [ ] Create `src/components/AvatarDropdown.jsx` (or inline dropdown in navigation) showing option to link to Profile page and Log Out.
+- [ ] Replace standard Log Out button on User & Admin dashboards with the new Avatar Dropdown menu.
+- [ ] Add route `/profile` in `src/App.jsx` pointing to Profile page (protected by `ProtectedRoute`).
+- [ ] Verify profile updates dynamically save to the `public.profiles` table in Supabase.
+

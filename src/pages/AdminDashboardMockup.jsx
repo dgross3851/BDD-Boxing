@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { Shield, Users, RefreshCw, LogOut, ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AvatarDropdown } from '../components/AvatarDropdown';
+import { Shield, Users, RefreshCw, ArrowLeft, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export const AdminDashboardMockup = () => {
-  const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user, profile } = useAuth();
 
   const [profilesList, setProfilesList] = useState([]);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
@@ -67,11 +67,6 @@ export const AdminDashboardMockup = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
-  };
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -129,25 +124,7 @@ export const AdminDashboardMockup = () => {
             User Dashboard
           </Link>
 
-          <button
-            onClick={handleSignOut}
-            style={{
-              backgroundColor: '#ca3b24',
-              border: 'none',
-              color: '#ffffff',
-              padding: '8px 14px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <LogOut style={{ width: '14px', height: '14px' }} />
-            Sign Out
-          </button>
+          <AvatarDropdown />
         </div>
       </header>
 

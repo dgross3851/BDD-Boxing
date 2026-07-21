@@ -1,16 +1,11 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, LogOut, Shield, CheckCircle, Calendar, Settings } from 'lucide-react';
+import { AvatarDropdown } from '../components/AvatarDropdown';
+import { User, Shield, CheckCircle, Calendar } from 'lucide-react';
 
 export const UserDashboardMockup = () => {
-  const { user, profile, role, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
-  };
+  const { user, profile, role } = useAuth();
 
   return (
     <div style={{
@@ -68,25 +63,7 @@ export const UserDashboardMockup = () => {
             </Link>
           )}
 
-          <button
-            onClick={handleSignOut}
-            style={{
-              backgroundColor: 'transparent',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#ccc',
-              padding: '8px 14px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <LogOut style={{ width: '14px', height: '14px' }} />
-            Sign Out
-          </button>
+          <AvatarDropdown />
         </div>
       </header>
 

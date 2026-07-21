@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { UserDashboardMockup } from './pages/UserDashboardMockup';
 import { AdminDashboardMockup } from './pages/AdminDashboardMockup';
+import { Profile } from './pages/Profile';
 
 export default function App() {
   return (
@@ -22,6 +23,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <UserDashboardMockup />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Profile Page */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />
