@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
@@ -11,7 +11,7 @@ import { Profile } from './pages/Profile';
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           {/* Public Auth Routes */}
           <Route path="/login" element={<Login />} />
@@ -50,7 +50,7 @@ export default function App() {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }

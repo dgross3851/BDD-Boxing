@@ -76,6 +76,7 @@ export const AdminDashboardMockup = () => {
     }}>
       {/* Header Bar */}
       <header style={{
+        position: 'relative',
         borderBottom: '1px solid rgba(202, 59, 36, 0.3)',
         backgroundColor: '#0a0a0a',
         padding: '16px 24px',

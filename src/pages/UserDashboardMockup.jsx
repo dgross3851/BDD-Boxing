@@ -16,6 +16,7 @@ export const UserDashboardMockup = () => {
     }}>
       {/* Navbar Header */}
       <header style={{
+        position: 'relative',
         borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         backgroundColor: '#0a0a0a',
         padding: '16px 24px',
