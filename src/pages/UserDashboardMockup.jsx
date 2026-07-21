@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { AvatarDropdown } from '../components/AvatarDropdown';
@@ -6,6 +6,7 @@ import { User, Shield, CheckCircle, Calendar } from 'lucide-react';
 
 export const UserDashboardMockup = () => {
   const { user, profile, role } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div style={{
@@ -15,56 +16,37 @@ export const UserDashboardMockup = () => {
       fontFamily: "'Inter', sans-serif"
     }}>
       {/* Navbar Header */}
-      <header style={{
-        position: 'relative',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        backgroundColor: '#0a0a0a',
-        padding: '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            backgroundColor: '#ca3b24',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: '900',
-            fontSize: '14px',
-            color: '#fff'
-          }}>
-            BDD
+      <header style={{ position: 'relative' }}>
+        <div className="nav-container">
+          <a href="index.html" className="nav-logo" id="header-logo-link">
+            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" width="50" height="50" />
+            <span className="nav-logo-text">BDD <span>BOXING</span></span>
+          </a>
+          
+          <button 
+            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`}>
+            <li><a href="index.html" className="nav-link">Home</a></li>
+            <li><a href="programs.html" className="nav-link">Programs</a></li>
+            <li><a href="about-coach.html" className="nav-link">About Coach</a></li>
+            <li><a href="training.html" className="nav-link">Training</a></li>
+            <li><a href="schedule.html" className="nav-link">Schedule</a></li>
+            <li><a href="events.html" className="nav-link">Events</a></li>
+            <li><a href="contact.html" className="nav-link">Contact</a></li>
+          </ul>
+
+          <div className="header-cta">
+            <AvatarDropdown />
+            <a href="contact.html" className="btn btn-primary" id="header-cta-btn">Book First Session</a>
           </div>
-          <span style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '0.5px' }}>
-            BDD BOXING PORTAL
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {role === 'admin' && (
-            <Link to="/admin" style={{
-              backgroundColor: 'rgba(202, 59, 36, 0.2)',
-              border: '1px solid #ca3b24',
-              color: '#ff8a7a',
-              padding: '8px 14px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontSize: '13px',
-              fontWeight: '700',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <Shield style={{ width: '14px', height: '14px' }} />
-              Admin Dashboard
-            </Link>
-          )}
-
-          <AvatarDropdown />
         </div>
       </header>
 

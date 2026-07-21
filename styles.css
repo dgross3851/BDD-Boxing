@@ -388,6 +388,7 @@ header.scrolled {
   font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .nav-logo-text span {
@@ -398,7 +399,7 @@ header.scrolled {
   display: flex;
   align-items: center;
   list-style: none;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .mobile-only {
@@ -418,6 +419,7 @@ header.scrolled {
   color: var(--muted-gray);
   padding: 0.5rem 0;
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-link:hover, .nav-link.active {

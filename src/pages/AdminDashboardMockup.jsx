@@ -67,6 +67,8 @@ export const AdminDashboardMockup = () => {
     }
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -75,57 +77,37 @@ export const AdminDashboardMockup = () => {
       fontFamily: "'Inter', sans-serif"
     }}>
       {/* Header Bar */}
-      <header style={{
-        position: 'relative',
-        borderBottom: '1px solid rgba(202, 59, 36, 0.3)',
-        backgroundColor: '#0a0a0a',
-        padding: '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '6px',
-            backgroundColor: '#ca3b24',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff'
-          }}>
-            <Shield style={{ width: '20px', height: '20px' }} />
-          </div>
-          <div>
-            <span style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '0.5px' }}>
-              ADMINISTRATOR DASHBOARD
-            </span>
-            <span style={{ fontSize: '12px', color: '#ff8a7a', display: 'block' }}>
-              BDD Boxing Supabase Control Center
-            </span>
-          </div>
-        </div>
+      <header style={{ position: 'relative' }}>
+        <div className="nav-container">
+          <a href="index.html" className="nav-logo" id="header-logo-link">
+            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" width="50" height="50" />
+            <span className="nav-logo-text">BDD <span>BOXING</span></span>
+          </a>
+          
+          <button 
+            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Navigation Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link to="/dashboard" style={{
-            backgroundColor: 'transparent',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            color: '#ccc',
-            padding: '8px 14px',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontSize: '13px',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <ArrowLeft style={{ width: '14px', height: '14px' }} />
-            User Dashboard
-          </Link>
+          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`}>
+            <li><a href="index.html" className="nav-link">Home</a></li>
+            <li><a href="programs.html" className="nav-link">Programs</a></li>
+            <li><a href="about-coach.html" className="nav-link">About Coach</a></li>
+            <li><a href="training.html" className="nav-link">Training</a></li>
+            <li><a href="schedule.html" className="nav-link">Schedule</a></li>
+            <li><a href="events.html" className="nav-link">Events</a></li>
+            <li><a href="contact.html" className="nav-link">Contact</a></li>
+          </ul>
 
-          <AvatarDropdown />
+          <div className="header-cta">
+            <AvatarDropdown />
+            <a href="contact.html" className="btn btn-primary" id="header-cta-btn">Book First Session</a>
+          </div>
         </div>
       </header>
 
