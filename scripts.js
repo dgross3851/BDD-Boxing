@@ -503,6 +503,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const dashboardUrl = role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard';
 
+        let avatarImgHtml = `
+          <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;">
+            ${initials}
+          </div>
+        `;
+
+        if (profile?.avatar_url) {
+          try {
+            const { data: blobData, error: downloadError } = await supabaseClient.storage
+              .from('avatars')
+              .download(profile.avatar_url);
+            if (blobData && !downloadError) {
+              const localUrl = URL.createObjectURL(blobData);
+              avatarImgHtml = `
+                <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;">
+                  <img src="${localUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+              `;
+            }
+          } catch (err) {
+            console.error('Error downloading avatar in script:', err);
+          }
+        }
+
         // Find header login button and replace it with the avatar dropdown
         const loginBtn = document.getElementById('header-login-btn');
         if (loginBtn) {
@@ -512,9 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           container.innerHTML = `
             <button class="avatar-dropdown-btn" style="display: flex; align-items: center; gap: 8px; background: transparent; border: none; cursor: pointer; padding: 0 4px; outline: none; height: 34px;">
-              <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">
-                ${initials}
-              </div>
+              ${avatarImgHtml}
               <svg class="chevron-icon" style="width: 12px; height: 12px; color: #888; transition: transform 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
             <div class="avatar-menu" style="display: none; position: absolute; right: 0; margin-top: 8px; width: 220px; background-color: #121212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; overflow: hidden; text-align: left;">

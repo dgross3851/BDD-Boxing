@@ -7,13 +7,48 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [role, setRole] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Download avatar from storage as a blob
+  const downloadAvatar = async (path) => {
+    if (!path) {
+      setAvatarUrl(prevUrl => {
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+        return null;
+      });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .download(path);
+      
+      if (error) throw error;
+      
+      const newUrl = URL.createObjectURL(data);
+      setAvatarUrl(prevUrl => {
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+        return newUrl;
+      });
+    } catch (err) {
+      console.error('Error downloading avatar:', err);
+      setAvatarUrl(prevUrl => {
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+        return null;
+      });
+    }
+  };
 
   // Fetch profile row from public.profiles
   const fetchProfile = async (userId) => {
     if (!userId) {
       setProfile(null);
       setRole(null);
+      setAvatarUrl(prevUrl => {
+        if (prevUrl) URL.revokeObjectURL(prevUrl);
+        return null;
+      });
       return null;
     }
     try {
@@ -27,10 +62,23 @@ export const AuthProvider = ({ children }) => {
         console.error('Error fetching user profile:', error);
         setProfile(null);
         setRole(null);
+        setAvatarUrl(prevUrl => {
+          if (prevUrl) URL.revokeObjectURL(prevUrl);
+          return null;
+        });
         return null;
       }
       setProfile(data);
       setRole(data?.role || 'user');
+
+      if (data?.avatar_url) {
+        await downloadAvatar(data.avatar_url);
+      } else {
+        setAvatarUrl(prevUrl => {
+          if (prevUrl) URL.revokeObjectURL(prevUrl);
+          return null;
+        });
+      }
       return data;
     } catch (err) {
       console.error('Unexpected error fetching profile:', err);
@@ -58,6 +106,10 @@ export const AuthProvider = ({ children }) => {
       } else {
         setProfile(null);
         setRole(null);
+        setAvatarUrl(prevUrl => {
+          if (prevUrl) URL.revokeObjectURL(prevUrl);
+          return null;
+        });
       }
       setLoading(false);
     });
@@ -100,6 +152,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setProfile(null);
     setRole(null);
+    setAvatarUrl(prevUrl => {
+      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      return null;
+    });
   };
 
   const refreshProfile = async () => {
@@ -108,17 +164,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshAvatar = async (path) => {
+    await downloadAvatar(path);
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
         role,
+        avatarUrl,
         loading,
         signUp,
         signIn,
         signOut,
-        refreshProfile
+        refreshProfile,
+        refreshAvatar
       }}
     >
       {children}

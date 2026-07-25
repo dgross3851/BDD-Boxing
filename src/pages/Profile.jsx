@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { AvatarDropdown } from '../components/AvatarDropdown';
-import { User, Phone, Mail, Shield, Save, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { User, Phone, Mail, Shield, Save, CheckCircle, AlertCircle, ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
 
 export const Profile = () => {
-  const { user, profile, role, refreshProfile } = useAuth();
+  const { user, profile, role, avatarUrl, refreshProfile, refreshAvatar } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
+  const fileInputRef = useRef(null);
 
   // Sync state with context profile
   useEffect(() => {
@@ -20,6 +22,98 @@ export const Profile = () => {
       setPhone(profile.phone || '');
     }
   }, [profile]);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate mime types
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setFeedback({ type: 'error', message: 'Only JPEG, PNG, WEBP, and GIF images are allowed.' });
+      return;
+    }
+
+    // Validate size limit (2MB)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setFeedback({ type: 'error', message: 'Image size must be less than 2MB.' });
+      return;
+    }
+
+    setUploading(true);
+    setFeedback({ type: '', message: '' });
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+      // Upload file to the storage bucket
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Update database profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          avatar_url: filePath,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh cache in context
+      await refreshProfile();
+      await refreshAvatar(filePath);
+      setFeedback({ type: 'success', message: 'Profile picture updated successfully!' });
+    } catch (err) {
+      console.error('Error uploading avatar:', err);
+      setFeedback({ type: 'error', message: err.message || 'Failed to upload profile picture.' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    if (!profile?.avatar_url) return;
+
+    setUploading(true);
+    setFeedback({ type: '', message: '' });
+
+    try {
+      // Remove from storage bucket
+      const { error: deleteError } = await supabase.storage
+        .from('avatars')
+        .remove([profile.avatar_url]);
+
+      if (deleteError) throw deleteError;
+
+      // Nullify database column
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          avatar_url: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Refresh context cache
+      await refreshProfile();
+      await refreshAvatar(null);
+      setFeedback({ type: 'success', message: 'Profile picture removed successfully!' });
+    } catch (err) {
+      console.error('Error deleting avatar:', err);
+      setFeedback({ type: 'error', message: err.message || 'Failed to remove profile picture.' });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -126,14 +220,152 @@ export const Profile = () => {
           </div>
         )}
 
-        <div style={{
+          <div style={{
           backgroundColor: '#121212',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '12px',
           padding: '32px',
           boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
         }}>
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            .avatar-hover-container:hover .avatar-hover-overlay {
+              opacity: 1 !important;
+            }
+          `}} />
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Profile Picture Upload Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '20px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+              paddingBottom: '24px'
+            }}>
+              <div 
+                className="avatar-hover-container"
+                style={{
+                  position: 'relative',
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(202, 59, 36, 0.5)',
+                  boxShadow: '0 0 20px rgba(202, 59, 36, 0.25)',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#0a0a0a'
+                }}
+                onClick={() => !uploading && fileInputRef.current?.click()}
+              >
+                {uploading ? (
+                  <Loader2 style={{ width: '28px', height: '28px', color: '#ca3b24', animation: 'spin 1s linear infinite' }} />
+                ) : avatarUrl ? (
+                  <img 
+                    src={avatarUrl} 
+                    alt="Avatar Preview" 
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }} 
+                  />
+                ) : (
+                  <div style={{
+                    color: '#888',
+                    fontSize: '28px',
+                    fontWeight: '800'
+                  }}>
+                    {profile?.full_name ? profile.full_name.slice(0, 2).toUpperCase() : 'U'}
+                  </div>
+                )}
+                
+                {/* Hover overlay to change photo */}
+                <div 
+                  className="avatar-hover-overlay"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    opacity: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'opacity 0.2s ease',
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: '#fff',
+                    textAlign: 'center',
+                    padding: '8px'
+                  }}
+                >
+                  <Camera style={{ width: '18px', height: '18px', marginBottom: '4px' }} />
+                  Change Photo
+                </div>
+              </div>
+
+              {/* Hidden file input */}
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleAvatarUpload}
+                accept="image/jpeg, image/png, image/webp, image/gif"
+                style={{ display: 'none' }}
+              />
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    color: '#ccc',
+                    cursor: 'pointer',
+                    fontWeight: '600'
+                  }}
+                >
+                  Upload Photo
+                </button>
+                {profile?.avatar_url && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarDelete}
+                    disabled={uploading}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: '1px solid rgba(202, 59, 36, 0.3)',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      color: '#ff8a7a',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <Trash2 style={{ width: '12px', height: '12px' }} />
+                    Remove
+                  </button>
+                )}
+              </div>
+              <span style={{ fontSize: '11px', color: '#666' }}>Max file size 2MB (JPG, PNG, WEBP, GIF)</span>
+            </div>
+
             {/* Full Name */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#ccc', marginBottom: '8px' }}>

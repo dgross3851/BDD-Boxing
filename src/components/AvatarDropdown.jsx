@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { User, LogOut, Shield, ChevronDown, LayoutDashboard } from 'lucide-react';
 
 export const AvatarDropdown = () => {
-  const { user, profile, role, signOut } = useAuth();
+  const { user, profile, role, avatarUrl, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -67,9 +67,22 @@ export const AvatarDropdown = () => {
           fontWeight: '700',
           fontSize: '14px',
           boxShadow: '0 0 12px rgba(202, 59, 36, 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.1)'
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          overflow: 'hidden'
         }}>
-          {getInitials()}
+          {avatarUrl ? (
+            <img 
+              src={avatarUrl} 
+              alt="Profile" 
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+          ) : (
+            getInitials()
+          )}
         </div>
         <ChevronDown style={{ width: '14px', height: '14px', color: '#888', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
