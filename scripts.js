@@ -510,21 +510,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         if (profile?.avatar_url) {
-          try {
-            const { data: blobData, error: downloadError } = await supabaseClient.storage
-              .from('avatars')
-              .download(profile.avatar_url);
-            if (blobData && !downloadError) {
-              const localUrl = URL.createObjectURL(blobData);
-              avatarImgHtml = `
-                <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;">
-                  <img src="${localUrl}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
-                </div>
-              `;
-            }
-          } catch (err) {
-            console.error('Error downloading avatar in script:', err);
-          }
+          avatarImgHtml = `
+            <div class="avatar-circle" style="width: 34px; height: 34px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden;">
+              <img src="${profile.avatar_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+          `;
         }
 
         // Find header login button and replace it with the avatar dropdown

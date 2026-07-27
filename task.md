@@ -58,3 +58,11 @@
   - [x] Update `src/components/AvatarDropdown.jsx` to render the avatar image when available
   - [x] Update `src/pages/Profile.jsx` to support selecting and uploading profile pictures
   - [x] Update `scripts.js` to render the user's avatar dynamically in static pages
+
+- [x] **Step 12: Profiles Table Permissions, Auto-Profile Creation & Public URL Upload Fix**
+  - [x] Grant SELECT, INSERT, UPDATE, DELETE permissions on `public.profiles` to `authenticated`, `anon`, and `service_role` to resolve `permission denied for table profiles`
+  - [x] Recreate RLS policies on `public.profiles` table strictly enforcing owner (`auth.uid() = id`) and administrator checks
+  - [x] Update `AuthContext.jsx` to automatically detect missing profile rows on login/session check and insert a new row utilizing user metadata
+  - [x] Configure `avatars` bucket as public and implement folder-based storage upload policies
+  - [x] Update frontend upload handlers to fetch public URLs using `getPublicUrl()` and save them in the database column
+  - [x] Modify headers to render the avatar image source directly from the public URL

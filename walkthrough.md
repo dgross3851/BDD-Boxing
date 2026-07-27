@@ -73,13 +73,20 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **Dynamic Avatar Rendering**: Updated `AvatarDropdown.jsx` and the landing page scripts (`scripts.js`) to render the user's uploaded avatar image when available, falling back to initials.
 - **Uploading UI**: Built a profile photo upload interface in `Profile.jsx` with real-time uploading states, CSS keyframe loading indicators, size limits validation, and a remove photo action.
 
+### K. Permissions, Auto-Profile Creation & Public URL Upload Fix (Step 12)
+- **Profiles Table Permissions**: Granted explicit SQL table permissions (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) on the `profiles` table to `authenticated`, `anon`, and `service_role` roles. This resolves the `permission denied for table profiles` PostgreSQL error.
+- **Profiles Table RLS Policies**: Recreated RLS policies to strictly enforce ownership logic. A user can read/update/insert only their own profile where `auth.uid() = id`, while administrators retain global viewing privileges to manage all users.
+- **Automatic Profile Instantiation**: Modified `AuthContext.jsx` to query and verify if a matching `profiles` row exists when a user signs in. If missing, it immediately inserts a new profile row using the authenticated user's metadata to prevent empty accounts or synchronization bugs.
+- **Public Storage Bucket Migration**: Reconfigured the `avatars` storage bucket as public, and added folder-based check constraints restricting upload, updates, and deletes to authenticated folder owners.
+- **Direct Public URL Resolution**: Streamlined the frontend upload handlers. The app now calls `.getPublicUrl()` directly after uploading, saving the full URL in `profiles.avatar_url`. This removes the slow, recursive downloading of image blobs on every page request.
+
 ---
 
 ## 2. Verification Results
 
 ### Build Verification
 - Executed `npx vite build`:
-  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `2.17 seconds` with zero build errors.
+  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `1.22 seconds` with zero build errors.
 
 ### Local Server Execution
 - Started development server (`npm run dev`):

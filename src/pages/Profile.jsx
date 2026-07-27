@@ -27,10 +27,11 @@ export const Profile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate mime types
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      setFeedback({ type: 'error', message: 'Only JPEG, PNG, WEBP, and GIF images are allowed.' });
+    // Validate file type
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    if (!allowedExtensions.includes(fileExt)) {
+      setFeedback({ type: 'error', message: 'Only JPG, JPEG, PNG, WEBP, and GIF files are allowed.' });
       return;
     }
 
@@ -45,7 +46,6 @@ export const Profile = () => {
     setFeedback({ type: '', message: '' });
 
     try {
-      const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/avatar-${Date.now()}.${fileExt}`;
 
       // Upload file to the storage bucket
@@ -55,11 +55,19 @@ export const Profile = () => {
 
       if (uploadError) throw uploadError;
 
+      // Get public URL
+      const { data: publicData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const publicUrl = publicData?.publicUrl;
+      if (!publicUrl) throw new Error('Could not generate public URL for uploaded photo.');
+
       // Update database profile
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          avatar_url: filePath,
+          avatar_url: publicUrl,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
@@ -68,8 +76,8 @@ export const Profile = () => {
 
       // Refresh cache in context
       await refreshProfile();
-      await refreshAvatar(filePath);
-      setFeedback({ type: 'success', message: 'Profile picture updated successfully!' });
+      await refreshAvatar(publicUrl);
+      setFeedback({ type: 'success', message: 'Profile photo updated successfully.' });
     } catch (err) {
       console.error('Error uploading avatar:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to upload profile picture.' });
@@ -85,12 +93,18 @@ export const Profile = () => {
     setFeedback({ type: '', message: '' });
 
     try {
+      // Extract path from full public URL
+      const urlParts = profile.avatar_url.split('/avatars/');
+      const storagePath = urlParts[urlParts.length - 1];
+
       // Remove from storage bucket
       const { error: deleteError } = await supabase.storage
         .from('avatars')
-        .remove([profile.avatar_url]);
+        .remove([storagePath]);
 
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        console.warn('Storage deletion warning:', deleteError);
+      }
 
       // Nullify database column
       const { error: updateError } = await supabase
@@ -106,7 +120,7 @@ export const Profile = () => {
       // Refresh context cache
       await refreshProfile();
       await refreshAvatar(null);
-      setFeedback({ type: 'success', message: 'Profile picture removed successfully!' });
+      setFeedback({ type: 'success', message: 'Profile photo removed successfully.' });
     } catch (err) {
       console.error('Error deleting avatar:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to remove profile picture.' });

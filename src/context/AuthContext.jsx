@@ -10,78 +10,69 @@ export const AuthProvider = ({ children }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Download avatar from storage as a blob
-  const downloadAvatar = async (path) => {
-    if (!path) {
-      setAvatarUrl(prevUrl => {
-        if (prevUrl) URL.revokeObjectURL(prevUrl);
-        return null;
-      });
-      return;
-    }
-    try {
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .download(path);
-      
-      if (error) throw error;
-      
-      const newUrl = URL.createObjectURL(data);
-      setAvatarUrl(prevUrl => {
-        if (prevUrl) URL.revokeObjectURL(prevUrl);
-        return newUrl;
-      });
-    } catch (err) {
-      console.error('Error downloading avatar:', err);
-      setAvatarUrl(prevUrl => {
-        if (prevUrl) URL.revokeObjectURL(prevUrl);
-        return null;
-      });
-    }
-  };
-
-  // Fetch profile row from public.profiles
-  const fetchProfile = async (userId) => {
+  // Fetch profile row from public.profiles, creating it if it doesn't exist
+  const fetchProfile = async (userId, currentUserObject) => {
     if (!userId) {
       setProfile(null);
       setRole(null);
-      setAvatarUrl(prevUrl => {
-        if (prevUrl) URL.revokeObjectURL(prevUrl);
-        return null;
-      });
+      setAvatarUrl(null);
       return null;
     }
     try {
-      const { data, error } = await supabase
+      // 1. Try to fetch existing profile
+      let { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        setProfile(null);
-        setRole(null);
-        setAvatarUrl(prevUrl => {
-          if (prevUrl) URL.revokeObjectURL(prevUrl);
-          return null;
-        });
-        return null;
+      // 2. If profile doesn't exist, create it (PART 3)
+      if (!data) {
+        console.log('Profile row does not exist, creating one for user:', userId);
+        const userMeta = currentUserObject?.user_metadata || {};
+        const newProfile = {
+          id: userId,
+          email: currentUserObject?.email || '',
+          full_name: userMeta.full_name || '',
+          phone: '',
+          avatar_url: null,
+          role: 'user',
+          status: 'active'
+        };
+
+        const { data: insertedData, error: insertError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error inserting new user profile:', insertError);
+          // Retry fetching in case of concurrency
+          const { data: retryData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+          if (retryData) {
+            data = retryData;
+          } else {
+            throw insertError;
+          }
+        } else {
+          data = insertedData;
+        }
       }
+
       setProfile(data);
       setRole(data?.role || 'user');
-
-      if (data?.avatar_url) {
-        await downloadAvatar(data.avatar_url);
-      } else {
-        setAvatarUrl(prevUrl => {
-          if (prevUrl) URL.revokeObjectURL(prevUrl);
-          return null;
-        });
-      }
+      setAvatarUrl(data?.avatar_url || null);
       return data;
     } catch (err) {
       console.error('Unexpected error fetching profile:', err);
+      setProfile(null);
+      setRole(null);
+      setAvatarUrl(null);
       return null;
     }
   };
@@ -92,7 +83,7 @@ export const AuthProvider = ({ children }) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.id);
+        await fetchProfile(currentUser.id, currentUser);
       }
       setLoading(false);
     });
@@ -102,14 +93,11 @@ export const AuthProvider = ({ children }) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.id);
+        await fetchProfile(currentUser.id, currentUser);
       } else {
         setProfile(null);
         setRole(null);
-        setAvatarUrl(prevUrl => {
-          if (prevUrl) URL.revokeObjectURL(prevUrl);
-          return null;
-        });
+        setAvatarUrl(null);
       }
       setLoading(false);
     });
@@ -141,7 +129,7 @@ export const AuthProvider = ({ children }) => {
     });
     if (error) throw error;
     if (data.user) {
-      await fetchProfile(data.user.id);
+      await fetchProfile(data.user.id, data.user);
     }
     return data;
   };
@@ -152,20 +140,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setProfile(null);
     setRole(null);
-    setAvatarUrl(prevUrl => {
-      if (prevUrl) URL.revokeObjectURL(prevUrl);
-      return null;
-    });
+    setAvatarUrl(null);
   };
 
   const refreshProfile = async () => {
     if (user?.id) {
-      return await fetchProfile(user.id);
+      return await fetchProfile(user.id, user);
     }
   };
 
-  const refreshAvatar = async (path) => {
-    await downloadAvatar(path);
+  const refreshAvatar = (url) => {
+    setAvatarUrl(url);
+    setProfile(prev => prev ? { ...prev, avatar_url: url } : null);
   };
 
   return (
