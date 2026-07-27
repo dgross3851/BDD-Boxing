@@ -134,27 +134,51 @@ export const AvatarDropdown = () => {
               Profile
             </Link>
 
-            <Link
-              to={role === 'admin' ? '/admin' : '/dashboard'}
-              onClick={() => setIsOpen(false)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 12px',
-                color: '#ddd',
-                textDecoration: 'none',
-                fontSize: '13px',
-                fontWeight: '500',
-                borderRadius: '6px',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            >
-              <LayoutDashboard style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
-              Dashboard
-            </Link>
+            {role === 'admin' ? (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 12px',
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  borderRadius: '6px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <Shield style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
+                Admin
+              </Link>
+            ) : (
+              <Link
+                to="/dashboard"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 12px',
+                  color: '#ddd',
+                  textDecoration: 'none',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  borderRadius: '6px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <LayoutDashboard style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
+                Dashboard
+              </Link>
+            )}
 
             <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.05)', margin: '4px 0' }} />
 

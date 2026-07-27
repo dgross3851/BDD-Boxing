@@ -516,6 +516,22 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           `;
         }
+        let dashboardLinkHtml = '';
+        if (role === 'admin') {
+          dashboardLinkHtml = `
+            <a href="portal.html#/admin" onmouseenter="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseleave="this.style.backgroundColor='transparent'" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ddd; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; transition: background-color 0.2s;">
+              <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              Admin
+            </a>
+          `;
+        } else {
+          dashboardLinkHtml = `
+            <a href="portal.html#/dashboard" onmouseenter="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseleave="this.style.backgroundColor='transparent'" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ddd; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; transition: background-color 0.2s;">
+              <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
+              Dashboard
+            </a>
+          `;
+        }
 
         // Find header login button and replace it with the avatar dropdown
         const loginBtn = document.getElementById('header-login-btn');
@@ -543,10 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   Profile
                 </a>
-                <a href="${dashboardUrl}" onmouseenter="this.style.backgroundColor='rgba(255,255,255,0.05)'" onmouseleave="this.style.backgroundColor='transparent'" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ddd; text-decoration: none; font-size: 13px; font-weight: 500; border-radius: 6px; transition: background-color 0.2s;">
-                  <svg style="width: 16px; height: 16px; color: #ca3b24;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
-                  Dashboard
-                </a>
+                ${dashboardLinkHtml}
                 <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 4px 0;" />
                 <button class="logout-btn" onmouseenter="this.style.backgroundColor='rgba(202,59,36,0.1)'" onmouseleave="this.style.backgroundColor='transparent'" style="width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #ff8a7a; background: transparent; border: none; text-align: left; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background-color 0.2s;">
                   <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>

@@ -79,6 +79,7 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **Automatic Profile Instantiation**: Modified `AuthContext.jsx` to query and verify if a matching `profiles` row exists when a user signs in. If missing, it immediately inserts a new profile row using the authenticated user's metadata to prevent empty accounts or synchronization bugs.
 - **Public Storage Bucket Migration**: Reconfigured the `avatars` storage bucket as public, and added folder-based check constraints restricting upload, updates, and deletes to authenticated folder owners.
 - **Direct Public URL Resolution**: Streamlined the frontend upload handlers. The app now calls `.getPublicUrl()` directly after uploading, saving the full URL in `profiles.avatar_url`. This removes the slow, recursive downloading of image blobs on every page request.
+- **Conditional Dropdown Links**: Separated the dropdown actions: users with `'user'` or `'client'` roles see a **Dashboard** link redirecting to `/dashboard`, while users with the `'admin'` role see an **Admin** link redirecting to `/admin`.
 
 ---
 
