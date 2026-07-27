@@ -1,10 +1,11 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-const GlassmorphicCard = ({ title, value, icon: Icon, trend, glowColor = '202, 59, 36' }) => {
+const GlassmorphicCard = ({ title, value, icon: Icon, trend, glowColor = '202, 59, 36', tooltip }) => {
   return (
     <div 
       className="glass-card"
+      title={tooltip}
       style={{
         position: 'relative',
         backgroundColor: 'rgba(255, 255, 255, 0.02)',
@@ -12,11 +13,11 @@ const GlassmorphicCard = ({ title, value, icon: Icon, trend, glowColor = '202, 5
         WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid rgba(255, 255, 255, 0.06)',
         borderRadius: '16px',
-        padding: '24px',
+        padding: '24px 24px 36px 24px',
         overflow: 'hidden',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         boxShadow: `0 4px 30px rgba(0, 0, 0, 0.2)`,
-        cursor: 'default'
+        cursor: 'pointer'
       }}
     >
       {/* Decorative Glow Dot */}
@@ -86,6 +87,31 @@ const GlassmorphicCard = ({ title, value, icon: Icon, trend, glowColor = '202, 5
         </div>
       )}
 
+      {/* Hover Helper Text Tooltip */}
+      {tooltip && (
+        <div className="card-tooltip" style={{
+          position: 'absolute',
+          bottom: '8px',
+          left: '24px',
+          right: '24px',
+          backgroundColor: '#0a0a0a',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: '#aaa',
+          fontSize: '10px',
+          fontWeight: '600',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          opacity: 0,
+          pointerEvents: 'none',
+          transition: 'opacity 0.2s ease',
+          zIndex: 10,
+          textAlign: 'center',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
+        }}>
+          {tooltip}
+        </div>
+      )}
+
       {/* Global CSS inject for micro-animations */}
       <style dangerouslySetInnerHTML={{__html: `
         .glass-card:hover {
@@ -93,6 +119,9 @@ const GlassmorphicCard = ({ title, value, icon: Icon, trend, glowColor = '202, 5
           border-color: rgba(255, 255, 255, 0.12) !important;
           box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4) !important;
           background-color: rgba(255, 255, 255, 0.035) !important;
+        }
+        .glass-card:hover .card-tooltip {
+          opacity: 1 !important;
         }
       `}} />
     </div>

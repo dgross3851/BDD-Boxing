@@ -75,6 +75,16 @@ export const AdminDashboardMockup = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
+  // Activity state
+  const [activityFilter, setActivityFilter] = useState('all'); // 'all', 'user', 'admin'
+  const [activities, setActivities] = useState([
+    { id: 1, type: 'user', message: 'Fighter Test Client1 requested Sparring Class booking', timestamp: '5 mins ago', badgeColor: '#2563eb' },
+    { id: 2, type: 'admin', message: 'Admin David Gross confirmed sparring booking for Test Client1', timestamp: '10 mins ago', badgeColor: '#22c55e' },
+    { id: 3, type: 'user', message: 'Fighter Test Client2 signed up for a new account', timestamp: '1 hour ago', badgeColor: '#ca3b24' },
+    { id: 4, type: 'admin', message: 'Admin David Gross changed role of Test Client2 to CLIENT', timestamp: '2 hours ago', badgeColor: '#ca3b24' },
+    { id: 5, type: 'user', message: 'Fighter Test Client1 updated phone details', timestamp: '1 day ago', badgeColor: '#aaa' }
+  ]);
+
   // Fetch all tables from Supabase
   const fetchAllData = async () => {
     setLoading(true);
@@ -157,6 +167,18 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg(`Role updated to "${newRole}" successfully!`);
+      
+      // Audit logging
+      const clientProfile = profilesList.find(p => p.id === targetId);
+      const clientName = clientProfile?.full_name || clientProfile?.email || targetId.slice(0, 8);
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin updated role to "${newRole.toUpperCase()}" for client "${clientName}"`,
+        timestamp: 'Just now',
+        badgeColor: '#ca3b24'
+      }, ...prev]);
+
       await fetchAllData();
       
       if (selectedClient && selectedClient.id === targetId) {
@@ -177,6 +199,18 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg(`Status updated to "${newStatus}"!`);
+      
+      // Audit logging
+      const clientProfile = profilesList.find(p => p.id === targetId);
+      const clientName = clientProfile?.full_name || clientProfile?.email || targetId.slice(0, 8);
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin set status of "${clientName}" to "${newStatus.toUpperCase()}"`,
+        timestamp: 'Just now',
+        badgeColor: '#2563eb'
+      }, ...prev]);
+
       await fetchAllData();
 
       if (selectedClient && selectedClient.id === targetId) {
@@ -198,6 +232,16 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg(`Session type "${newSessionType.title}" added to Supabase.`);
+      
+      // Audit logging
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin created new session category type: "${newSessionType.title}"`,
+        timestamp: 'Just now',
+        badgeColor: '#22c55e'
+      }, ...prev]);
+
       setShowAddSessionTypeModal(false);
       setNewSessionType({ title: '', category: 'Group Class', duration_minutes: 60, description: '' });
       await fetchAllData();
@@ -210,6 +254,7 @@ export const AdminDashboardMockup = () => {
   const handleDeleteSessionType = async (id) => {
     if (!window.confirm('Are you sure you want to delete this session type? This will cascade delete any scheduled sessions.')) return;
     try {
+      const stName = sessionTypes.find(st => st.id === id)?.title || id.slice(0, 8);
       const { error } = await supabase
         .from('session_types')
         .delete()
@@ -217,6 +262,16 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('Session type deleted successfully.');
+
+      // Audit logging
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin deleted session type and cascade schedules: "${stName}"`,
+        timestamp: 'Just now',
+        badgeColor: '#ef4444'
+      }, ...prev]);
+
       await fetchAllData();
     } catch (err) {
       setFeedbackMsg(`Failed to delete session type: ${err.message}`);
@@ -237,6 +292,17 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('New class time slot scheduled in database.');
+
+      // Audit logging
+      const stName = sessionTypes.find(st => st.id === newSchedule.session_type_id)?.title || 'Class';
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin scheduled new slot for "${stName}" at ${new Date(newSchedule.datetime).toLocaleString()}`,
+        timestamp: 'Just now',
+        badgeColor: '#2563eb'
+      }, ...prev]);
+
       setShowAddScheduleModal(false);
       setNewSchedule({ session_type_id: '', datetime: '', location: '', price_usd: 25.0, max_slots: 15 });
       await fetchAllData();
@@ -249,6 +315,8 @@ export const AdminDashboardMockup = () => {
   const handleDeleteSchedule = async (id) => {
     if (!window.confirm('Delete this scheduled class instance?')) return;
     try {
+      const sItem = sessionsList.find(s => s.id === id);
+      const stName = sItem?.session_types?.title || 'Class Slot';
       const { error } = await supabase
         .from('sessions')
         .delete()
@@ -256,6 +324,16 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('Scheduled class removed.');
+
+      // Audit logging
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin cancelled scheduled class: "${stName}"`,
+        timestamp: 'Just now',
+        badgeColor: '#ef4444'
+      }, ...prev]);
+
       await fetchAllData();
     } catch (err) {
       setFeedbackMsg(`Failed to delete schedule: ${err.message}`);
@@ -273,6 +351,19 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('Fighter booked successfully.');
+
+      // Audit logging
+      const clientName = profilesList.find(p => p.id === newBooking.client_id)?.full_name || 'Client';
+      const sItem = sessionsList.find(s => s.id === newBooking.session_id);
+      const stName = sItem?.session_types?.title || 'Class';
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin created appointment booking: "${clientName}" for "${stName}"`,
+        timestamp: 'Just now',
+        badgeColor: '#22c55e'
+      }, ...prev]);
+
       setShowAddBookingModal(false);
       setNewBooking({ client_id: '', session_id: '', status: 'booked', payment_status: 'pending' });
       await fetchAllData();
@@ -320,6 +411,16 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('Client profile deleted successfully from database.');
+      
+      // Audit logging
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin deleted client profile ID ${targetId.slice(0,8)}`,
+        timestamp: 'Just now',
+        badgeColor: '#ef4444'
+      }, ...prev]);
+
       setClientModalOpen(false);
       setSelectedClient(null);
       await fetchAllData();
@@ -349,6 +450,19 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg('Booking successfully updated!');
+      
+      // Audit logging
+      const bItem = bookingsList.find(b => b.id === bookingId);
+      const clientName = bItem?.profiles?.full_name || 'Client';
+      const stName = bItem?.sessions?.session_types?.title || 'Class';
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin updated booking status of "${clientName}" for "${stName}" to "${status.toUpperCase()}" (Payment: ${paymentStatus?.toUpperCase() || 'unmodified'})`,
+        timestamp: 'Just now',
+        badgeColor: '#22c55e'
+      }, ...prev]);
+
       setBookingModalOpen(false);
       setSelectedBooking(null);
       await fetchAllData();
@@ -526,6 +640,7 @@ export const AdminDashboardMockup = () => {
               icon={Calendar} 
               trend={{ value: '+4', positive: true, label: 'this week' }}
               glowColor="202, 59, 36"
+              tooltip="Total scheduled class timeslots configured in the booking calendar."
             />
             <GlassmorphicCard 
               title="Registered Clients" 
@@ -533,13 +648,15 @@ export const AdminDashboardMockup = () => {
               icon={Users} 
               trend={{ value: '+4', positive: true, label: 'new signups' }}
               glowColor="22, 163, 74"
+              tooltip="Total client/fighter profile records saved in database."
             />
             <GlassmorphicCard 
               title="Appointments Booked" 
-              value={loading ? '...' : bookingsList.filter(b => b.status === 'booked').length} 
+              value={loading ? '...' : bookingsList.filter(b => b.status === 'booked' || b.status === 'attended').length} 
               icon={BookOpen} 
               trend={{ value: '+18%', positive: true, label: 'vs last month' }}
               glowColor="37, 99, 235"
+              tooltip="Active reservations tracked in database."
             />
             <GlassmorphicCard 
               title="Monthly Target" 
@@ -547,6 +664,7 @@ export const AdminDashboardMockup = () => {
               icon={DollarSign} 
               trend={{ value: '-2.4%', positive: false, label: 'behind target' }}
               glowColor="234, 179, 8"
+              tooltip="Gross revenue goal target for the current billing period."
             />
           </div>
 
@@ -639,24 +757,69 @@ export const AdminDashboardMockup = () => {
             borderRadius: '12px',
             padding: '24px'
           }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '700', color: '#fff' }}>
-              Recent Audit Log Ledger
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#fff' }}>
+                Recent Audit Log Ledger
+              </h3>
+              
+              {/* Log Filters */}
+              <div style={{ display: 'inline-flex', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '3px' }}>
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'user', label: 'Users' },
+                  { id: 'admin', label: 'Admins' }
+                ].map(tab => {
+                  const active = activityFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActivityFilter(tab.id)}
+                      style={{
+                        backgroundColor: active ? 'rgba(202, 59, 36, 0.15)' : 'transparent',
+                        border: 'none',
+                        color: active ? '#ff8a7a' : '#888',
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#0a0a0a', borderRadius: '8px', borderLeft: '3px solid #ca3b24' }}>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <Activity style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
-                  <span style={{ fontSize: '13px' }}>Fighters roles and statuses synced successfully</span>
-                </div>
-                <span style={{ fontSize: '11px', color: '#555' }}>Just now</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#0a0a0a', borderRadius: '8px', borderLeft: '3px solid #22c55e' }}>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <CheckCircle2 style={{ width: '16px', height: '16px', color: '#22c55e' }} />
-                  <span style={{ fontSize: '13px' }}>Supabase Real-time notification center operational</span>
-                </div>
-                <span style={{ fontSize: '11px', color: '#555' }}>5 mins ago</span>
-              </div>
+              {activities
+                .filter(a => activityFilter === 'all' || a.type === activityFilter)
+                .map(a => (
+                  <div 
+                    key={a.id} 
+                    style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      padding: '12px', 
+                      backgroundColor: '#0a0a0a', 
+                      borderRadius: '8px', 
+                      borderLeft: `3px solid ${a.badgeColor || '#888'}`,
+                      animation: 'fadeIn 0.3s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      {a.type === 'admin' ? (
+                        <Activity style={{ width: '16px', height: '16px', color: a.badgeColor || '#ca3b24' }} />
+                      ) : (
+                        <CheckCircle2 style={{ width: '16px', height: '16px', color: a.badgeColor || '#22c55e' }} />
+                      )}
+                      <span style={{ fontSize: '13px', color: '#eee' }}>{a.message}</span>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#555', marginLeft: '10px', whiteSpace: 'nowrap' }}>{a.timestamp}</span>
+                  </div>
+                ))}
             </div>
           </div>
 
