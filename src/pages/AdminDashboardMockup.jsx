@@ -75,6 +75,12 @@ export const AdminDashboardMockup = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
+  // Sessions sub-view Modal states
+  const [selectedSessionType, setSelectedSessionType] = useState(null);
+  const [sessionTypeModalOpen, setSessionTypeModalOpen] = useState(false);
+  const [selectedScheduleSlot, setSelectedScheduleSlot] = useState(null);
+  const [scheduleSlotModalOpen, setScheduleSlotModalOpen] = useState(false);
+
   // Activity state
   const [activityFilter, setActivityFilter] = useState('all'); // 'all', 'user', 'admin'
   const [activities, setActivities] = useState([
@@ -479,6 +485,16 @@ export const AdminDashboardMockup = () => {
       setSortField(field);
       setSortOrder('asc');
     }
+  };
+
+  const handleOpenSessionTypeModal = (typeObj) => {
+    setSelectedSessionType(typeObj);
+    setSessionTypeModalOpen(true);
+  };
+
+  const handleOpenScheduleSlotModal = (slotObj) => {
+    setSelectedScheduleSlot(slotObj);
+    setScheduleSlotModalOpen(true);
   };
 
   // Filter clients list
@@ -1034,7 +1050,17 @@ export const AdminDashboardMockup = () => {
                   </thead>
                   <tbody>
                     {sessionTypes.map(s => (
-                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <tr 
+                        key={s.id} 
+                        onClick={() => handleOpenSessionTypeModal(s)}
+                        style={{ 
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                      >
                         <td style={{ padding: '12px', fontWeight: '600' }}>{s.title}</td>
                         <td style={{ padding: '12px', color: '#ccc' }}>
                           <span style={{ backgroundColor: 'rgba(202,59,36,0.15)', color: '#ff8a7a', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(202,59,36,0.2)' }}>
@@ -1044,12 +1070,29 @@ export const AdminDashboardMockup = () => {
                         <td style={{ padding: '12px', color: '#aaa' }}>{s.duration_minutes} mins</td>
                         <td style={{ padding: '12px', color: '#888' }}>{s.description || 'No description'}</td>
                         <td style={{ padding: '12px', textAlign: 'right' }}>
-                          <button 
-                            onClick={() => handleDeleteSessionType(s.id)}
-                            style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
-                          >
-                            <Trash2 style={{ width: '16px', height: '16px' }} />
-                          </button>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleOpenSessionTypeModal(s); }}
+                              style={{
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                color: '#fff',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                outline: 'none',
+                                transition: 'background-color 0.2s'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                              title="View Session Type Details"
+                            >
+                              <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1076,19 +1119,46 @@ export const AdminDashboardMockup = () => {
                   </thead>
                   <tbody>
                     {sessionsList.map(s => (
-                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <tr 
+                        key={s.id} 
+                        onClick={() => handleOpenScheduleSlotModal(s)}
+                        style={{ 
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                      >
                         <td style={{ padding: '12px', fontWeight: '600' }}>{s.session_types?.title || 'Unknown Class'}</td>
                         <td style={{ padding: '12px', color: '#ccc' }}>{new Date(s.datetime).toLocaleString()}</td>
                         <td style={{ padding: '12px', color: '#aaa' }}>{s.location}</td>
                         <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>${s.price_usd}</td>
                         <td style={{ padding: '12px', color: '#aaa' }}>{s.max_slots} spots</td>
                         <td style={{ padding: '12px', textAlign: 'right' }}>
-                          <button 
-                            onClick={() => handleDeleteSchedule(s.id)}
-                            style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
-                          >
-                            <Trash2 style={{ width: '16px', height: '16px' }} />
-                          </button>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); handleOpenScheduleSlotModal(s); }}
+                              style={{
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                color: '#fff',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                outline: 'none',
+                                transition: 'background-color 0.2s'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                              title="View Schedule Slot Details"
+                            >
+                              <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1120,7 +1190,17 @@ export const AdminDashboardMockup = () => {
                       .map(s => {
                         const booked = bookingsList.filter(b => b.session_id === s.id && b.status !== 'cancelled').length;
                         return (
-                          <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <tr 
+                            key={s.id} 
+                            onClick={() => handleOpenScheduleSlotModal(s)}
+                            style={{ 
+                              borderBottom: '1px solid rgba(255,255,255,0.05)',
+                              cursor: 'pointer',
+                              transition: 'background-color 0.2s'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                          >
                             <td style={{ padding: '12px', fontWeight: '600' }}>{s.session_types?.title || 'Unknown Class'}</td>
                             <td style={{ padding: '12px', color: '#ff8a7a', fontWeight: '600' }}>{new Date(s.datetime).toLocaleString()}</td>
                             <td style={{ padding: '12px', color: '#aaa' }}>{s.location}</td>
@@ -1139,13 +1219,29 @@ export const AdminDashboardMockup = () => {
                               </span>
                             </td>
                             <td style={{ padding: '12px', textAlign: 'right' }}>
-                              <button 
-                                onClick={() => handleDeleteSchedule(s.id)}
-                                style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
-                                title="Cancel and Delete Schedule Slot"
-                              >
-                                <Trash2 style={{ width: '16px', height: '16px' }} />
-                              </button>
+                              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleOpenScheduleSlotModal(s); }}
+                                  style={{
+                                    backgroundColor: 'rgba(255,255,255,0.05)',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                    color: '#fff',
+                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    outline: 'none',
+                                    transition: 'background-color 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                                  title="View Upcoming Session Details"
+                                >
+                                  <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -1941,6 +2037,302 @@ export const AdminDashboardMockup = () => {
               >
                 Close
               </button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SESSION TYPE DETAILS MODAL */}
+      {sessionTypeModalOpen && selectedSessionType && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '20px'
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '480px',
+            backgroundColor: '#121212',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Session Type Details</h3>
+              <button 
+                onClick={() => { setSessionTypeModalOpen(false); setSelectedSessionType(null); }}
+                style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', outline: 'none' }}
+              >
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Category tag */}
+              <div>
+                <span style={{
+                  backgroundColor: 'rgba(202,59,36,0.15)',
+                  color: '#ff8a7a',
+                  fontSize: '11px',
+                  fontWeight: '800',
+                  padding: '4px 10px',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(202,59,36,0.2)',
+                  textTransform: 'uppercase',
+                  display: 'inline-block'
+                }}>
+                  {selectedSessionType.category || 'Group Class'}
+                </span>
+              </div>
+
+              {/* Title & Duration */}
+              <div>
+                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#fff' }}>
+                  {selectedSessionType.title}
+                </h4>
+                <span style={{ fontSize: '13px', color: '#888', display: 'block', marginTop: '4px' }}>
+                  Duration: {selectedSessionType.duration_minutes} minutes
+                </span>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Description</label>
+                <p style={{ margin: 0, fontSize: '13px', color: '#ccc', lineHeight: '1.6', backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  {selectedSessionType.description || 'No description provided.'}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '10px' }}>
+                <button
+                  onClick={() => {
+                    handleDeleteSessionType(selectedSessionType.id);
+                    setSessionTypeModalOpen(false);
+                    setSelectedSessionType(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid #ef4444',
+                    color: '#fca5a5',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; }}
+                >
+                  <Trash2 style={{ width: '14px', height: '14px' }} />
+                  Delete Category
+                </button>
+
+                <button
+                  onClick={() => { setSessionTypeModalOpen(false); setSelectedSessionType(null); }}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    border: 'none',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                >
+                  Close
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SESSION SCHEDULE SLOT DETAILS MODAL */}
+      {scheduleSlotModalOpen && selectedScheduleSlot && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '20px'
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '480px',
+            backgroundColor: '#121212',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Schedule Time Slot Details</h3>
+              <button 
+                onClick={() => { setScheduleSlotModalOpen(false); setSelectedScheduleSlot(null); }}
+                style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', outline: 'none' }}
+              >
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Class name and Category */}
+              <div>
+                <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Session Class</span>
+                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#fff' }}>
+                  {selectedScheduleSlot.session_types?.title || 'Unknown Class'}
+                </h4>
+              </div>
+
+              {/* Session Meta Info Block */}
+              <div style={{
+                backgroundColor: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '10px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                {/* Date/Time Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Date & Time
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#ff8a7a' }}>
+                    {new Date(selectedScheduleSlot.datetime).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Location Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Location
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#fff' }}>
+                    {selectedScheduleSlot.location}
+                  </span>
+                </div>
+
+                {/* Pricing Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <DollarSign style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Price
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#ca3b24' }}>
+                    ${selectedScheduleSlot.price_usd}
+                  </span>
+                </div>
+
+                {/* Reserved Spots Row */}
+                {(() => {
+                  const booked = bookingsList.filter(b => b.session_id === selectedScheduleSlot.id && b.status !== 'cancelled').length;
+                  return (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                      <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <Users style={{ width: '14px', height: '14px', color: '#666' }} />
+                        Reserved Spots
+                      </span>
+                      <span style={{
+                        backgroundColor: booked >= selectedScheduleSlot.max_slots ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                        color: booked >= selectedScheduleSlot.max_slots ? '#fca5a5' : '#86efac',
+                        fontSize: '11px',
+                        fontWeight: '800',
+                        padding: '3px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        {booked} / {selectedScheduleSlot.max_slots} filled
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '10px' }}>
+                <button
+                  onClick={() => {
+                    handleDeleteSchedule(selectedScheduleSlot.id);
+                    setScheduleSlotModalOpen(false);
+                    setSelectedScheduleSlot(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid #ef4444',
+                    color: '#fca5a5',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; }}
+                >
+                  <Trash2 style={{ width: '14px', height: '14px' }} />
+                  Cancel Session
+                </button>
+
+                <button
+                  onClick={() => { setScheduleSlotModalOpen(false); setSelectedScheduleSlot(null); }}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    border: 'none',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                >
+                  Close
+                </button>
+              </div>
 
             </div>
           </div>
