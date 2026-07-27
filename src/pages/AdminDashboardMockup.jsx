@@ -27,6 +27,7 @@ import {
 export const AdminDashboardMockup = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [activeSessionSubtab, setActiveSessionSubtab] = useState('types');
 
   // Supabase Table States
   const [profilesList, setProfilesList] = useState([]);
