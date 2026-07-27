@@ -59,6 +59,14 @@ export const AdminDashboardMockup = () => {
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
+  // Bookings Filter states
+  const [bookingSearchQuery, setBookingSearchQuery] = useState('');
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('all');
+  const [bookingTypeFilter, setBookingTypeFilter] = useState('all');
+  const [bookingDateRange, setBookingDateRange] = useState('all'); // 'all', 'today', 'week', 'month', 'custom'
+  const [bookingStartDate, setBookingStartDate] = useState('');
+  const [bookingEndDate, setBookingEndDate] = useState('');
+
   // Fetch all tables from Supabase
   const fetchAllData = async () => {
     setLoading(true);
@@ -322,6 +330,62 @@ export const AdminDashboardMockup = () => {
 
   // Unique categories list
   const categoriesList = [...new Set(sessionTypes.map(st => st.category).filter(Boolean))];
+
+  // Filter Bookings logic
+  const filteredBookings = bookingsList.filter(b => {
+    // 1. Client Search (name or email)
+    const clientName = b.profiles?.full_name?.toLowerCase() || '';
+    const clientEmail = b.profiles?.email?.toLowerCase() || '';
+    const query = bookingSearchQuery.toLowerCase();
+    const searchMatch = !query || clientName.includes(query) || clientEmail.includes(query);
+
+    // 2. Status Match
+    const statusMatch = bookingStatusFilter === 'all' || b.status === bookingStatusFilter;
+
+    // 3. Session Type Match
+    const typeMatch = bookingTypeFilter === 'all' || b.sessions?.session_type_id === bookingTypeFilter;
+
+    // 4. Date Range Match
+    let dateMatch = true;
+    if (b.sessions?.datetime) {
+      const bDate = new Date(b.sessions.datetime);
+      const now = new Date();
+      
+      if (bookingDateRange === 'today') {
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        dateMatch = bDate >= todayStart && bDate <= todayEnd;
+      } else if (bookingDateRange === 'week') {
+        const currentDay = now.getDay();
+        const diff = now.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+        const weekStart = new Date(now.setDate(diff));
+        weekStart.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7);
+        dateMatch = bDate >= weekStart && bDate < weekEnd;
+      } else if (bookingDateRange === 'month') {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        dateMatch = bDate >= monthStart && bDate <= monthEnd;
+      } else if (bookingDateRange === 'custom') {
+        const start = bookingStartDate ? new Date(bookingStartDate + 'T00:00:00') : null;
+        const end = bookingEndDate ? new Date(bookingEndDate + 'T23:59:59') : null;
+        if (start && end) {
+          dateMatch = bDate >= start && bDate <= end;
+        } else if (start) {
+          dateMatch = bDate >= start;
+        } else if (end) {
+          dateMatch = bDate <= end;
+        }
+      }
+    } else {
+      if (bookingDateRange !== 'all') {
+        dateMatch = false;
+      }
+    }
+
+    return searchMatch && statusMatch && typeMatch && dateMatch;
+  });
 
   return (
     <AdminLayout activeTab={activeTab} setActiveTab={setActiveTab}>
@@ -870,6 +934,199 @@ export const AdminDashboardMockup = () => {
             </button>
           </div>
 
+          {/* Bookings Filters Bar */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            backgroundColor: '#121212',
+            padding: '20px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.06)'
+          }}>
+            {/* Top Row: Search and Dropdowns */}
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Search Client Name */}
+              <div style={{ position: 'relative', flex: 2, minWidth: '240px' }}>
+                <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#666' }} />
+                <input 
+                  type="text"
+                  placeholder="Search bookings by fighter name/email..."
+                  value={bookingSearchQuery}
+                  onChange={(e) => setBookingSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0a0a0a',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 12px 10px 40px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              {/* Status Select Filter */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '160px' }}>
+                <span style={{ fontSize: '12px', color: '#888', whiteSpace: 'nowrap' }}>Status:</span>
+                <select 
+                  value={bookingStatusFilter}
+                  onChange={(e) => setBookingStatusFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0a0a0a',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="booked">Booked</option>
+                  <option value="attended">Attended</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              {/* Session Type Select Filter */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1.5, minWidth: '200px' }}>
+                <span style={{ fontSize: '12px', color: '#888', whiteSpace: 'nowrap' }}>Session Type:</span>
+                <select 
+                  value={bookingTypeFilter}
+                  onChange={(e) => setBookingTypeFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#0a0a0a',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="all">All Session Types</option>
+                  {sessionTypes.map(st => (
+                    <option key={st.id} value={st.id}>{st.title}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Bottom Row: Date Range Selectors */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '12px', color: '#888', marginRight: '8px' }}>Date Range:</span>
+                {[
+                  { id: 'all', label: 'All Time', icon: Calendar },
+                  { id: 'today', label: 'Today', icon: Clock },
+                  { id: 'week', label: 'This Week', icon: Calendar },
+                  { id: 'month', label: 'This Month', icon: Calendar }
+                ].map(range => {
+                  const Icon = range.icon;
+                  const active = bookingDateRange === range.id;
+                  return (
+                    <button
+                      key={range.id}
+                      onClick={() => setBookingDateRange(range.id)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 12px',
+                        backgroundColor: active ? 'rgba(202, 59, 36, 0.15)' : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${active ? '#ca3b24' : 'rgba(255,255,255,0.08)'}`,
+                        borderRadius: '6px',
+                        color: active ? '#ff8a7a' : '#aaa',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        outline: 'none'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!active) {
+                          e.currentTarget.style.color = '#fff';
+                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active) {
+                          e.currentTarget.style.color = '#aaa';
+                          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)';
+                        }
+                      }}
+                    >
+                      <Icon style={{ width: '13px', height: '13px' }} />
+                      {range.label}
+                    </button>
+                  );
+                })}
+                
+                <button
+                  onClick={() => setBookingDateRange('custom')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 12px',
+                    backgroundColor: bookingDateRange === 'custom' ? 'rgba(202, 59, 36, 0.15)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${bookingDateRange === 'custom' ? '#ca3b24' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '6px',
+                    color: bookingDateRange === 'custom' ? '#ff8a7a' : '#aaa',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  <Calendar style={{ width: '13px', height: '13px' }} />
+                  Custom...
+                </button>
+              </div>
+
+              {/* Custom Date Pickers */}
+              {bookingDateRange === 'custom' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input 
+                    type="date"
+                    value={bookingStartDate}
+                    onChange={(e) => setBookingStartDate(e.target.value)}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      color: '#fff',
+                      fontSize: '12px',
+                      outline: 'none'
+                    }}
+                  />
+                  <span style={{ fontSize: '12px', color: '#666' }}>to</span>
+                  <input 
+                    type="date"
+                    value={bookingEndDate}
+                    onChange={(e) => setBookingEndDate(e.target.value)}
+                    style={{
+                      backgroundColor: '#0a0a0a',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '6px',
+                      padding: '6px 10px',
+                      color: '#fff',
+                      fontSize: '12px',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Bookings Mock Calendar Grid Layout */}
           <div style={{
             display: 'grid',
@@ -881,7 +1138,7 @@ export const AdminDashboardMockup = () => {
             border: '1px solid rgba(255,255,255,0.08)'
           }}>
             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => {
-              const dayBookings = bookingsList.filter(b => {
+              const dayBookings = filteredBookings.filter(b => {
                 const sDate = b.sessions?.datetime;
                 if (!sDate) return false;
                 const dateObj = new Date(sDate);
@@ -941,7 +1198,7 @@ export const AdminDashboardMockup = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookingsList.map(b => (
+                  {filteredBookings.map(b => (
                     <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '12px', fontWeight: '600' }}>{b.profiles?.full_name || b.profiles?.email || 'N/A'}</td>
                       <td style={{ padding: '12px', color: '#ccc' }}>{b.sessions?.session_types?.title || 'Unknown Class'}</td>
