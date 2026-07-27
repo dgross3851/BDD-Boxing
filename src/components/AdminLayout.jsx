@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
 import { AvatarDropdown } from './AvatarDropdown';
 import { 
   LayoutDashboard, 
@@ -18,18 +19,73 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  
-  // Mock notifications for UI representation
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'New Booking Request', message: 'John Doe booked a 1-on-1 Boxing Session.', type: 'info', time: '5m ago', read: false },
-    { id: 2, title: 'Profile Updated', message: 'Coach updated tomorrow\'s schedule.', type: 'success', time: '1h ago', read: true },
-    { id: 3, title: 'Payment Confirmed', message: 'Client Jane Smith paid for Membership.', type: 'success', time: '2h ago', read: false },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  // Fetch notifications from Supabase
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setNotifications(data || []);
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+
+    if (!user) return;
+
+    // Listen to real-time changes
+    const channel = supabase
+      .channel(`realtime:notifications:${user.id}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'notifications', 
+          filter: `user_id=eq.${user.id}` 
+        },
+        (payload) => {
+          console.log('Real-time notification update received:', payload);
+          if (payload.eventType === 'INSERT') {
+            setNotifications(prev => [payload.new, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setNotifications(prev => prev.map(n => n.id === payload.new.id ? payload.new : n));
+          } else if (payload.eventType === 'DELETE') {
+            setNotifications(prev => prev.filter(n => n.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const handleMarkAllRead = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+      if (error) throw error;
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    } catch (err) {
+      console.error('Error marking notifications as read:', err);
+    }
   };
 
   const getBreadcrumbTitle = () => {
@@ -415,7 +471,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                               height: '6px',
                               borderRadius: '50%',
                               backgroundColor: item.read ? 'transparent' : '#ca3b24',
-                              marginTop: '6px',
+                              margin: '6px 0 0 0',
                               flexShrink: 0
                             }} />
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -426,7 +482,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                                 {item.message}
                               </p>
                               <span style={{ fontSize: '9px', color: '#555', marginTop: '2px' }}>
-                                {item.time}
+                                {item.created_at ? new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                               </span>
                             </div>
                           </div>
