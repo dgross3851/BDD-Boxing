@@ -11,7 +11,8 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Menu,
-  ShieldAlert
+  ShieldAlert,
+  X
 } from 'lucide-react';
 
 const AdminLayout = ({ activeTab, setActiveTab, children }) => {
@@ -154,14 +155,36 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
         bottom: 0,
         left: 0,
         zIndex: 999,
-        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        transform: mobileOpen ? 'translateX(0)' : 'translateX(0)',
-        '@media (maxWidth: 768px)': {
-          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          width: '260px'
-        }
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }} className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         
+        {/* Mobile Tab Toggle Button (Sticks out of the sidebar on mobile) */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          style={{
+            position: 'absolute',
+            right: '-46px',
+            top: '15px',
+            width: '46px',
+            height: '46px',
+            backgroundColor: '#121212',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderLeft: 'none',
+            borderRadius: '0 8px 8px 0',
+            color: '#fff',
+            display: 'none',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '4px 0 10px rgba(0,0,0,0.3)',
+            outline: 'none',
+            transition: 'background-color 0.2s'
+          }}
+          className="admin-mobile-sidebar-toggle"
+        >
+          {mobileOpen ? <X style={{ width: '20px', height: '20px' }} /> : <Menu style={{ width: '20px', height: '20px' }} />}
+        </button>
+
         {/* Sidebar Header */}
         <div style={{
           height: '70px',
@@ -524,10 +547,14 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
       <style dangerouslySetInnerHTML={{__html: `
         @media (max-width: 1024px) {
           .admin-sidebar {
-            transform: translateX(-100%);
+            transform: translateX(-100%) !important;
+            width: 260px !important;
           }
           .admin-sidebar.mobile-open {
             transform: translateX(0) !important;
+          }
+          .admin-mobile-sidebar-toggle {
+            display: flex !important;
           }
           .admin-mobile-menu-btn {
             display: block !important;

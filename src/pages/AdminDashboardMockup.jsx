@@ -21,7 +21,8 @@ import {
   Filter,
   CheckCircle2,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 
 export const AdminDashboardMockup = () => {
@@ -44,6 +45,7 @@ export const AdminDashboardMockup = () => {
   // Modal Views
   const [selectedClient, setSelectedClient] = useState(null);
   const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [isEditingClient, setIsEditingClient] = useState(false);
   const [showAddSessionTypeModal, setShowAddSessionTypeModal] = useState(false);
   const [showAddScheduleModal, setShowAddScheduleModal] = useState(false);
   const [showAddBookingModal, setShowAddBookingModal] = useState(false);
@@ -276,6 +278,37 @@ export const AdminDashboardMockup = () => {
       await fetchAllData();
     } catch (err) {
       setFeedbackMsg(`Failed to update booking status: ${err.message}`);
+    }
+  };
+
+  // Open Client Modal helper
+  const handleOpenClientModal = (client) => {
+    setSelectedClient(client);
+    setIsEditingClient(false);
+    setClientModalOpen(true);
+  };
+
+  // Delete Client profile
+  const handleDeleteClient = async (targetId) => {
+    if (user && targetId === user.id) {
+      alert("You cannot delete your own profile.");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to delete this client profile permanently? This cannot be undone.")) return;
+    try {
+      setFeedbackMsg('');
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', targetId);
+
+      if (error) throw error;
+      setFeedbackMsg('Client profile deleted successfully from database.');
+      setClientModalOpen(false);
+      setSelectedClient(null);
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to delete client: ${err.message}`);
     }
   };
 
@@ -714,64 +747,101 @@ export const AdminDashboardMockup = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredClients.map((p) => (
-                      <tr key={p.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                        <td style={{ padding: '12px', fontWeight: '700', color: '#fff' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            {p.avatar_url ? (
-                              <img src={p.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
-                            ) : (
-                              <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#ca3b24', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '800' }}>
-                                {p.full_name ? p.full_name.slice(0, 2).toUpperCase() : 'F'}
-                              </div>
-                            )}
-                            <span>{p.full_name || 'N/A'}</span>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px', color: '#ccc' }}>{p.email}</td>
-                        <td style={{ padding: '12px', color: '#aaa' }}>{p.phone || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            backgroundColor: p.role === 'admin' ? 'rgba(202, 59, 36, 0.15)' : p.role === 'client' ? 'rgba(22, 163, 74, 0.15)' : 'rgba(37, 99, 235, 0.15)',
-                            border: `1px solid ${p.role === 'admin' ? '#ca3b24' : p.role === 'client' ? '#16a34a' : '#2563eb'}`,
-                            color: p.role === 'admin' ? '#ff8a7a' : p.role === 'client' ? '#86efac' : '#93c5fd',
-                            fontSize: '10px',
-                            fontWeight: '800',
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            textTransform: 'uppercase'
-                          }}>
-                            {p.role}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            color: p.status === 'banned' ? '#ef4444' : '#22c55e',
-                            fontWeight: '600',
-                            fontSize: '13px'
-                          }}>
-                            {p.status?.toUpperCase() || 'ACTIVE'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'right' }}>
-                          <button 
-                            onClick={() => { setSelectedClient(p); setClientModalOpen(true); }}
-                            style={{
-                              backgroundColor: 'rgba(255,255,255,0.05)',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                              color: '#fff',
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              fontSize: '12px',
+                    {filteredClients.map((p) => {
+                      const isSelf = user && p.id === user.id;
+                      return (
+                        <tr 
+                          key={p.id} 
+                          onClick={() => handleOpenClientModal(p)}
+                          style={{ 
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                        >
+                          <td style={{ padding: '12px', fontWeight: '700', color: '#fff' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              {p.avatar_url ? (
+                                <img src={p.avatar_url} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#ca3b24', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '800' }}>
+                                  {p.full_name ? p.full_name.slice(0, 2).toUpperCase() : 'F'}
+                                </div>
+                              )}
+                              <span style={{ fontWeight: isSelf ? '800' : '700', color: isSelf ? '#ff8a7a' : '#fff' }}>
+                                {p.full_name || 'N/A'}
+                              </span>
+                              {isSelf && (
+                                <span style={{
+                                  backgroundColor: 'rgba(202, 59, 36, 0.15)',
+                                  border: '1px solid #ca3b24',
+                                  color: '#ff8a7a',
+                                  fontSize: '9px',
+                                  fontWeight: '800',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  letterSpacing: '0.5px'
+                                }}>
+                                  YOU
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ padding: '12px', color: '#ccc' }}>{p.email}</td>
+                          <td style={{ padding: '12px', color: '#aaa' }}>{p.phone || 'N/A'}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              backgroundColor: p.role === 'admin' ? 'rgba(202, 59, 36, 0.15)' : p.role === 'client' ? 'rgba(22, 163, 74, 0.15)' : 'rgba(37, 99, 235, 0.15)',
+                              border: `1px solid ${p.role === 'admin' ? '#ca3b24' : p.role === 'client' ? '#16a34a' : '#2563eb'}`,
+                              color: p.role === 'admin' ? '#ff8a7a' : p.role === 'client' ? '#86efac' : '#93c5fd',
+                              fontSize: '10px',
+                              fontWeight: '800',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              textTransform: 'uppercase'
+                            }}>
+                              {p.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              color: p.status === 'banned' ? '#ef4444' : '#22c55e',
                               fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Manage
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                              fontSize: '13px'
+                            }}>
+                              {p.status?.toUpperCase() || 'ACTIVE'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'right' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleOpenClientModal(p); }}
+                                style={{
+                                  backgroundColor: 'rgba(255,255,255,0.05)',
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  color: '#fff',
+                                  padding: '8px',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  outline: 'none',
+                                  transition: 'background-color 0.2s'
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                                title="View Profile"
+                              >
+                                <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -919,7 +989,7 @@ export const AdminDashboardMockup = () => {
         </div>
       )}
 
-      {/* CLIENT DETAIL MODAL */}
+      {/* CLIENT VIEW/EDIT MODAL */}
       {clientModalOpen && selectedClient && (
         <div style={{
           position: 'fixed',
@@ -943,9 +1013,11 @@ export const AdminDashboardMockup = () => {
           }}>
             {/* Modal Header */}
             <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Manage Fighter Profile</h3>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>
+                {isEditingClient ? 'Edit Fighter Profile' : 'Fighter Profile Details'}
+              </h3>
               <button 
-                onClick={() => { setClientModalOpen(false); setSelectedClient(null); }}
+                onClick={() => { setClientModalOpen(false); setSelectedClient(null); setIsEditingClient(false); }}
                 style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', outline: 'none' }}
               >
                 <X style={{ width: '20px', height: '20px' }} />
@@ -960,75 +1032,199 @@ export const AdminDashboardMockup = () => {
                 {selectedClient.avatar_url ? (
                   <img src={selectedClient.avatar_url} alt="" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ca3b24' }} />
                 ) : (
-                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#ca3b24', display: 'flex', alignItems: 'center', justifycontent: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '800' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#ca3b24', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '800' }}>
                     {selectedClient.full_name ? selectedClient.full_name.slice(0, 2).toUpperCase() : 'U'}
                   </div>
                 )}
                 <div>
-                  <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>{selectedClient.full_name || 'Anonymous Fighter'}</h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>{selectedClient.full_name || 'Anonymous Fighter'}</h4>
+                    {user && selectedClient.id === user.id && (
+                      <span style={{ backgroundColor: 'rgba(202, 59, 36, 0.15)', border: '1px solid #ca3b24', color: '#ff8a7a', fontSize: '9px', fontWeight: '800', padding: '2px 6px', borderRadius: '4px' }}>
+                        YOU
+                      </span>
+                    )}
+                  </div>
                   <span style={{ fontSize: '13px', color: '#888' }}>{selectedClient.email}</span>
                 </div>
               </div>
 
-              {/* Status and Details Cards */}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Phone</span>
-                  <span style={{ fontSize: '13px', fontWeight: '600' }}>{selectedClient.phone || 'Not provided'}</span>
-                </div>
-                <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
-                  <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Status</span>
-                  <span style={{ fontSize: '13px', fontWeight: '700', color: selectedClient.status === 'banned' ? '#ef4444' : '#22c55e' }}>
-                    {selectedClient.status?.toUpperCase() || 'ACTIVE'}
-                  </span>
-                </div>
-              </div>
+              {!isEditingClient ? (
+                /* READ-ONLY VIEW MODE */
+                <>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Phone</span>
+                      <span style={{ fontSize: '13px', fontWeight: '600' }}>{selectedClient.phone || 'Not provided'}</span>
+                    </div>
+                    <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Account Status</span>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: selectedClient.status === 'banned' ? '#ef4444' : '#22c55e' }}>
+                        {selectedClient.status?.toUpperCase() || 'ACTIVE'}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Role Action selector */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' }}>Fighter Role Group</label>
-                <select 
-                  value={selectedClient.role}
-                  onChange={(e) => handleRoleChange(selectedClient.id, e.target.value)}
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#0a0a0a',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    padding: '10px 12px',
-                    color: '#fff',
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    outline: 'none'
-                  }}
-                >
-                  <option value="user">USER</option>
-                  <option value="client">CLIENT</option>
-                  <option value="admin">ADMIN</option>
-                </select>
-              </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Role Group</span>
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: '#ca3b24', textTransform: 'uppercase' }}>{selectedClient.role || 'user'}</span>
+                    </div>
+                    <div style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>UUID Identifier</span>
+                      <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#aaa', wordBreak: 'break-all' }}>{selectedClient.id}</span>
+                    </div>
+                  </div>
 
-              {/* Ban / Unban actions */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' }}>Account Control Actions</label>
-                <button
-                  onClick={() => handleStatusChange(selectedClient.id, selectedClient.status === 'banned' ? 'active' : 'banned')}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    backgroundColor: selectedClient.status === 'banned' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                    border: `1px solid ${selectedClient.status === 'banned' ? '#22c55e' : '#ef4444'}`,
-                    color: selectedClient.status === 'banned' ? '#86efac' : '#fca5a5',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                >
-                  {selectedClient.status === 'banned' ? 'Restore Fighter Access (Unban)' : 'Suspend Fighter Access (Ban)'}
-                </button>
-              </div>
+                  {/* Quick Actions (Edit and Delete) */}
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '10px' }}>
+                    <button
+                      onClick={() => setIsEditingClient(true)}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                    >
+                      <Edit2 style={{ width: '14px', height: '14px' }} />
+                      Edit Account
+                    </button>
+
+                    {user && selectedClient.id === user.id ? (
+                      <button
+                        disabled
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                          border: '1px solid rgba(239, 68, 68, 0.1)',
+                          color: '#555',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: 'not-allowed',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        <Trash2 style={{ width: '14px', height: '14px' }} />
+                        Cannot Delete Self
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDeleteClient(selectedClient.id)}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid #ef4444',
+                          color: '#fca5a5',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; }}
+                      >
+                        <Trash2 style={{ width: '14px', height: '14px' }} />
+                        Delete Account
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* INTERACTIVE EDIT MODE */
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' }}>Fighter Role Group</label>
+                    <select 
+                      value={selectedClient.role}
+                      onChange={(e) => handleRoleChange(selectedClient.id, e.target.value)}
+                      style={{
+                        width: '100%',
+                        backgroundColor: '#0a0a0a',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '8px',
+                        padding: '10px 12px',
+                        color: '#fff',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        outline: 'none'
+                      }}
+                    >
+                      <option value="user">USER</option>
+                      <option value="client">CLIENT</option>
+                      <option value="admin">ADMIN</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '8px' }}>Account Control Actions</label>
+                    <button
+                      onClick={() => handleStatusChange(selectedClient.id, selectedClient.status === 'banned' ? 'active' : 'banned')}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        backgroundColor: selectedClient.status === 'banned' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        border: `1px solid ${selectedClient.status === 'banned' ? '#22c55e' : '#ef4444'}`,
+                        color: selectedClient.status === 'banned' ? '#86efac' : '#fca5a5',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                    >
+                      {selectedClient.status === 'banned' ? 'Restore Fighter Access (Unban)' : 'Suspend Fighter Access (Ban)'}
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingClient(false)}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        backgroundColor: '#ca3b24',
+                        border: 'none',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.9'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                    >
+                      Done Editing
+                    </button>
+                  </div>
+                </>
+              )}
 
               {/* History Details */}
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
