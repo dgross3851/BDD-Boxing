@@ -1471,9 +1471,9 @@ export const AdminDashboardMockup = () => {
                   Manage Status
                 </label>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  {/* Confirm (Booked, Paid) */}
+                  {/* Confirm (Attended, Paid) */}
                   <button
-                    onClick={() => handleUpdateBookingStatus(selectedBooking.id, 'booked', 'paid')}
+                    onClick={() => handleUpdateBookingStatus(selectedBooking.id, 'attended', 'paid')}
                     style={{
                       flex: 1,
                       padding: '12px 8px',
