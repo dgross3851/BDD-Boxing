@@ -67,6 +67,14 @@ export const AdminDashboardMockup = () => {
   const [bookingStartDate, setBookingStartDate] = useState('');
   const [bookingEndDate, setBookingEndDate] = useState('');
 
+  // Bookings Sorting states
+  const [sortField, setSortField] = useState('datetime');
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  // Bookings Modal state
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+
   // Fetch all tables from Supabase
   const fetchAllData = async () => {
     setLoading(true);
@@ -320,6 +328,45 @@ export const AdminDashboardMockup = () => {
     }
   };
 
+  // Open Booking Details Modal
+  const handleOpenBookingModal = (booking) => {
+    setSelectedBooking(booking);
+    setBookingModalOpen(true);
+  };
+
+  // Update Booking Status from Details Modal
+  const handleUpdateBookingStatus = async (bookingId, status, paymentStatus) => {
+    try {
+      setFeedbackMsg('');
+      const updates = {};
+      if (status) updates.status = status;
+      if (paymentStatus) updates.payment_status = paymentStatus;
+
+      const { error } = await supabase
+        .from('bookings')
+        .update(updates)
+        .eq('id', bookingId);
+
+      if (error) throw error;
+      setFeedbackMsg('Booking successfully updated!');
+      setBookingModalOpen(false);
+      setSelectedBooking(null);
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Error updating booking: ${err.message}`);
+    }
+  };
+
+  // Handle Sort Toggle
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
   // Filter clients list
   const filteredClients = profilesList.filter(client => {
     const nameMatch = client.full_name?.toLowerCase().includes(clientSearchQuery.toLowerCase()) || 
@@ -385,6 +432,31 @@ export const AdminDashboardMockup = () => {
     }
 
     return searchMatch && statusMatch && typeMatch && dateMatch;
+  });
+
+  // Sorted Bookings logic
+  const sortedBookings = [...filteredBookings].sort((a, b) => {
+    let valA, valB;
+    if (sortField === 'client') {
+      valA = a.profiles?.full_name?.toLowerCase() || '';
+      valB = b.profiles?.full_name?.toLowerCase() || '';
+    } else if (sortField === 'class') {
+      valA = a.sessions?.session_types?.title?.toLowerCase() || '';
+      valB = b.sessions?.session_types?.title?.toLowerCase() || '';
+    } else if (sortField === 'datetime') {
+      valA = a.sessions?.datetime ? new Date(a.sessions.datetime).getTime() : 0;
+      valB = b.sessions?.datetime ? new Date(b.sessions.datetime).getTime() : 0;
+    } else if (sortField === 'price') {
+      valA = parseFloat(a.sessions?.price_usd) || 0;
+      valB = parseFloat(b.sessions?.price_usd) || 0;
+    } else if (sortField === 'status') {
+      valA = a.status?.toLowerCase() || '';
+      valB = b.status?.toLowerCase() || '';
+    }
+    
+    if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+    if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
   });
 
   return (
@@ -1156,12 +1228,14 @@ export const AdminDashboardMockup = () => {
                       dayBookings.map(b => (
                         <div 
                           key={b.id} 
+                          onClick={() => handleOpenBookingModal(b)}
                           style={{
                             padding: '8px', 
                             borderRadius: '6px', 
                             backgroundColor: '#0a0a0a', 
                             borderLeft: `3px solid ${b.status === 'cancelled' ? '#ef4444' : b.status === 'attended' ? '#22c55e' : '#ca3b24'}`,
-                            fontSize: '11px'
+                            fontSize: '11px',
+                            cursor: 'pointer'
                           }}
                         >
                           <span style={{ fontWeight: '700', display: 'block', color: '#fff' }}>{b.sessions?.session_types?.title}</span>
@@ -1190,19 +1264,43 @@ export const AdminDashboardMockup = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#888' }}>
-                    <th style={{ padding: '12px' }}>Client</th>
-                    <th style={{ padding: '12px' }}>Session Class</th>
-                    <th style={{ padding: '12px' }}>Schedule Slot</th>
-                    <th style={{ padding: '12px' }}>Status</th>
+                    <th onClick={() => handleSort('client')} style={{ padding: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      Client {sortField === 'client' && (sortOrder === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th onClick={() => handleSort('class')} style={{ padding: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      Session Class {sortField === 'class' && (sortOrder === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th onClick={() => handleSort('datetime')} style={{ padding: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      Schedule Slot {sortField === 'datetime' && (sortOrder === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th onClick={() => handleSort('price')} style={{ padding: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      Pricing {sortField === 'price' && (sortOrder === 'asc' ? '▲' : '▼')}
+                    </th>
+                    <th onClick={() => handleSort('status')} style={{ padding: '12px', cursor: 'pointer', userSelect: 'none' }}>
+                      Status {sortField === 'status' && (sortOrder === 'asc' ? '▲' : '▼')}
+                    </th>
                     <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredBookings.map(b => (
-                    <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  {sortedBookings.map(b => (
+                    <tr 
+                      key={b.id} 
+                      onClick={() => handleOpenBookingModal(b)}
+                      style={{ 
+                        borderBottom: '1px solid rgba(255,255,255,0.05)',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
                       <td style={{ padding: '12px', fontWeight: '600' }}>{b.profiles?.full_name || b.profiles?.email || 'N/A'}</td>
                       <td style={{ padding: '12px', color: '#ccc' }}>{b.sessions?.session_types?.title || 'Unknown Class'}</td>
                       <td style={{ padding: '12px', color: '#aaa' }}>{b.sessions?.datetime ? new Date(b.sessions.datetime).toLocaleString() : 'N/A'}</td>
+                      <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>
+                        ${b.sessions?.price_usd || '0.00'}
+                      </td>
                       <td style={{ padding: '12px' }}>
                         <span style={{
                           backgroundColor: b.status === 'attended' ? 'rgba(34, 197, 94, 0.15)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(202, 59, 36, 0.15)',
@@ -1218,29 +1316,264 @@ export const AdminDashboardMockup = () => {
                         </span>
                       </td>
                       <td style={{ padding: '12px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '8px' }}>
-                          {b.status === 'booked' && (
-                            <>
-                              <button 
-                                onClick={() => handleBookingStatusChange(b.id, 'attended')}
-                                style={{ backgroundColor: 'rgba(34,197,94,0.1)', border: '1px solid #22c55e', color: '#86efac', borderRadius: '4px', padding: '4px 8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
-                              >
-                                Attended
-                              </button>
-                              <button 
-                                onClick={() => handleBookingStatusChange(b.id, 'cancelled')}
-                                style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#fca5a5', borderRadius: '4px', padding: '4px 8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          )}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleOpenBookingModal(b); }}
+                            style={{
+                              backgroundColor: 'rgba(255,255,255,0.05)',
+                              border: '1px solid rgba(255,255,255,0.1)',
+                              color: '#fff',
+                              padding: '8px',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              outline: 'none',
+                              transition: 'background-color 0.2s'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                            title="View Booking Details"
+                          >
+                            <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
+                          </button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BOOKING DETAILS MODAL */}
+      {bookingModalOpen && selectedBooking && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          padding: '20px'
+        }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '480px',
+            backgroundColor: '#121212',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '16px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.8)',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Booking Details</h3>
+              <button 
+                onClick={() => { setBookingModalOpen(false); setSelectedBooking(null); }}
+                style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', outline: 'none' }}
+              >
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Client info and Booking ID */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Client</span>
+                  <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#fff' }}>
+                    {selectedBooking.profiles?.full_name || selectedBooking.profiles?.email || 'N/A'}
+                  </h4>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '10px', color: '#666', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Booking ID</span>
+                  <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#888' }}>
+                    #{selectedBooking.id ? selectedBooking.id.slice(0, 8) : 'N/A'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Session Meta Info Block */}
+              <div style={{
+                backgroundColor: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '10px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                {/* Session Class Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Session
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#fff' }}>
+                    {selectedBooking.sessions?.session_types?.title || 'Unknown Class'}
+                  </span>
+                </div>
+
+                {/* Date/Time Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Date/Time
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#ff8a7a' }}>
+                    {selectedBooking.sessions?.datetime ? new Date(selectedBooking.sessions.datetime).toLocaleString() : 'N/A'}
+                  </span>
+                </div>
+
+                {/* Pricing Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <DollarSign style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Pricing
+                  </span>
+                  <span style={{ fontWeight: '700', color: '#ca3b24' }}>
+                    ${selectedBooking.sessions?.price_usd || '0.00'}
+                  </span>
+                </div>
+
+                {/* Payment Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
+                  <span style={{ color: '#888', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <Shield style={{ width: '14px', height: '14px', color: '#666' }} />
+                    Payment
+                  </span>
+                  <span style={{
+                    backgroundColor: 'rgba(255,255,255,0.06)',
+                    color: '#fff',
+                    fontSize: '11px',
+                    fontWeight: '800',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    On-Premises
+                  </span>
+                </div>
+              </div>
+
+              {/* Status Section */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#888', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Manage Status
+                </label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {/* Confirm (Booked, Paid) */}
+                  <button
+                    onClick={() => handleUpdateBookingStatus(selectedBooking.id, 'booked', 'paid')}
+                    style={{
+                      flex: 1,
+                      padding: '12px 8px',
+                      backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                      border: '1px solid #22c55e',
+                      color: '#86efac',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.2)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.1)'; }}
+                  >
+                    <Check style={{ width: '14px', height: '14px' }} />
+                    Confirm
+                  </button>
+
+                  {/* Pending (Booked, Pending) */}
+                  <button
+                    onClick={() => handleUpdateBookingStatus(selectedBooking.id, 'booked', 'pending')}
+                    style={{
+                      flex: 1,
+                      padding: '12px 8px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      color: '#fff',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)'; }}
+                  >
+                    <Clock style={{ width: '14px', height: '14px' }} />
+                    Pending
+                  </button>
+
+                  {/* Cancel (Cancelled) */}
+                  <button
+                    onClick={() => handleUpdateBookingStatus(selectedBooking.id, 'cancelled')}
+                    style={{
+                      flex: 1,
+                      padding: '12px 8px',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid #ef4444',
+                      color: '#fca5a5',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; }}
+                  >
+                    <X style={{ width: '14px', height: '14px' }} />
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => { setBookingModalOpen(false); setSelectedBooking(null); }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: 'none',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  marginTop: '10px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+              >
+                Close
+              </button>
+
             </div>
           </div>
         </div>
