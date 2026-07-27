@@ -68,3 +68,26 @@
   - [x] Modify headers to render the avatar image source directly from the public URL
   - [x] Separate dropdown links so "user/client" roles see a "Dashboard" link and "admin" roles see an "Admin" link
   - [x] Display all database fields in the Profile page (adding read-only User ID, Account Created, and Last Updated metadata timestamps) and close GitHub Issue #1
+
+# Phase 2 Checklist — Admin UI Mockup (`admin_ui`)
+
+- [x] **Step 13: Dedicated Admin Layout & Collapsible Sidebar**
+  - [x] Extract user profile dropdown into a fully reusable component
+  - [x] Build collapsible Sidebar with sessions, clients, and bookings links
+  - [x] Integrate Breadcrumbs Navigation (small text) and Admin Header top-right profile avatar
+- [x] **Step 14: Overview Section & Summary Cards**
+  - [x] Create vibrant Glassmorphism summary cards with hover animations
+  - [x] Add Trend Indicators and Date Range Filter
+  - [x] Add Contextual Quick Actions (e.g., Book Session, Add Client)
+- [x] **Step 15: Sessions Tab (CRUD Sessions & Categories)**
+  - [x] Build Sessions view with Category and Session Type management
+  - [x] Add sub-actions/modal forms to CRUD session categories/types
+- [x] **Step 16: Clients Tab (Detailed Profile Modals)**
+  - [x] Build Clients list view with search, status filters, and page controls
+  - [x] Build detailed Client Profile Modal showing contact details and booking history
+- [x] **Step 17: Bookings Tab (Calendar & Appointments List)**
+  - [x] Build Bookings Calendar view and list layout
+  - [x] Support CRUD actions for scheduling and managing appointments
+- [x] **Step 18: Real-Time Notification Center**
+  - [x] Expand on notification schema and design (Supabase Realtime channel proposal)
+  - [x] Build UI overlay for notifications dropdown in header with count badges

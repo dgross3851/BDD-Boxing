@@ -119,18 +119,60 @@ USING (
 
 ---
 
+## Phase 2: Admin UI Mockup Layout & Functionality (`admin_ui`)
+
+This phase details the design and structural components of the updated Admin Dashboard featuring collapsible layouts, tabbed modules, glassmorphism cards, and real-time updates.
+
+### User Review Required
+
+> [!IMPORTANT]
+> - **Collapsible Admin Navigation**: We will introduce a dedicated layout component (`AdminLayout.jsx`) that wraps the admin views, providing a responsive, collapsible left sidebar with breadcrumbs and user avatar top-right headers.
+> - **Real-Time Notification architecture**: To make real-time notifications happen, we will establish a `public.notifications` table and configure Supabase Realtime channel listeners in the React app.
+
+### Proposed Changes
+
+#### [NEW] [src/components/AdminLayout.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/components/AdminLayout.jsx)
+A reusable dashboard layout wrapping all administrative views:
+- Collapsible left sidebar containing: Sessions, Clients, Bookings links.
+- Top navigation bar featuring breadcrumbs path, user name, and the shared dropdown profile picture avatar.
+- Responsive design collapsing sidebar on smaller desktop/tablet screen sizes.
+
+#### [NEW] [src/components/GlassmorphicCard.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/components/GlassmorphicCard.jsx)
+Standardized cards utilizing brand HSL values, `backdrop-filter: blur(12px)` glassmorphism styling, trend indicators (with conditional positive/negative styling), and micro-animations on hover.
+
+#### [MODIFY] [src/pages/AdminDashboardMockup.jsx](file:///Users/davidgross/Downloads/Coding%20Website%20Projects/BDD%20Boxing/src/pages/AdminDashboardMockup.jsx)
+Refactor the Admin page into an integrated layout tab structure:
+- **Overview Sub-View**: Includes date range filtering, Glassmorphic summary cards (Trend stats), and Contextual Quick Actions (e.g. Add Client, Schedule Session, Create Category).
+- **Sessions Sub-View**: Displays calendar schedules of session instances, and interactive tabs to CRUD session categories and types.
+- **Clients Sub-View**: List of accounts with query inputs, status filters, and click-to-open client profile modals containing complete booking histories.
+- **Bookings Sub-View**: Calendar and list layouts allowing appointments CRUD modifications.
+- **Notification Dropdown Overlay**: Notification icon checking real-time tables via Supabase listener with unread count badges.
+
+#### [NEW] Database SQL Table & real-time trigger (`supabase/execute_sql`)
+We will execute SQL statements to establish notifications table and triggers:
+```sql
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'info', -- 'info', 'success', 'warning'
+  read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own notifications" ON public.notifications FOR ALL TO authenticated USING (auth.uid() = user_id);
+```
+
+---
+
 ## Verification Plan
 
-### Automated Database Setup
-- Run the SQL DDL migration against Supabase project `lmrpuxeossmzrnwwpiyc`.
-- Verify the `avatars` bucket exists.
+### Automated Verification
+- Compile output using `npx vite build`.
+- Execute notification SQL schema queries.
 
 ### Manual Verification
-1. Open the Profile page `/profile` locally.
-2. Select a profile picture from your system and upload it.
-3. Verify that:
-   - The picture uploads successfully to the `avatars` bucket.
-   - The profile settings page dynamically previews the picture.
-   - The page headers (both on the portal and public website pages) update to show the new profile picture rather than initials.
-4. Test login/logout and ensure the picture loads correctly on page reload.
-5. Elevate a second account to `admin` and verify that the admin dashboard can view other users' pictures.
+1. Test sidebar collapsible toggle on desktop, tablet, and mobile views.
+2. Verify switching tabs (Sessions, Clients, Bookings) changes views instantly.
+3. Test CRUD buttons and check modals open properly.
