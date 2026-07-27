@@ -823,6 +823,136 @@ export const AdminDashboardMockup = () => {
             </div>
           </div>
 
+          {/* Grid Layout for Upcoming Sessions and Activity logs */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '24px'
+          }}>
+            {/* Upcoming Sessions Card */}
+            <div style={{
+              backgroundColor: '#121212',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#fff' }}>
+                Upcoming Scheduled Sessions
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sessionsList
+                  .filter(s => s.datetime && new Date(s.datetime) > new Date())
+                  .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                  .slice(0, 3)
+                  .map(s => {
+                    const booked = bookingsList.filter(b => b.session_id === s.id && b.status !== 'cancelled').length;
+                    return (
+                      <div 
+                        key={s.id}
+                        style={{
+                          backgroundColor: '#0a0a0a',
+                          border: '1px solid rgba(255,255,255,0.05)',
+                          borderRadius: '8px',
+                          padding: '12px 16px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: '700', fontSize: '13px', color: '#fff', display: 'block' }}>
+                            {s.session_types?.title || 'Training Slot'}
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#888', display: 'block', marginTop: '2px' }}>
+                            📍 {s.location} • Spots: {booked}/{s.max_slots}
+                          </span>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{
+                            backgroundColor: 'rgba(202, 59, 36, 0.15)',
+                            border: '1px solid #ca3b24',
+                            color: '#ff8a7a',
+                            fontSize: '10px',
+                            fontWeight: '800',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-block'
+                          }}>
+                            {new Date(s.datetime).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(s.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                {sessionsList.filter(s => s.datetime && new Date(s.datetime) > new Date()).length === 0 && (
+                  <span style={{ fontSize: '12px', color: '#666', textAlign: 'center', padding: '20px 0' }}>
+                    No upcoming sessions scheduled.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions summary card */}
+            <div style={{
+              backgroundColor: '#121212',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '12px',
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#fff' }}>
+                Fighter Admin Actions
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button 
+                  onClick={() => { setActiveTab('bookings'); setShowAddBookingModal(true); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
+                    backgroundColor: 'rgba(202, 59, 36, 0.05)', border: '1px solid rgba(202, 59, 36, 0.15)', borderRadius: '8px',
+                    color: '#ff8a7a', cursor: 'pointer', fontSize: '12px', fontWeight: '700', transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(202, 59, 36, 0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(202, 59, 36, 0.05)'; }}
+                >
+                  <span>Book Appointment CTA</span>
+                  <ArrowRight style={{ width: '14px', height: '14px' }} />
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('sessions'); setShowAddSessionTypeModal(true); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
+                    backgroundColor: 'rgba(22, 163, 74, 0.05)', border: '1px solid rgba(22, 163, 74, 0.15)', borderRadius: '8px',
+                    color: '#86efac', cursor: 'pointer', fontSize: '12px', fontWeight: '700', transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(22, 163, 74, 0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(22, 163, 74, 0.05)'; }}
+                >
+                  <span>Create Class Type</span>
+                  <Plus style={{ width: '14px', height: '14px' }} />
+                </button>
+                <button 
+                  onClick={() => { setActiveTab('sessions'); setShowAddScheduleModal(true); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
+                    backgroundColor: 'rgba(37, 99, 235, 0.05)', border: '1px solid rgba(37, 99, 235, 0.15)', borderRadius: '8px',
+                    color: '#93c5fd', cursor: 'pointer', fontSize: '12px', fontWeight: '700', transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'; }}
+                >
+                  <span>Schedule Slot</span>
+                  <Plus style={{ width: '14px', height: '14px' }} />
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -852,6 +982,16 @@ export const AdminDashboardMockup = () => {
                 }}
               >
                 Schedules (Time Slots)
+              </button>
+              <button 
+                onClick={() => setActiveSessionSubtab('upcoming')}
+                style={{
+                  backgroundColor: activeSessionSubtab === 'upcoming' ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
+                  color: activeSessionSubtab === 'upcoming' ? '#ca3b24' : '#888',
+                  border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
+                }}
+              >
+                Upcoming Sessions
               </button>
             </div>
             
@@ -952,6 +1092,71 @@ export const AdminDashboardMockup = () => {
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Table displaying Upcoming time slots */}
+          {activeSessionSubtab === 'upcoming' && (
+            <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#888' }}>
+                      <th style={{ padding: '12px' }}>Session Class</th>
+                      <th style={{ padding: '12px' }}>Date & Time</th>
+                      <th style={{ padding: '12px' }}>Location</th>
+                      <th style={{ padding: '12px' }}>Price</th>
+                      <th style={{ padding: '12px' }}>Reserved Spots</th>
+                      <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sessionsList
+                      .filter(s => s.datetime && new Date(s.datetime) > new Date())
+                      .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                      .map(s => {
+                        const booked = bookingsList.filter(b => b.session_id === s.id && b.status !== 'cancelled').length;
+                        return (
+                          <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <td style={{ padding: '12px', fontWeight: '600' }}>{s.session_types?.title || 'Unknown Class'}</td>
+                            <td style={{ padding: '12px', color: '#ff8a7a', fontWeight: '600' }}>{new Date(s.datetime).toLocaleString()}</td>
+                            <td style={{ padding: '12px', color: '#aaa' }}>{s.location}</td>
+                            <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>${s.price_usd}</td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{
+                                backgroundColor: booked >= s.max_slots ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                                border: `1px solid ${booked >= s.max_slots ? '#ef4444' : '#22c55e'}`,
+                                color: booked >= s.max_slots ? '#fca5a5' : '#86efac',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                padding: '3px 8px',
+                                borderRadius: '4px'
+                              }}>
+                                {booked} / {s.max_slots} filled
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px', textAlign: 'right' }}>
+                              <button 
+                                onClick={() => handleDeleteSchedule(s.id)}
+                                style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
+                                title="Cancel and Delete Schedule Slot"
+                              >
+                                <Trash2 style={{ width: '16px', height: '16px' }} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    {sessionsList.filter(s => s.datetime && new Date(s.datetime) > new Date()).length === 0 && (
+                      <tr>
+                        <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: '#666' }}>
+                          No upcoming sessions scheduled.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
