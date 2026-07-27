@@ -20,82 +20,112 @@ import {
   Activity,
   Filter,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 
 export const AdminDashboardMockup = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Supabase Profiles State
+  // Supabase Table States
   const [profilesList, setProfilesList] = useState([]);
-  const [loadingProfiles, setLoadingProfiles] = useState(true);
+  const [sessionTypes, setSessionTypes] = useState([]);
+  const [sessionsList, setSessionsList] = useState([]);
+  const [bookingsList, setBookingsList] = useState([]);
+  
+  const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState('');
   
   // Date Range Filter State
   const [dateFilter, setDateFilter] = useState('all');
 
-  // Selected Client for Modal View
+  // Modal Views
   const [selectedClient, setSelectedClient] = useState(null);
   const [clientModalOpen, setClientModalOpen] = useState(false);
-
-  // Mock sessions state for CRUD
-  const [sessions, setSessions] = useState([
-    { id: '1', title: 'Heavy Bag Drills', category: 'Group Class', duration: '60 mins', price: '$25', capacity: 15 },
-    { id: '2', title: '1-on-1 Elite Sparring', category: 'Private Session', duration: '90 mins', price: '$90', capacity: 1 },
-    { id: '3', title: 'Kids Boxing Basics', category: 'Youth Program', duration: '45 mins', price: '$20', capacity: 10 },
-    { id: '4', title: 'Advanced Footwork', category: 'Group Class', duration: '60 mins', price: '$25', capacity: 12 },
-  ]);
-  const [activeSessionSubtab, setActiveSessionSubtab] = useState('types');
-  const [categories, setCategories] = useState([
-    { id: 'c1', name: 'Private Session', description: 'Personal customized boxing tutoring' },
-    { id: 'c2', name: 'Group Class', description: 'Cardio, drills and technical sparring' },
-    { id: 'c3', name: 'Youth Program', description: 'Safe, fun basics for ages 8-15' }
-  ]);
-  
-  // Add Session State
-  const [newSession, setNewSession] = useState({ title: '', category: 'Group Class', duration: '', price: '', capacity: '' });
-  const [showAddSessionModal, setShowAddSessionModal] = useState(false);
-
-  // Add Category State
-  const [newCategory, setNewCategory] = useState({ name: '', description: '' });
-  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-
-  // Mock Bookings State for CRUD
-  const [bookings, setBookings] = useState([
-    { id: 'b1', clientName: 'John Doe', sessionName: '1-on-1 Elite Sparring', time: 'Monday, 10:00 AM', status: 'scheduled' },
-    { id: 'b2', clientName: 'Jane Smith', sessionName: 'Heavy Bag Drills', time: 'Tuesday, 6:00 PM', status: 'scheduled' },
-    { id: 'b3', clientName: 'Mike Tyson', sessionName: 'Heavy Bag Drills', time: 'Wednesday, 6:00 PM', status: 'completed' },
-    { id: 'b4', clientName: 'Tony Stark', sessionName: 'Kids Boxing Basics', time: 'Thursday, 4:00 PM', status: 'cancelled' },
-  ]);
+  const [showAddSessionTypeModal, setShowAddSessionTypeModal] = useState(false);
+  const [showAddScheduleModal, setShowAddScheduleModal] = useState(false);
   const [showAddBookingModal, setShowAddBookingModal] = useState(false);
-  const [newBooking, setNewBooking] = useState({ clientName: '', sessionName: 'Heavy Bag Drills', time: '', status: 'scheduled' });
+
+  // Form Input States
+  const [newSessionType, setNewSessionType] = useState({ title: '', category: 'Group Class', duration_minutes: 60, description: '' });
+  const [newSchedule, setNewSchedule] = useState({ session_type_id: '', datetime: '', location: '', price_usd: 25.0, max_slots: 15 });
+  const [newBooking, setNewBooking] = useState({ client_id: '', session_id: '', status: 'booked', payment_status: 'pending' });
 
   // Client Search/Filter states
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  const fetchAllProfiles = async () => {
-    setLoadingProfiles(true);
+  // Fetch all tables from Supabase
+  const fetchAllData = async () => {
+    setLoading(true);
     setFeedbackMsg('');
     try {
-      const { data, error } = await supabase
+      // 1. Fetch profiles
+      const { data: profiles, error: err1 } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
+      if (err1) throw err1;
+      setProfilesList(profiles || []);
 
-      if (error) throw error;
-      setProfilesList(data || []);
+      // 2. Fetch session types
+      const { data: types, error: err2 } = await supabase
+        .from('session_types')
+        .select('*')
+        .order('title', { ascending: true });
+      if (err2) throw err2;
+      setSessionTypes(types || []);
+
+      // 3. Fetch scheduled sessions
+      const { data: sess, error: err3 } = await supabase
+        .from('sessions')
+        .select(`
+          id,
+          datetime,
+          location,
+          price_usd,
+          max_slots,
+          status,
+          session_type_id,
+          session_types (title, category)
+        `)
+        .order('datetime', { ascending: true });
+      if (err3) throw err3;
+      setSessionsList(sess || []);
+
+      // 4. Fetch bookings
+      const { data: bks, error: err4 } = await supabase
+        .from('bookings')
+        .select(`
+          id,
+          status,
+          payment_status,
+          client_id,
+          session_id,
+          profiles (full_name, email),
+          sessions (
+            id,
+            datetime,
+            location,
+            price_usd,
+            session_types (title, category)
+          )
+        `)
+        .order('created_at', { ascending: false });
+      if (err4) throw err4;
+      setBookingsList(bks || []);
+
     } catch (err) {
-      console.error('Error fetching profiles:', err);
+      console.error('Error fetching dashboard data:', err);
       setFeedbackMsg(`Error: ${err.message}`);
     } finally {
-      setLoadingProfiles(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllProfiles();
+    fetchAllData();
   }, []);
 
   const handleRoleChange = async (targetId, newRole) => {
@@ -108,9 +138,8 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg(`Role updated to "${newRole}" successfully!`);
-      await fetchAllProfiles();
+      await fetchAllData();
       
-      // Update modal copy if open
       if (selectedClient && selectedClient.id === targetId) {
         setSelectedClient(prev => ({ ...prev, role: newRole }));
       }
@@ -129,9 +158,8 @@ export const AdminDashboardMockup = () => {
 
       if (error) throw error;
       setFeedbackMsg(`Status updated to "${newStatus}"!`);
-      await fetchAllProfiles();
+      await fetchAllData();
 
-      // Update modal copy if open
       if (selectedClient && selectedClient.id === targetId) {
         setSelectedClient(prev => ({ ...prev, status: newStatus }));
       }
@@ -140,50 +168,114 @@ export const AdminDashboardMockup = () => {
     }
   };
 
-  // CRUD handlers for Sessions
-  const handleAddSession = (e) => {
+  // Add Session Type
+  const handleAddSessionType = async (e) => {
     e.preventDefault();
-    if (!newSession.title) return;
-    const newId = String(Date.now());
-    setSessions(prev => [...prev, { ...newSession, id: newId }]);
-    setNewSession({ title: '', category: 'Group Class', duration: '', price: '', capacity: '' });
-    setShowAddSessionModal(false);
+    if (!newSessionType.title) return;
+    try {
+      const { error } = await supabase
+        .from('session_types')
+        .insert([newSessionType]);
+
+      if (error) throw error;
+      setFeedbackMsg(`Session type "${newSessionType.title}" added to Supabase.`);
+      setShowAddSessionTypeModal(false);
+      setNewSessionType({ title: '', category: 'Group Class', duration_minutes: 60, description: '' });
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to add class type: ${err.message}`);
+    }
   };
 
-  const handleDeleteSession = (id) => {
-    setSessions(prev => prev.filter(s => s.id !== id));
+  // Delete Session Type
+  const handleDeleteSessionType = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this session type? This will cascade delete any scheduled sessions.')) return;
+    try {
+      const { error } = await supabase
+        .from('session_types')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setFeedbackMsg('Session type deleted successfully.');
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to delete session type: ${err.message}`);
+    }
   };
 
-  // CRUD handlers for Categories
-  const handleAddCategory = (e) => {
+  // Schedule a Class Time Slot
+  const handleAddSchedule = async (e) => {
     e.preventDefault();
-    if (!newCategory.name) return;
-    const newId = 'c' + String(Date.now());
-    setCategories(prev => [...prev, { ...newCategory, id: newId }]);
-    setNewCategory({ name: '', description: '' });
-    setShowAddCategoryModal(false);
+    if (!newSchedule.session_type_id || !newSchedule.datetime) return;
+    try {
+      const { error } = await supabase
+        .from('sessions')
+        .insert([{
+          ...newSchedule,
+          status: 'active'
+        }]);
+
+      if (error) throw error;
+      setFeedbackMsg('New class time slot scheduled in database.');
+      setShowAddScheduleModal(false);
+      setNewSchedule({ session_type_id: '', datetime: '', location: '', price_usd: 25.0, max_slots: 15 });
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to schedule class: ${err.message}`);
+    }
   };
 
-  const handleDeleteCategory = (id) => {
-    setCategories(prev => prev.filter(c => c.id !== id));
+  // Delete Scheduled Session
+  const handleDeleteSchedule = async (id) => {
+    if (!window.confirm('Delete this scheduled class instance?')) return;
+    try {
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setFeedbackMsg('Scheduled class removed.');
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to delete schedule: ${err.message}`);
+    }
   };
 
-  // CRUD handlers for Bookings
-  const handleAddBooking = (e) => {
+  // Add Appointment Booking
+  const handleAddBooking = async (e) => {
     e.preventDefault();
-    if (!newBooking.clientName || !newBooking.time) return;
-    const newId = 'b' + String(Date.now());
-    setBookings(prev => [...prev, { ...newBooking, id: newId }]);
-    setNewBooking({ clientName: '', sessionName: 'Heavy Bag Drills', time: '', status: 'scheduled' });
-    setShowAddBookingModal(false);
+    if (!newBooking.client_id || !newBooking.session_id) return;
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .insert([newBooking]);
+
+      if (error) throw error;
+      setFeedbackMsg('Fighter booked successfully.');
+      setShowAddBookingModal(false);
+      setNewBooking({ client_id: '', session_id: '', status: 'booked', payment_status: 'pending' });
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to create booking: ${err.message}`);
+    }
   };
 
-  const handleBookingStatusChange = (id, newStatus) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: newStatus } : b));
-  };
+  // Update Booking Status (e.g. mark Attended or Cancelled)
+  const handleBookingStatusChange = async (id, status) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status })
+        .eq('id', id);
 
-  const handleCancelBooking = (id) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled' } : b));
+      if (error) throw error;
+      setFeedbackMsg(`Booking status set to "${status}".`);
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Failed to update booking status: ${err.message}`);
+    }
   };
 
   // Filter clients list
@@ -193,6 +285,9 @@ export const AdminDashboardMockup = () => {
     const roleMatch = roleFilter === 'all' || client.role === roleFilter;
     return nameMatch && roleMatch;
   });
+
+  // Unique categories list
+  const categoriesList = [...new Set(sessionTypes.map(st => st.category).filter(Boolean))];
 
   return (
     <AdminLayout activeTab={activeTab} setActiveTab={setActiveTab}>
@@ -207,7 +302,8 @@ export const AdminDashboardMockup = () => {
           marginBottom: '20px',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          zIndex: 999
         }}>
           <span>{feedbackMsg}</span>
           <button onClick={() => setFeedbackMsg('')} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
@@ -226,18 +322,26 @@ export const AdminDashboardMockup = () => {
               <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Dashboard Overview</h1>
               <p style={{ fontSize: '13px', color: '#888', margin: '4px 0 0 0' }}>Real-time statistics and activity ledger</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '6px 12px' }}>
-              <Filter style={{ width: '14px', height: '14px', color: '#ca3b24' }} />
-              <select 
-                value={dateFilter} 
-                onChange={(e) => setDateFilter(e.target.value)}
-                style={{ backgroundColor: 'transparent', border: 'none', color: '#fff', fontSize: '13px', cursor: 'pointer', outline: 'none' }}
-              >
-                <option value="all">All Time</option>
-                <option value="week">Last 7 Days</option>
-                <option value="month">This Month</option>
-              </select>
-            </div>
+            
+            <button 
+              onClick={fetchAllData}
+              disabled={loading}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <RefreshCw style={{ width: '14px', height: '14px', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+              Refresh Data
+            </button>
           </div>
 
           {/* Cards Grid */}
@@ -247,22 +351,22 @@ export const AdminDashboardMockup = () => {
             gap: '20px'
           }}>
             <GlassmorphicCard 
-              title="Active Sessions" 
-              value={sessions.length} 
+              title="Class Schedules" 
+              value={loading ? '...' : sessionsList.length} 
               icon={Calendar} 
-              trend={{ value: '+2', positive: true, label: 'this week' }}
+              trend={{ value: '+4', positive: true, label: 'this week' }}
               glowColor="202, 59, 36"
             />
             <GlassmorphicCard 
               title="Registered Clients" 
-              value={loadingProfiles ? '...' : profilesList.length} 
+              value={loading ? '...' : profilesList.length} 
               icon={Users} 
               trend={{ value: '+4', positive: true, label: 'new signups' }}
               glowColor="22, 163, 74"
             />
             <GlassmorphicCard 
               title="Appointments Booked" 
-              value={bookings.filter(b => b.status === 'scheduled').length} 
+              value={loading ? '...' : bookingsList.filter(b => b.status === 'booked').length} 
               icon={BookOpen} 
               trend={{ value: '+18%', positive: true, label: 'vs last month' }}
               glowColor="37, 99, 235"
@@ -311,7 +415,7 @@ export const AdminDashboardMockup = () => {
               </button>
 
               <button 
-                onClick={() => { setActiveTab('sessions'); setShowAddSessionModal(true); }}
+                onClick={() => { setActiveTab('sessions'); setShowAddSessionTypeModal(true); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -334,7 +438,7 @@ export const AdminDashboardMockup = () => {
               </button>
 
               <button 
-                onClick={() => { setActiveTab('sessions'); setShowAddCategoryModal(true); }}
+                onClick={() => { setActiveTab('sessions'); setShowAddScheduleModal(true); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -352,7 +456,7 @@ export const AdminDashboardMockup = () => {
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.1)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
-                <span>New Service Category</span>
+                <span>Schedule New Session</span>
                 <Plus style={{ width: '16px', height: '16px' }} />
               </button>
             </div>
@@ -372,23 +476,16 @@ export const AdminDashboardMockup = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#0a0a0a', borderRadius: '8px', borderLeft: '3px solid #ca3b24' }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <Activity style={{ width: '16px', height: '16px', color: '#ca3b24' }} />
-                  <span style={{ fontSize: '13px' }}>Coach promoted user test@bddboxing.com to CLIENT</span>
+                  <span style={{ fontSize: '13px' }}>Fighters roles and statuses synced successfully</span>
                 </div>
                 <span style={{ fontSize: '11px', color: '#555' }}>Just now</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#0a0a0a', borderRadius: '8px', borderLeft: '3px solid #22c55e' }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <CheckCircle2 style={{ width: '16px', height: '16px', color: '#22c55e' }} />
-                  <span style={{ fontSize: '13px' }}>Admin made public avatars bucket visible</span>
+                  <span style={{ fontSize: '13px' }}>Supabase Real-time notification center operational</span>
                 </div>
-                <span style={{ fontSize: '11px', color: '#555' }}>10 mins ago</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', backgroundColor: '#0a0a0a', borderRadius: '8px', borderLeft: '3px solid #eab308' }}>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <AlertTriangle style={{ width: '16px', height: '16px', color: '#eab308' }} />
-                  <span style={{ fontSize: '13px' }}>System warning: profiles table RLS policies updated</span>
-                </div>
-                <span style={{ fontSize: '11px', color: '#555' }}>1 hour ago</span>
+                <span style={{ fontSize: '11px', color: '#555' }}>5 mins ago</span>
               </div>
             </div>
           </div>
@@ -399,15 +496,35 @@ export const AdminDashboardMockup = () => {
       {/* SESSIONS SUB-VIEW */}
       {activeTab === 'sessions' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Section Sub-tabs */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Sessions & Categories</h1>
-              <p style={{ fontSize: '13px', color: '#888', margin: '4px 0 0 0' }}>Manage boxing classes, schedules and pricing tiers</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={() => setActiveSessionSubtab('types')}
+                style={{
+                  backgroundColor: activeSessionSubtab === 'types' ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
+                  color: activeSessionSubtab === 'types' ? '#ca3b24' : '#888',
+                  border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
+                }}
+              >
+                Session Types (Class Definitions)
+              </button>
+              <button 
+                onClick={() => setActiveSessionSubtab('schedules')}
+                style={{
+                  backgroundColor: activeSessionSubtab === 'schedules' ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
+                  color: activeSessionSubtab === 'schedules' ? '#ca3b24' : '#888',
+                  border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
+                }}
+              >
+                Schedules (Time Slots)
+              </button>
             </div>
             
             {activeSessionSubtab === 'types' ? (
               <button 
-                onClick={() => setShowAddSessionModal(true)}
+                onClick={() => setShowAddSessionTypeModal(true)}
                 style={{
                   backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
                 }}
@@ -417,42 +534,18 @@ export const AdminDashboardMockup = () => {
               </button>
             ) : (
               <button 
-                onClick={() => setShowAddCategoryModal(true)}
+                onClick={() => setShowAddScheduleModal(true)}
                 style={{
                   backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
                 }}
               >
                 <Plus style={{ width: '16px', height: '16px' }} />
-                Add Category
+                Schedule Session Slot
               </button>
             )}
           </div>
 
-          {/* Subtabs Toggle */}
-          <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '12px' }}>
-            <button 
-              onClick={() => setActiveSessionSubtab('types')}
-              style={{
-                backgroundColor: activeSessionSubtab === 'types' ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
-                color: activeSessionSubtab === 'types' ? '#ca3b24' : '#888',
-                border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
-              }}
-            >
-              Session Types
-            </button>
-            <button 
-              onClick={() => setActiveSessionSubtab('categories')}
-              style={{
-                backgroundColor: activeSessionSubtab === 'categories' ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
-                color: activeSessionSubtab === 'categories' ? '#ca3b24' : '#888',
-                border: 'none', borderRadius: '6px', padding: '8px 16px', fontWeight: '700', fontSize: '13px', cursor: 'pointer'
-              }}
-            >
-              Service Categories
-            </button>
-          </div>
-
-          {/* Session Types Table */}
+          {/* Table displaying Session Types */}
           {activeSessionSubtab === 'types' && (
             <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
               <div style={{ overflowX: 'auto' }}>
@@ -462,22 +555,24 @@ export const AdminDashboardMockup = () => {
                       <th style={{ padding: '12px' }}>Session Name</th>
                       <th style={{ padding: '12px' }}>Category</th>
                       <th style={{ padding: '12px' }}>Duration</th>
-                      <th style={{ padding: '12px' }}>Pricing</th>
-                      <th style={{ padding: '12px' }}>Max Capacity</th>
+                      <th style={{ padding: '12px' }}>Description</th>
                       <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sessions.map(s => (
+                    {sessionTypes.map(s => (
                       <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                         <td style={{ padding: '12px', fontWeight: '600' }}>{s.title}</td>
-                        <td style={{ padding: '12px', color: '#ccc' }}>{s.category}</td>
-                        <td style={{ padding: '12px', color: '#aaa' }}>{s.duration}</td>
-                        <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>{s.price}</td>
-                        <td style={{ padding: '12px', color: '#aaa' }}>{s.capacity} spots</td>
+                        <td style={{ padding: '12px', color: '#ccc' }}>
+                          <span style={{ backgroundColor: 'rgba(202,59,36,0.15)', color: '#ff8a7a', fontSize: '11px', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(202,59,36,0.2)' }}>
+                            {s.category || 'Group Class'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px', color: '#aaa' }}>{s.duration_minutes} mins</td>
+                        <td style={{ padding: '12px', color: '#888' }}>{s.description || 'No description'}</td>
                         <td style={{ padding: '12px', textAlign: 'right' }}>
                           <button 
-                            onClick={() => handleDeleteSession(s.id)}
+                            onClick={() => handleDeleteSessionType(s.id)}
                             style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
                           >
                             <Trash2 style={{ width: '16px', height: '16px' }} />
@@ -491,26 +586,32 @@ export const AdminDashboardMockup = () => {
             </div>
           )}
 
-          {/* Categories Tab */}
-          {activeSessionSubtab === 'categories' && (
+          {/* Table displaying Scheduled time slots */}
+          {activeSessionSubtab === 'schedules' && (
             <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#888' }}>
-                      <th style={{ padding: '12px' }}>Category Name</th>
-                      <th style={{ padding: '12px' }}>Description</th>
+                      <th style={{ padding: '12px' }}>Session Class</th>
+                      <th style={{ padding: '12px' }}>Date & Time</th>
+                      <th style={{ padding: '12px' }}>Location</th>
+                      <th style={{ padding: '12px' }}>Price</th>
+                      <th style={{ padding: '12px' }}>Spots</th>
                       <th style={{ padding: '12px', textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {categories.map(c => (
-                      <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '12px', fontWeight: '700', color: '#ca3b24' }}>{c.name}</td>
-                        <td style={{ padding: '12px', color: '#ccc' }}>{c.description}</td>
+                    {sessionsList.map(s => (
+                      <tr key={s.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '12px', fontWeight: '600' }}>{s.session_types?.title || 'Unknown Class'}</td>
+                        <td style={{ padding: '12px', color: '#ccc' }}>{new Date(s.datetime).toLocaleString()}</td>
+                        <td style={{ padding: '12px', color: '#aaa' }}>{s.location}</td>
+                        <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>${s.price_usd}</td>
+                        <td style={{ padding: '12px', color: '#aaa' }}>{s.max_slots} spots</td>
                         <td style={{ padding: '12px', textAlign: 'right' }}>
                           <button 
-                            onClick={() => handleDeleteCategory(c.id)}
+                            onClick={() => handleDeleteSchedule(s.id)}
                             style={{ backgroundColor: 'transparent', border: 'none', color: '#ff8a7a', cursor: 'pointer', padding: '4px' }}
                           >
                             <Trash2 style={{ width: '16px', height: '16px' }} />
@@ -594,7 +695,7 @@ export const AdminDashboardMockup = () => {
 
           {/* Database Profiles Ledger */}
           <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '24px' }}>
-            {loadingProfiles ? (
+            {loading ? (
               <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>Loading user profiles from Supabase...</p>
             ) : filteredClients.length === 0 ? (
               <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', padding: '32px 0' }}>No matching profiles found.</p>
@@ -683,7 +784,7 @@ export const AdminDashboardMockup = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Bookings Calendar</h1>
+              <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Bookings Directory</h1>
               <p style={{ fontSize: '13px', color: '#888', margin: '4px 0 0 0' }}>Schedule appointments and manage customer attendance</p>
             </div>
             
@@ -709,13 +810,20 @@ export const AdminDashboardMockup = () => {
             border: '1px solid rgba(255,255,255,0.08)'
           }}>
             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => {
-              const dayBookings = bookings.filter(b => b.time.includes(day));
+              const dayBookings = bookingsList.filter(b => {
+                const sDate = b.sessions?.datetime;
+                if (!sDate) return false;
+                const dateObj = new Date(sDate);
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+                return dayName === day;
+              });
+              
               return (
                 <div key={day} style={{ backgroundColor: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', padding: '12px', minHeight: '160px' }}>
                   <span style={{ fontSize: '12px', color: '#ca3b24', fontWeight: '800', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>{day}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {dayBookings.length === 0 ? (
-                      <span style={{ fontSize: '11px', color: '#444' }}>No classes scheduled</span>
+                      <span style={{ fontSize: '11px', color: '#444' }}>No classes</span>
                     ) : (
                       dayBookings.map(b => (
                         <div 
@@ -724,16 +832,16 @@ export const AdminDashboardMockup = () => {
                             padding: '8px', 
                             borderRadius: '6px', 
                             backgroundColor: '#0a0a0a', 
-                            borderLeft: `3px solid ${b.status === 'cancelled' ? '#ef4444' : b.status === 'completed' ? '#22c55e' : '#ca3b24'}`,
+                            borderLeft: `3px solid ${b.status === 'cancelled' ? '#ef4444' : b.status === 'attended' ? '#22c55e' : '#ca3b24'}`,
                             fontSize: '11px'
                           }}
                         >
-                          <span style={{ fontWeight: '700', display: 'block', color: '#fff' }}>{b.sessionName}</span>
-                          <span style={{ color: '#888', display: 'block', margin: '2px 0' }}>{b.clientName}</span>
+                          <span style={{ fontWeight: '700', display: 'block', color: '#fff' }}>{b.sessions?.session_types?.title}</span>
+                          <span style={{ color: '#888', display: 'block', margin: '2px 0' }}>{b.profiles?.full_name || 'Anonymous'}</span>
                           <span style={{ 
                             fontSize: '9px', 
                             fontWeight: '800',
-                            color: b.status === 'cancelled' ? '#fca5a5' : b.status === 'completed' ? '#86efac' : '#93c5fd',
+                            color: b.status === 'cancelled' ? '#fca5a5' : b.status === 'attended' ? '#86efac' : '#93c5fd',
                             textTransform: 'uppercase'
                           }}>
                             {b.status}
@@ -762,16 +870,16 @@ export const AdminDashboardMockup = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map(b => (
+                  {bookingsList.map(b => (
                     <tr key={b.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '12px', fontWeight: '600' }}>{b.clientName}</td>
-                      <td style={{ padding: '12px', color: '#ccc' }}>{b.sessionName}</td>
-                      <td style={{ padding: '12px', color: '#aaa' }}>{b.time}</td>
+                      <td style={{ padding: '12px', fontWeight: '600' }}>{b.profiles?.full_name || b.profiles?.email || 'N/A'}</td>
+                      <td style={{ padding: '12px', color: '#ccc' }}>{b.sessions?.session_types?.title || 'Unknown Class'}</td>
+                      <td style={{ padding: '12px', color: '#aaa' }}>{b.sessions?.datetime ? new Date(b.sessions.datetime).toLocaleString() : 'N/A'}</td>
                       <td style={{ padding: '12px' }}>
                         <span style={{
-                          backgroundColor: b.status === 'completed' ? 'rgba(34, 197, 94, 0.15)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(202, 59, 36, 0.15)',
-                          border: `1px solid ${b.status === 'completed' ? '#22c55e' : b.status === 'cancelled' ? '#ef4444' : '#ca3b24'}`,
-                          color: b.status === 'completed' ? '#86efac' : b.status === 'cancelled' ? '#fca5a5' : '#ff8a7a',
+                          backgroundColor: b.status === 'attended' ? 'rgba(34, 197, 94, 0.15)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(202, 59, 36, 0.15)',
+                          border: `1px solid ${b.status === 'attended' ? '#22c55e' : b.status === 'cancelled' ? '#ef4444' : '#ca3b24'}`,
+                          color: b.status === 'attended' ? '#86efac' : b.status === 'cancelled' ? '#fca5a5' : '#ff8a7a',
                           fontSize: '10px',
                           fontWeight: '800',
                           padding: '3px 8px',
@@ -783,16 +891,16 @@ export const AdminDashboardMockup = () => {
                       </td>
                       <td style={{ padding: '12px', textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: '8px' }}>
-                          {b.status === 'scheduled' && (
+                          {b.status === 'booked' && (
                             <>
                               <button 
-                                onClick={() => handleBookingStatusChange(b.id, 'completed')}
+                                onClick={() => handleBookingStatusChange(b.id, 'attended')}
                                 style={{ backgroundColor: 'rgba(34,197,94,0.1)', border: '1px solid #22c55e', color: '#86efac', borderRadius: '4px', padding: '4px 8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
                               >
-                                Mark Done
+                                Attended
                               </button>
                               <button 
-                                onClick={() => handleCancelBooking(b.id)}
+                                onClick={() => handleBookingStatusChange(b.id, 'cancelled')}
                                 style={{ backgroundColor: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', color: '#fca5a5', borderRadius: '4px', padding: '4px 8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
                               >
                                 Cancel
@@ -937,25 +1045,25 @@ export const AdminDashboardMockup = () => {
       )}
 
       {/* ADD SESSION TYPE MODAL */}
-      {showAddSessionModal && (
+      {showAddSessionTypeModal && (
         <div style={{
           position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px'
         }}>
-          <form onSubmit={handleAddSession} style={{
+          <form onSubmit={handleAddSessionType} style={{
             width: '100%', maxWidth: '440px', backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Add New Session Type</h3>
-              <button type="button" onClick={() => setShowAddSessionModal(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>
+              <button type="button" onClick={() => setShowAddSessionTypeModal(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>
                 <X style={{ width: '20px', height: '20px' }} />
               </button>
             </div>
             
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Session Title</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Session Name / Title</label>
               <input 
                 type="text" required placeholder="e.g. Sparring Class"
-                value={newSession.title} onChange={e => setNewSession(prev => ({ ...prev, title: e.target.value }))}
+                value={newSessionType.title} onChange={e => setNewSessionType(prev => ({ ...prev, title: e.target.value }))}
                 style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
               />
             </div>
@@ -963,68 +1071,20 @@ export const AdminDashboardMockup = () => {
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Category</label>
               <select 
-                value={newSession.category} onChange={e => setNewSession(prev => ({ ...prev, category: e.target.value }))}
+                value={newSessionType.category} onChange={e => setNewSessionType(prev => ({ ...prev, category: e.target.value }))}
                 style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', cursor: 'pointer' }}
               >
-                {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                <option value="Group Class">Group Class</option>
+                <option value="Private Session">Private Session</option>
+                <option value="Youth Program">Youth Program</option>
               </select>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Duration</label>
-                <input 
-                  type="text" required placeholder="e.g. 60 mins"
-                  value={newSession.duration} onChange={e => setNewSession(prev => ({ ...prev, duration: e.target.value }))}
-                  style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Price</label>
-                <input 
-                  type="text" required placeholder="e.g. $25"
-                  value={newSession.price} onChange={e => setNewSession(prev => ({ ...prev, price: e.target.value }))}
-                  style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
-                />
-              </div>
-            </div>
-
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Max Spots</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Duration (minutes)</label>
               <input 
-                type="number" required placeholder="12"
-                value={newSession.capacity} onChange={e => setNewSession(prev => ({ ...prev, capacity: Number(e.target.value) }))}
-                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
-              />
-            </div>
-
-            <button type="submit" style={{ backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', marginTop: '10px' }}>
-              Create Class Type
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* ADD CATEGORY MODAL */}
-      {showAddCategoryModal && (
-        <div style={{
-          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px'
-        }}>
-          <form onSubmit={handleAddCategory} style={{
-            width: '100%', maxWidth: '440px', backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Add Service Category</h3>
-              <button type="button" onClick={() => setShowAddCategoryModal(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>
-                <X style={{ width: '20px', height: '20px' }} />
-              </button>
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Category Name</label>
-              <input 
-                type="text" required placeholder="e.g. Master Sparring"
-                value={newCategory.name} onChange={e => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                type="number" required placeholder="60"
+                value={newSessionType.duration_minutes} onChange={e => setNewSessionType(prev => ({ ...prev, duration_minutes: Number(e.target.value) }))}
                 style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
               />
             </div>
@@ -1032,14 +1092,86 @@ export const AdminDashboardMockup = () => {
             <div>
               <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Description</label>
               <textarea 
-                rows="3" required placeholder="Short category description..."
-                value={newCategory.description} onChange={e => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
+                rows="3" required placeholder="Describe the boxing session..."
+                value={newSessionType.description} onChange={e => setNewSessionType(prev => ({ ...prev, description: e.target.value }))}
                 style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none', resize: 'none' }}
               />
             </div>
 
             <button type="submit" style={{ backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', marginTop: '10px' }}>
-              Create Category
+              Save Session Type
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* SCHEDULE SESSION MODAL */}
+      {showAddScheduleModal && (
+        <div style={{
+          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px'
+        }}>
+          <form onSubmit={handleAddSchedule} style={{
+            width: '100%', maxWidth: '440px', backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', overflow: 'hidden', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Schedule Session Slot</h3>
+              <button type="button" onClick={() => setShowAddScheduleModal(false)} style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}>
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Class Definition (Session Type)</label>
+              <select 
+                value={newSchedule.session_type_id} 
+                onChange={e => setNewSchedule(prev => ({ ...prev, session_type_id: e.target.value }))}
+                required
+                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', cursor: 'pointer' }}
+              >
+                <option value="">Select a Class Type...</option>
+                {sessionTypes.map(st => <option key={st.id} value={st.id}>{st.title}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Date & Time</label>
+              <input 
+                type="datetime-local" required
+                value={newSchedule.datetime} onChange={e => setNewSchedule(prev => ({ ...prev, datetime: e.target.value }))}
+                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Location</label>
+              <input 
+                type="text" required placeholder="e.g. Main Ring"
+                value={newSchedule.location} onChange={e => setNewSchedule(prev => ({ ...prev, location: e.target.value }))}
+                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Price (USD)</label>
+                <input 
+                  type="number" required placeholder="25"
+                  value={newSchedule.price_usd} onChange={e => setNewSchedule(prev => ({ ...prev, price_usd: Number(e.target.value) }))}
+                  style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Max Capacity</label>
+                <input 
+                  type="number" required placeholder="15"
+                  value={newSchedule.max_slots} onChange={e => setNewSchedule(prev => ({ ...prev, max_slots: Number(e.target.value) }))}
+                  style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            <button type="submit" style={{ backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', marginTop: '10px' }}>
+              Schedule Session
             </button>
           </form>
         </div>
@@ -1061,35 +1193,49 @@ export const AdminDashboardMockup = () => {
             </div>
             
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Client Name</label>
-              <input 
-                type="text" required placeholder="e.g. John Doe"
-                value={newBooking.clientName} onChange={e => setNewBooking(prev => ({ ...prev, clientName: e.target.value }))}
-                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Session Class</label>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Select Client</label>
               <select 
-                value={newBooking.sessionName} onChange={e => setNewBooking(prev => ({ ...prev, sessionName: e.target.value }))}
+                value={newBooking.client_id} 
+                onChange={e => setNewBooking(prev => ({ ...prev, client_id: e.target.value }))}
+                required
                 style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', cursor: 'pointer' }}
               >
-                {sessions.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
+                <option value="">Choose a Fighter...</option>
+                {profilesList.map(p => <option key={p.id} value={p.id}>{p.full_name || p.email}</option>)}
               </select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Time Schedule Slot</label>
-              <input 
-                type="text" required placeholder="e.g. Friday, 10:00 AM"
-                value={newBooking.time} onChange={e => setNewBooking(prev => ({ ...prev, time: e.target.value }))}
-                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', outline: 'none' }}
-              />
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Select Class Schedule Slot</label>
+              <select 
+                value={newBooking.session_id} 
+                onChange={e => setNewBooking(prev => ({ ...prev, session_id: e.target.value }))}
+                required
+                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', cursor: 'pointer' }}
+              >
+                <option value="">Choose a Scheduled Slot...</option>
+                {sessionsList.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.session_types?.title} - {new Date(s.datetime).toLocaleString()} ({s.location})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: '#888', marginBottom: '6px' }}>Payment Status</label>
+              <select 
+                value={newBooking.payment_status} 
+                onChange={e => setNewBooking(prev => ({ ...prev, payment_status: e.target.value }))}
+                style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px', color: '#fff', cursor: 'pointer' }}
+              >
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+              </select>
             </div>
 
             <button type="submit" style={{ backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', marginTop: '10px' }}>
-              Schedule Appointment
+              Book Session Appointment
             </button>
           </form>
         </div>
