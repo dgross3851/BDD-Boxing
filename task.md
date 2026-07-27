@@ -67,3 +67,4 @@
   - [x] Update frontend upload handlers to fetch public URLs using `getPublicUrl()` and save them in the database column
   - [x] Modify headers to render the avatar image source directly from the public URL
   - [x] Separate dropdown links so "user/client" roles see a "Dashboard" link and "admin" roles see an "Admin" link
+  - [x] Display all database fields in the Profile page (adding read-only User ID, Account Created, and Last Updated metadata timestamps) and close GitHub Issue #1

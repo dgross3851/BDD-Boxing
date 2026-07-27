@@ -80,6 +80,10 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **Public Storage Bucket Migration**: Reconfigured the `avatars` storage bucket as public, and added folder-based check constraints restricting upload, updates, and deletes to authenticated folder owners.
 - **Direct Public URL Resolution**: Streamlined the frontend upload handlers. The app now calls `.getPublicUrl()` directly after uploading, saving the full URL in `profiles.avatar_url`. This removes the slow, recursive downloading of image blobs on every page request.
 - **Conditional Dropdown Links**: Separated the dropdown actions: users with `'user'` or `'client'` roles see a **Dashboard** link redirecting to `/dashboard`, while users with the `'admin'` role see an **Admin** link redirecting to `/admin`.
+- **Database Fields Integration**: Integrated all remaining fields from the `profiles` table to be displayed on the Profile Settings page (`Profile.jsx`):
+  - Added a read-only input for the user's unique **User ID (UUID)**.
+  - Added a formatted metadata list at the bottom of the card displaying **Account Created** and **Last Updated** date-time timestamps.
+- **GitHub Issue Completion**: Successfully resolved, closed, and completed GitHub [Issue #1](https://github.com/dgross3851/BDD-Boxing/issues/1).
 
 ---
 
@@ -87,7 +91,7 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 
 ### Build Verification
 - Executed `npx vite build`:
-  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `1.22 seconds` with zero build errors.
+  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `1.64 seconds` with zero build errors.
 
 ### Local Server Execution
 - Started development server (`npm run dev`):

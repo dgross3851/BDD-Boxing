@@ -434,6 +434,34 @@ export const Profile = () => {
               </div>
             </div>
 
+            {/* User ID (Read-Only) */}
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#ccc', marginBottom: '8px' }}>
+                User ID (Unique account identifier)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Shield style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#444' }} />
+                <input
+                  type="text"
+                  value={user?.id || ''}
+                  disabled
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#070707',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    borderRadius: '8px',
+                    padding: '12px 12px 12px 40px',
+                    color: '#666',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    cursor: 'not-allowed',
+                    fontFamily: 'monospace'
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Phone */}
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#ccc', marginBottom: '8px' }}>
@@ -505,6 +533,31 @@ export const Profile = () => {
                   fontSize: '14px'
                 }}>
                   {profile?.status?.toUpperCase() || 'ACTIVE'}
+                </span>
+              </div>
+            </div>
+
+            {/* Account Metadata Timestamps */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              marginTop: '16px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              paddingTop: '16px',
+              fontSize: '12px',
+              color: '#888'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Account Created:</span>
+                <span style={{ color: '#ccc', fontWeight: '500' }}>
+                  {profile?.created_at ? new Date(profile.created_at).toLocaleString() : 'N/A'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Last Updated:</span>
+                <span style={{ color: '#ccc', fontWeight: '500' }}>
+                  {profile?.updated_at ? new Date(profile.updated_at).toLocaleString() : 'N/A'}
                 </span>
               </div>
             </div>
