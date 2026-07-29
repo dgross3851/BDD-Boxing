@@ -289,10 +289,14 @@ export const AdminDashboardMockup = () => {
     e.preventDefault();
     if (!newSchedule.session_type_id || !newSchedule.datetime) return;
     try {
+      const parentTypeObj = sessionTypes.find(st => st.id === newSchedule.session_type_id);
+      const parentDesc = parentTypeObj?.description || '';
+
       const { error } = await supabase
         .from('sessions')
         .insert([{
           ...newSchedule,
+          description: parentDesc,
           status: 'active'
         }]);
 
@@ -300,7 +304,7 @@ export const AdminDashboardMockup = () => {
       setFeedbackMsg('New class time slot scheduled in database.');
 
       // Audit logging
-      const stName = sessionTypes.find(st => st.id === newSchedule.session_type_id)?.title || 'Class';
+      const stName = parentTypeObj?.title || 'Class';
       setActivities(prev => [{
         id: Date.now(),
         type: 'admin',
@@ -1928,6 +1932,15 @@ export const AdminDashboardMockup = () => {
                   </span>
                 </div>
               </div>
+              {/* Description Block */}
+              {selectedBooking.sessions?.description && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Session Description</label>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#ccc', lineHeight: '1.6', backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                    {selectedBooking.sessions.description}
+                  </p>
+                </div>
+              )}
 
               {/* Status Section */}
               <div>
@@ -2280,6 +2293,14 @@ export const AdminDashboardMockup = () => {
                     </div>
                   );
                 })()}
+              </div>
+
+              {/* Description Block */}
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Description</label>
+                <p style={{ margin: 0, fontSize: '13px', color: '#ccc', lineHeight: '1.6', backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  {selectedScheduleSlot.description || selectedScheduleSlot.session_types?.description || 'No description provided.'}
+                </p>
               </div>
 
               {/* Actions */}
