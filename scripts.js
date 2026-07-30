@@ -500,6 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
           '#schedule-booking-cta',
           '#transformation-cta',
           '#final-cta-primary',
+          '#hero-submit-cta',
+          '#final-submit-cta',
           '.hero-ctas a[href="contact.html"]',
           '.not-sure-box a[href="contact.html"]',
           'a[href="contact.html"]:not(.nav-link):not(.footer-links a)'
