@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export const UserDashboardMockup = () => {
-  const { user, profile, role } = useAuth();
+  const { user, profile, role, refreshProfile } = useAuth();
   
   // Navigation states
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'book', 'bookings', 'notifications'
@@ -46,6 +46,7 @@ export const UserDashboardMockup = () => {
   const [selectedCalSession, setSelectedCalSession] = useState(null);
   const [calModalOpen, setCalModalOpen] = useState(false);
   const [tallyChecked, setTallyChecked] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Pagination states
   const [bookPerPage, setBookPerPage] = useState(10);
@@ -111,12 +112,19 @@ export const UserDashboardMockup = () => {
       const hash = window.location.hash;
       const hashQuestionIndex = hash.indexOf('?');
       let bookSessionId = '';
+      let bookProgramCategory = '';
+      let bookGeneral = '';
+      
       if (hashQuestionIndex !== -1) {
         const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
         bookSessionId = searchParams.get('bookSessionId');
+        bookProgramCategory = searchParams.get('bookProgramCategory');
+        bookGeneral = searchParams.get('bookGeneral');
       } else {
         const searchParams = new URLSearchParams(window.location.search);
         bookSessionId = searchParams.get('bookSessionId');
+        bookProgramCategory = searchParams.get('bookProgramCategory');
+        bookGeneral = searchParams.get('bookGeneral');
       }
 
       if (bookSessionId) {
@@ -131,6 +139,20 @@ export const UserDashboardMockup = () => {
           const nextHash = window.location.hash.split('?')[0];
           window.location.hash = nextHash;
         }
+      } else if (bookProgramCategory) {
+        setActiveTab('book');
+        setCategoryFilter(bookProgramCategory);
+        
+        // Clear query parameters from hash route
+        const nextHash = window.location.hash.split('?')[0];
+        window.location.hash = nextHash;
+      } else if (bookGeneral) {
+        setActiveTab('book');
+        setCategoryFilter('all');
+        
+        // Clear query parameters from hash route
+        const nextHash = window.location.hash.split('?')[0];
+        window.location.hash = nextHash;
       }
 
     } catch (err) {
@@ -215,6 +237,21 @@ export const UserDashboardMockup = () => {
           payment_status: 'pending'
         }]);
       if (insertErr) throw insertErr;
+
+      // Automatically promote User to Client role upon booking their first session
+      if (role === 'user' || profile?.role === 'user') {
+        const { error: roleErr } = await supabase
+          .from('profiles')
+          .update({ role: 'client' })
+          .eq('id', user.id);
+        if (roleErr) {
+          console.error("Failed to promote user to client role:", roleErr);
+        } else {
+          if (refreshProfile) {
+            await refreshProfile();
+          }
+        }
+      }
 
       // Log notification
       await supabase.from('notifications').insert([{
@@ -429,40 +466,82 @@ export const UserDashboardMockup = () => {
 
   return (
     <div style={{
-      display: 'flex',
       minHeight: '100vh',
       backgroundColor: '#0a0a0a',
       color: '#fff',
       fontFamily: "'Outfit', 'Inter', sans-serif"
     }}>
-      {/* Mobile Drawer Overlay */}
-      {mobileOpen && (
-        <div 
-          onClick={() => setMobileOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            zIndex: 998,
-            backdropFilter: 'blur(4px)'
-          }}
-        />
-      )}
+      {/* Website Navigation Header */}
+      <header className="main-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', zIndex: 1000, backgroundColor: '#050505', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center' }}>
+        <div className="nav-container" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', margin: '0 auto', maxWidth: '1300px' }}>
+          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
+            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
+          </a>
+          
+          <button 
+            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle Navigation Menu"
+            style={{ display: 'none' }}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
 
-      {/* Sidebar Navigation */}
-      <aside style={{
-        width: collapsed ? '70px' : '260px',
-        backgroundColor: '#121212',
-        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`} style={{ display: 'flex', alignItems: 'center', listStyle: 'none', gap: '1.25rem', margin: 0, padding: 0 }}>
+            <li><a href="index.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Home</a></li>
+            <li><a href="programs.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Programs</a></li>
+            <li><a href="about-coach.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>About Coach</a></li>
+            <li><a href="training.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Training</a></li>
+            <li><a href="schedule.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Schedule</a></li>
+            <li><a href="events.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Events</a></li>
+            <li><a href="contact.html" className="nav-link" style={{ color: '#aaa', textDecoration: 'none', fontWeight: '600' }}>Contact</a></li>
+          </ul>
+
+          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <AvatarDropdown />
+            <a href="contact.html" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
+          </div>
+        </div>
+      </header>
+
+      {/* Portal Layout Wrapper */}
+      <div style={{
         display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        zIndex: 999,
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-      }} className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
+        minHeight: 'calc(100vh - 80px)',
+        marginTop: '80px',
+        position: 'relative'
+      }}>
+        {/* Mobile Drawer Overlay */}
+        {mobileOpen && (
+          <div 
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              zIndex: 998,
+              backdropFilter: 'blur(4px)'
+            }}
+          />
+        )}
+
+        {/* Sidebar Navigation */}
+        <aside style={{
+          width: collapsed ? '70px' : '260px',
+          backgroundColor: '#121212',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'fixed',
+          top: '80px',
+          bottom: 0,
+          left: 0,
+          zIndex: 999,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }} className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         
         {/* Mobile Tab Toggle Button */}
         <button
@@ -491,54 +570,7 @@ export const UserDashboardMockup = () => {
           {mobileOpen ? <X style={{ width: '20px', height: '20px' }} /> : <Menu style={{ width: '20px', height: '20px' }} />}
         </button>
 
-        {/* Sidebar Header */}
-        <div style={{
-          height: '70px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          padding: collapsed ? '0' : '0 20px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
-        }}>
-          {!collapsed ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
-                backgroundColor: '#ca3b24',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                color: '#fff',
-                fontSize: '16px',
-                boxShadow: '0 0 15px rgba(202, 59, 36, 0.4)'
-              }}>
-                B
-              </div>
-              <span style={{ fontWeight: '800', fontSize: '18px', letterSpacing: '0.5px' }}>
-                BDD <span style={{ color: '#ca3b24' }}>BOXING</span>
-              </span>
-            </div>
-          ) : (
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              backgroundColor: '#ca3b24',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '800',
-              color: '#fff',
-              fontSize: '16px',
-              boxShadow: '0 0 15px rgba(202, 59, 36, 0.4)'
-            }}>
-              B
-            </div>
-          )}
-        </div>
+        <div style={{ height: '20px' }}></div>
 
         {/* Sidebar Links */}
         <nav style={{ padding: '20px 10px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -651,7 +683,7 @@ export const UserDashboardMockup = () => {
       }}>
         {/* Top Header Bar */}
         <header style={{
-          height: '70px',
+          height: '60px',
           backgroundColor: '#121212',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
@@ -659,7 +691,7 @@ export const UserDashboardMockup = () => {
           justifyContent: 'space-between',
           padding: '0 24px',
           position: 'sticky',
-          top: 0,
+          top: '80px',
           zIndex: 990
         }}>
           {/* Left Side: Mobile Menu Button & Breadcrumbs */}
@@ -687,23 +719,10 @@ export const UserDashboardMockup = () => {
                 <span>/</span>
                 <span style={{ color: '#ca3b24' }}>{activeTab}</span>
               </div>
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: '2px 0 0 0', textTransform: 'capitalize' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#fff', margin: '2px 0 0 0', textTransform: 'capitalize' }}>
                 {activeTab === 'book' ? 'Schedule Class' : activeTab === 'bookings' ? 'My Bookings Log' : activeTab}
               </h2>
             </div>
-          </div>
-
-          {/* Right Side: Shared Profile Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }} className="admin-header-username">
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#fff' }}>
-                {profile?.full_name || 'Fighter'}
-              </span>
-              <span style={{ fontSize: '10px', color: '#ca3b24', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                {profile?.role || 'User'}
-              </span>
-            </div>
-            <AvatarDropdown />
           </div>
         </header>
 
@@ -1625,6 +1644,7 @@ export const UserDashboardMockup = () => {
           )}
 
         </main>
+      </div>
       </div>
 
       {/* Global CSS Inject for Sidebar */}

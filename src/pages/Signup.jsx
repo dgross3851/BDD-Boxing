@@ -47,18 +47,31 @@ export const Signup = () => {
       const hashQuestionIndex = hash.indexOf('?');
       let redirectTo = '';
       let sessionId = '';
+      let programCategory = '';
+      let bookGeneral = '';
+      
       if (hashQuestionIndex !== -1) {
         const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
         redirectTo = searchParams.get('redirectTo');
         sessionId = searchParams.get('sessionId');
+        programCategory = searchParams.get('programCategory');
+        bookGeneral = searchParams.get('bookGeneral');
       } else {
         const searchParams = new URLSearchParams(window.location.search);
         redirectTo = searchParams.get('redirectTo');
         sessionId = searchParams.get('sessionId');
+        programCategory = searchParams.get('programCategory');
+        bookGeneral = searchParams.get('bookGeneral');
       }
 
-      if (redirectTo === 'book' && sessionId) {
-        window.location.href = `/portal.html#/dashboard?bookSessionId=${sessionId}`;
+      if (redirectTo === 'book') {
+        if (sessionId) {
+          window.location.href = `/portal.html#/dashboard?bookSessionId=${sessionId}`;
+        } else if (programCategory) {
+          window.location.href = `/portal.html#/dashboard?bookProgramCategory=${encodeURIComponent(programCategory)}`;
+        } else {
+          window.location.href = '/portal.html#/dashboard?bookGeneral=true';
+        }
       } else {
         window.location.href = '/index.html';
       }
