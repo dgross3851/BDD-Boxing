@@ -40,6 +40,12 @@ export const UserDashboardMockup = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [notifFilter, setNotifFilter] = useState('all'); // 'all', 'bookings', 'system'
 
+  // Phase 5 Calendar states
+  const [bookingViewMode, setBookingViewMode] = useState('list'); // 'list' or 'calendar'
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [selectedCalSession, setSelectedCalSession] = useState(null);
+  const [calModalOpen, setCalModalOpen] = useState(false);
+
   // Pagination states
   const [bookPerPage, setBookPerPage] = useState(10);
   const [bookPage, setBookPage] = useState(1);
@@ -862,125 +868,417 @@ export const UserDashboardMockup = () => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '12px', color: '#888' }}>Category:</span>
-                  <select
-                    value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
-                    style={{
-                      backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
-                      padding: '10px 14px', color: '#fff', fontSize: '13px', cursor: 'pointer', outline: 'none'
-                    }}
-                  >
-                    <option value="all">All Categories</option>
-                    {uniqueCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '12px', color: '#888' }}>Category:</span>
+                    <select
+                      value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
+                      style={{
+                        backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                        padding: '10px 14px', color: '#fff', fontSize: '13px', cursor: 'pointer', outline: 'none'
+                      }}
+                    >
+                      <option value="all">All Categories</option>
+                      {uniqueCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'inline-flex', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '3px' }}>
+                    {[
+                      { id: 'list', label: 'List View' },
+                      { id: 'calendar', label: 'Calendar View' }
+                    ].map(view => {
+                      const active = bookingViewMode === view.id;
+                      return (
+                        <button
+                          key={view.id}
+                          type="button"
+                          onClick={() => setBookingViewMode(view.id)}
+                          style={{
+                            backgroundColor: active ? 'rgba(202, 59, 36, 0.15)' : 'transparent',
+                            border: 'none',
+                            color: active ? '#ff8a7a' : '#888',
+                            padding: '4px 12px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            outline: 'none'
+                          }}
+                        >
+                          {view.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
               {/* Available Slots Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                {filteredSessions.map(s => {
-                  const alreadyBooked = myBookings.some(b => b.session_id === s.id && b.status !== 'cancelled');
-                  const isFull = s.bookedCount >= s.max_slots;
-                  return (
-                    <div 
-                      key={s.id}
-                      style={{
-                        backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px',
-                        padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.2)', transition: 'transform 0.2s',
-                        outline: alreadyBooked ? '1.5px solid rgba(202, 59, 36, 0.4)' : 'none'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                    >
-                      {/* Repeat badge */}
-                      {s.is_recurring && (
-                        <div style={{ position: 'absolute', top: '15px', right: '15px', color: '#ca3b24', title: 'Recurring Class' }}>
-                          <Repeat style={{ width: '16px', height: '16px' }} />
-                        </div>
-                      )}
+              {bookingViewMode === 'list' && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                  {filteredSessions.map(s => {
+                    const alreadyBooked = myBookings.some(b => b.session_id === s.id && b.status !== 'cancelled');
+                    const isFull = s.bookedCount >= s.max_slots;
+                    return (
+                      <div 
+                        key={s.id}
+                        style={{
+                          backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px',
+                          padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.2)', transition: 'transform 0.2s',
+                          outline: alreadyBooked ? '1.5px solid rgba(202, 59, 36, 0.4)' : 'none'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                      >
+                        {/* Repeat badge */}
+                        {s.is_recurring && (
+                          <div style={{ position: 'absolute', top: '15px', right: '15px', color: '#ca3b24', title: 'Recurring Class' }}>
+                            <Repeat style={{ width: '16px', height: '16px' }} />
+                          </div>
+                        )}
 
+                        <div>
+                          <span style={{
+                            backgroundColor: 'rgba(202, 59, 36, 0.15)', color: '#ff8a7a', border: '1px solid rgba(202, 59, 36, 0.2)',
+                            fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase'
+                          }}>
+                            {s.session_types?.category || 'Group Class'}
+                          </span>
+                          <h3 style={{ margin: '10px 0 6px 0', fontSize: '18px', fontWeight: '700', color: '#fff' }}>{s.session_types?.title}</h3>
+                          <p style={{ margin: 0, fontSize: '12px', color: '#888', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {s.session_types?.description || 'No description provided.'}
+                          </p>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#ccc' }}>
+                          <div>📅 {new Date(s.datetime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(s.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div>📍 {s.location}</div>
+                          <div>💰 <strong style={{ color: '#ca3b24' }}>${s.price_usd}</strong> (Payable In Person)</div>
+                        </div>
+
+                        {/* Capacity capsule */}
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#888', marginBottom: '4px' }}>
+                            <span>Capacity</span>
+                            <span>{s.bookedCount} / {s.max_slots} spots filled</span>
+                          </div>
+                          <div style={{ height: '6px', backgroundColor: '#0a0a0a', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${(s.bookedCount / s.max_slots) * 100}%`,
+                              backgroundColor: isFull ? '#ef4444' : s.bookedCount >= s.max_slots * 0.8 ? '#eab308' : '#ca3b24',
+                              borderRadius: '3px',
+                              transition: 'width 0.3s ease'
+                            }} />
+                          </div>
+                        </div>
+
+                        {alreadyBooked ? (
+                          <button
+                            disabled
+                            style={{
+                              width: '100%', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                              color: '#555', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
+                            }}
+                          >
+                            Booked ✓
+                          </button>
+                        ) : isFull ? (
+                          <button
+                            disabled
+                            style={{
+                              width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)',
+                              color: '#ef4444', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
+                            }}
+                          >
+                            Class Full
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBookSession(s)}
+                            style={{
+                              width: '100%', backgroundColor: '#ca3b24', border: 'none', color: '#fff',
+                              padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
+                              transition: 'background-color 0.2s', outline: 'none'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b0301c'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ca3b24'}
+                          >
+                            Book Spot
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {filteredSessions.length === 0 && (
+                    <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#666', padding: '40px 0', fontSize: '13px' }}>
+                      No upcoming sessions matched your filters.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Calendar Month Grid */}
+              {bookingViewMode === 'calendar' && (
+                <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
+                  {/* Calendar Controls */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#fff' }}>
+                      {calendarDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                    </h4>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                          padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                        }}
+                      >
+                        Prev
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCalendarDate(new Date())}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                          padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                        }}
+                      >
+                        Today
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                          padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Calendar Month Grid */}
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#888', marginBottom: '10px' }}>
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d}>{d}</div>)}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', minHeight: '320px' }}>
+                      {(() => {
+                        const year = calendarDate.getFullYear();
+                        const month = calendarDate.getMonth();
+                        const firstDay = new Date(year, month, 1).getDay();
+                        const totalDays = new Date(year, month + 1, 0).getDate();
+                        
+                        const cells = [];
+                        for (let i = 0; i < firstDay; i++) {
+                          cells.push(
+                            <div key={`pad-${i}`} style={{ backgroundColor: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.02)', borderRadius: '8px', minHeight: '80px' }} />
+                          );
+                        }
+                        for (let day = 1; day <= totalDays; day++) {
+                          const dateObj = new Date(year, month, day);
+                          const daySessions = filteredSessions.filter(s => {
+                            if (!s.datetime) return false;
+                            const d = new Date(s.datetime);
+                            return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+                          });
+
+                          const isToday = new Date().toDateString() === dateObj.toDateString();
+
+                          cells.push(
+                            <div 
+                              key={`day-${day}`}
+                              style={{
+                                backgroundColor: isToday ? 'rgba(202, 59, 36, 0.05)' : 'rgba(255,255,255,0.02)',
+                                border: isToday ? '1px solid #ca3b24' : '1px solid rgba(255,255,255,0.05)',
+                                borderRadius: '8px',
+                                padding: '8px',
+                                minHeight: '80px',
+                                display: 'flex',
+                                flexDirection: 'column'
+                              }}
+                            >
+                              <span style={{ fontSize: '12px', fontWeight: '700', color: isToday ? '#ff8a7a' : '#888' }}>
+                                {day}
+                              </span>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px', flex: 1, overflowY: 'auto' }}>
+                                {daySessions.map(s => {
+                                  const alreadyBooked = myBookings.some(b => b.session_id === s.id && b.status !== 'cancelled');
+                                  return (
+                                    <div
+                                      key={s.id}
+                                      onClick={() => {
+                                        setSelectedCalSession(s);
+                                        setCalModalOpen(true);
+                                      }}
+                                      style={{
+                                        fontSize: '9px',
+                                        fontWeight: '700',
+                                        backgroundColor: alreadyBooked ? 'rgba(22, 163, 74, 0.15)' : 'rgba(202, 59, 36, 0.15)',
+                                        border: alreadyBooked ? '1px solid rgba(22, 163, 74, 0.3)' : '1px solid rgba(202, 59, 36, 0.3)',
+                                        color: alreadyBooked ? '#86efac' : '#ff8a7a',
+                                        padding: '2px 4px',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '2px'
+                                      }}
+                                      title={`${alreadyBooked ? 'Booked: ' : ''}${new Date(s.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${s.session_types?.title}`}
+                                    >
+                                      {s.is_recurring && <Repeat style={{ width: '8px', height: '8px' }} />}
+                                      <span>
+                                        {new Date(s.datetime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - {s.session_types?.title}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return cells;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CLIENT CALENDAR VIEW DETAILS MODAL */}
+              {calModalOpen && selectedCalSession && (
+                <div style={{
+                  position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, padding: '20px'
+                }}>
+                  <div style={{
+                    width: '100%', maxWidth: '440px', backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.8)', overflow: 'hidden'
+                  }}>
+                    {/* Modal Header */}
+                    <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>Class Session Details</h3>
+                      <button 
+                        type="button"
+                        onClick={() => { setCalModalOpen(false); setSelectedCalSession(null); }}
+                        style={{ background: 'transparent', border: 'none', color: '#888', cursor: 'pointer' }}
+                      >
+                        <X style={{ width: '20px', height: '20px' }} />
+                      </button>
+                    </div>
+
+                    {/* Modal Body */}
+                    <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                       <div>
                         <span style={{
                           backgroundColor: 'rgba(202, 59, 36, 0.15)', color: '#ff8a7a', border: '1px solid rgba(202, 59, 36, 0.2)',
                           fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase'
                         }}>
-                          {s.session_types?.category || 'Group Class'}
+                          {selectedCalSession.session_types?.category || 'Group Class'}
                         </span>
-                        <h3 style={{ margin: '10px 0 6px 0', fontSize: '18px', fontWeight: '700', color: '#fff' }}>{s.session_types?.title}</h3>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#888', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {s.session_types?.description || 'No description provided.'}
+                        <h4 style={{ margin: '10px 0 6px 0', fontSize: '20px', fontWeight: '800', color: '#fff' }}>
+                          {selectedCalSession.session_types?.title}
+                        </h4>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Description</label>
+                        <p style={{ margin: 0, fontSize: '13px', color: '#ccc', lineHeight: '1.6', backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.04)' }}>
+                          {selectedCalSession.session_types?.description || 'No description provided.'}
                         </p>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#ccc' }}>
-                        <div>📅 {new Date(s.datetime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(s.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                        <div>📍 {s.location}</div>
-                        <div>💰 <strong style={{ color: '#ca3b24' }}>${s.price_usd}</strong> (Payable In Person)</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                          <span style={{ color: '#888' }}>Date & Time</span>
+                          <span style={{ color: '#fff', fontWeight: '600' }}>
+                            {new Date(selectedCalSession.datetime).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(selectedCalSession.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                          <span style={{ color: '#888' }}>Location</span>
+                          <span style={{ color: '#fff', fontWeight: '600' }}>{selectedCalSession.location}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                          <span style={{ color: '#888' }}>Session Price</span>
+                          <span style={{ color: '#ca3b24', fontWeight: '800' }}>${selectedCalSession.price_usd}</span>
+                        </div>
+                        
+                        {/* Capacity count */}
+                        {(() => {
+                          const alreadyBooked = myBookings.some(b => b.session_id === selectedCalSession.id && b.status !== 'cancelled');
+                          const isFull = selectedCalSession.bookedCount >= selectedCalSession.max_slots;
+                          return (
+                            <>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                                <span style={{ color: '#888' }}>Class Capacity</span>
+                                <span style={{
+                                  backgroundColor: isFull ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                                  color: isFull ? '#fca5a5' : '#86efac',
+                                  fontSize: '11px', fontWeight: '800', padding: '3px 8px', borderRadius: '4px'
+                                }}>
+                                  {selectedCalSession.bookedCount} / {selectedCalSession.max_slots} spots filled
+                                </span>
+                              </div>
+
+                              <div style={{ marginTop: '10px' }}>
+                                {alreadyBooked ? (
+                                  <button
+                                    disabled
+                                    style={{
+                                      width: '100%', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+                                      color: '#555', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
+                                    }}
+                                  >
+                                    You Are Registered ✓
+                                  </button>
+                                ) : isFull ? (
+                                  <button
+                                    disabled
+                                    style={{
+                                      width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)',
+                                      color: '#ef4444', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
+                                    }}
+                                  >
+                                    Class Slot Full
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      await handleBookSession(selectedCalSession);
+                                      setCalModalOpen(false);
+                                      setSelectedCalSession(null);
+                                    }}
+                                    style={{
+                                      width: '100%', backgroundColor: '#ca3b24', border: 'none', color: '#fff',
+                                      padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
+                                      transition: 'background-color 0.2s', outline: 'none'
+                                    }}
+                                  >
+                                    Confirm Booking
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
 
-                      {/* Capacity capsule */}
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#888', marginBottom: '4px' }}>
-                          <span>Capacity</span>
-                          <span>{s.bookedCount} / {s.max_slots} spots filled</span>
-                        </div>
-                        <div style={{ height: '6px', backgroundColor: '#0a0a0a', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{
-                            height: '100%',
-                            width: `${(s.bookedCount / s.max_slots) * 100}%`,
-                            backgroundColor: isFull ? '#ef4444' : s.bookedCount >= s.max_slots * 0.8 ? '#eab308' : '#ca3b24',
-                            borderRadius: '3px',
-                            transition: 'width 0.3s ease'
-                          }} />
-                        </div>
-                      </div>
-
-                      {alreadyBooked ? (
-                        <button
-                          disabled
-                          style={{
-                            width: '100%', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                            color: '#555', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
-                          }}
-                        >
-                          Booked ✓
-                        </button>
-                      ) : isFull ? (
-                        <button
-                          disabled
-                          style={{
-                            width: '100%', backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)',
-                            color: '#ef4444', padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'not-allowed'
-                          }}
-                        >
-                          Class Full
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleBookSession(s)}
-                          style={{
-                            width: '100%', backgroundColor: '#ca3b24', border: 'none', color: '#fff',
-                            padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
-                            transition: 'background-color 0.2s', outline: 'none'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b0301c'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ca3b24'}
-                        >
-                          Book Spot
-                        </button>
-                      )}
                     </div>
-                  );
-                })}
-
-                {filteredSessions.length === 0 && (
-                  <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#666', padding: '40px 0', fontSize: '13px' }}>
-                    No upcoming sessions matched your filters.
-                  </p>
-                )}
-              </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
