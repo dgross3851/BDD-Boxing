@@ -45,6 +45,7 @@ export const UserDashboardMockup = () => {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [selectedCalSession, setSelectedCalSession] = useState(null);
   const [calModalOpen, setCalModalOpen] = useState(false);
+  const [tallyChecked, setTallyChecked] = useState(false);
 
   // Pagination states
   const [bookPerPage, setBookPerPage] = useState(10);
@@ -104,8 +105,33 @@ export const UserDashboardMockup = () => {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-      if (errNotifs) throw errNotifs;
       setNotifications(notifs || []);
+
+      // 4. Auto-select and open slot details modal if redirecting from public site
+      const hash = window.location.hash;
+      const hashQuestionIndex = hash.indexOf('?');
+      let bookSessionId = '';
+      if (hashQuestionIndex !== -1) {
+        const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
+        bookSessionId = searchParams.get('bookSessionId');
+      } else {
+        const searchParams = new URLSearchParams(window.location.search);
+        bookSessionId = searchParams.get('bookSessionId');
+      }
+
+      if (bookSessionId) {
+        const foundSession = sessionsWithCounts.find(s => s.id === bookSessionId);
+        if (foundSession) {
+          setActiveTab('book');
+          setBookingViewMode('calendar');
+          setSelectedCalSession(foundSession);
+          setCalModalOpen(true);
+          
+          // Clear query parameters from hash route to prevent double modals
+          const nextHash = window.location.hash.split('?')[0];
+          window.location.hash = nextHash;
+        }
+      }
 
     } catch (err) {
       console.error("Error fetching client data:", err);
@@ -710,10 +736,57 @@ export const UserDashboardMockup = () => {
             </div>
           )}
 
-          {/* OVERVIEW TAB */}
           {activeTab === 'overview' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
+              {/* Onboarding Tally Form Alert Banner */}
+              {!profile?.membership_form_completed && (
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(202, 59, 36, 0.15) 0%, rgba(202, 59, 36, 0.05) 100%)',
+                  border: '1.5px solid #ca3b24',
+                  borderRadius: '12px',
+                  padding: '20px 24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '16px',
+                  boxShadow: '0 8px 24px rgba(202, 59, 36, 0.1)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ backgroundColor: 'rgba(202, 59, 36, 0.2)', padding: '10px', borderRadius: '8px' }}>
+                      <Activity style={{ width: '22px', height: '22px', color: '#ff8a7a' }} />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#fff' }}>
+                        Membership Form Required
+                      </h4>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#ccc' }}>
+                        Please complete the official BDD Boxing Membership Form to unlock session bookings.
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="https://tally.so/r/Bzl0PQ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      backgroundColor: '#ca3b24',
+                      color: '#fff',
+                      textDecoration: 'none',
+                      padding: '10px 18px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#b0301c'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#ca3b24'}
+                  >
+                    Open Tally Form
+                  </a>
+                </div>
+              )}
+
               {/* Welcome Card */}
               <div style={{
                 background: 'linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(10,10,10,0.9) 100%)',
@@ -998,7 +1071,10 @@ export const UserDashboardMockup = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleBookSession(s)}
+                            onClick={() => {
+                              setSelectedCalSession(s);
+                              setCalModalOpen(true);
+                            }}
                             style={{
                               width: '100%', backgroundColor: '#ca3b24', border: 'none', color: '#fff',
                               padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
@@ -1231,6 +1307,46 @@ export const UserDashboardMockup = () => {
                                 </span>
                               </div>
 
+                              {/* Tally Form Onboarding Section */}
+                              {!alreadyBooked && !isFull && !profile?.membership_form_completed && (
+                                <div style={{
+                                  backgroundColor: 'rgba(202, 59, 36, 0.05)',
+                                  border: '1.5px solid #ca3b24',
+                                  borderRadius: '8px',
+                                  padding: '12px 16px',
+                                  marginTop: '12px',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '10px'
+                                }}>
+                                  <span style={{ fontSize: '12px', color: '#ff8a7a', fontWeight: '700' }}>
+                                    ⚠️ Action Required
+                                  </span>
+                                  <span style={{ fontSize: '12px', color: '#ccc', lineHeight: '1.5' }}>
+                                    You must fill out our BDD Boxing Membership Form before you can book.
+                                    <a
+                                      href="https://tally.so/r/Bzl0PQ"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{ color: '#ff8a7a', textDecoration: 'underline', marginLeft: '4px', fontWeight: '600' }}
+                                    >
+                                      Fill out Tally Form here ↗
+                                    </a>
+                                  </span>
+                                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginTop: '4px' }}>
+                                    <input 
+                                      type="checkbox"
+                                      checked={tallyChecked}
+                                      onChange={e => setTallyChecked(e.target.checked)}
+                                      style={{ cursor: 'pointer', accentColor: '#ca3b24' }}
+                                    />
+                                    <span style={{ fontSize: '12px', color: '#fff', fontWeight: '600' }}>
+                                      I have completed the Tally Form
+                                    </span>
+                                  </label>
+                                </div>
+                              )}
+
                               <div style={{ marginTop: '10px' }}>
                                 {alreadyBooked ? (
                                   <button
@@ -1255,15 +1371,38 @@ export const UserDashboardMockup = () => {
                                 ) : (
                                   <button
                                     type="button"
+                                    disabled={!profile?.membership_form_completed && !tallyChecked}
                                     onClick={async () => {
+                                      // If form not completed yet, update user profile in database
+                                      if (!profile?.membership_form_completed) {
+                                        const { error: updErr } = await supabase
+                                          .from('profiles')
+                                          .update({ membership_form_completed: true })
+                                          .eq('id', user.id);
+                                        if (updErr) {
+                                          alert("Failed to update profile form completion status: " + updErr.message);
+                                          return;
+                                        }
+                                        profile.membership_form_completed = true;
+                                      }
+
                                       await handleBookSession(selectedCalSession);
                                       setCalModalOpen(false);
                                       setSelectedCalSession(null);
+                                      setTallyChecked(false);
                                     }}
                                     style={{
-                                      width: '100%', backgroundColor: '#ca3b24', border: 'none', color: '#fff',
-                                      padding: '12px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
-                                      transition: 'background-color 0.2s', outline: 'none'
+                                      width: '100%',
+                                      backgroundColor: (!profile?.membership_form_completed && !tallyChecked) ? '#444' : '#ca3b24',
+                                      color: (!profile?.membership_form_completed && !tallyChecked) ? '#888' : '#fff',
+                                      border: 'none',
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      fontSize: '13px',
+                                      fontWeight: '700',
+                                      cursor: (!profile?.membership_form_completed && !tallyChecked) ? 'not-allowed' : 'pointer',
+                                      transition: 'background-color 0.2s',
+                                      outline: 'none'
                                     }}
                                   >
                                     Confirm Booking

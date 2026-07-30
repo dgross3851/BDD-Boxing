@@ -478,6 +478,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const { data: { session } } = await supabaseClient.auth.getSession();
 
+      // Dynamic Schedule Loading
+      const loadDynamicSchedule = async () => {
+        const grid = document.getElementById('dynamic-schedule-grid');
+        if (!grid) return;
+        
+        try {
+          const now = new Date();
+          const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          
+          const { data: sess, error: errSess } = await supabaseClient
+            .from('sessions')
+            .select(`
+              id, datetime, location, price_usd, max_slots, status, is_recurring,
+              session_types (title, category, description)
+            `)
+            .eq('status', 'active')
+            .gte('datetime', now.toISOString())
+            .lte('datetime', nextWeek.toISOString())
+            .order('datetime', { ascending: true });
+
+          if (!errSess && sess && sess.length > 0) {
+            const { data: allBks } = await supabaseClient
+              .from('bookings')
+              .select('session_id')
+              .neq('status', 'cancelled');
+            
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(320px, 1fr))';
+            grid.style.gap = '2rem';
+
+            const groups = {};
+            sess.forEach(s => {
+              const dateStr = new Date(s.datetime).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+              if (!groups[dateStr]) groups[dateStr] = [];
+              groups[dateStr].push(s);
+            });
+
+            Object.entries(groups).forEach(([dateLabel, daySessions]) => {
+              const card = document.createElement('div');
+              card.className = 'schedule-card';
+              card.style.padding = '2rem';
+              card.style.borderRadius = '12px';
+              
+              card.innerHTML = `
+                <div class="schedule-card-header" style="border-bottom: 1px solid var(--steel-border); padding-bottom: 0.75rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                  <span class="schedule-accent-dot"></span>
+                  <h3 style="font-size: 1.25rem; color: #fff; margin: 0;">${dateLabel}</h3>
+                </div>
+                <div class="schedule-rows" style="display: flex; flex-direction: column; gap: 16px;">
+                </div>
+              `;
+
+              const rowsContainer = card.querySelector('.schedule-rows');
+              
+              daySessions.forEach(s => {
+                const bookedCount = allBks ? allBks.filter(b => b.session_id === s.id).length : 0;
+                const timeStr = new Date(s.datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                
+                const isGroup = s.session_types?.category?.toLowerCase().includes('group');
+                const isSparring = s.session_types?.category?.toLowerCase().includes('sparring');
+                const labelClass = isSparring ? 'sparring-label' : isGroup ? 'group-label' : '';
+                
+                const bookLink = session 
+                  ? `portal.html#/dashboard?bookSessionId=${s.id}` 
+                  : `portal.html#/login?redirectTo=book&sessionId=${s.id}`;
+
+                const row = document.createElement('div');
+                row.className = 'schedule-row';
+                row.style.cssText = 'display: flex; flex-direction: column; align-items: stretch; gap: 8px; border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 16px;';
+                
+                row.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                    <div>
+                      <span class="schedule-time" style="font-size: 1.05rem; display: block; color: var(--red-ember); font-weight: bold;">
+                        ${timeStr}
+                      </span>
+                      <span style="font-size: 0.8rem; color: var(--muted-gray); display: block; margin-top: 2px;">
+                        📍 ${s.location} • $${s.price_usd}
+                      </span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                      <span class="schedule-label ${labelClass}" style="font-size: 0.7rem; font-weight: 700; padding: 2px 8px; min-width: 90px; text-transform: uppercase;">
+                        ${s.session_types?.category || 'Training'}
+                      </span>
+                      <span style="font-size: 0.7rem; color: #666;">
+                        ${bookedCount} / ${s.max_slots} filled
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px;">
+                    <span style="font-weight: 700; color: #fff; font-size: 0.9rem;">
+                      ${s.session_types?.title}
+                    </span>
+                    <a href="${bookLink}" class="btn btn-primary" style="height: 28px; line-height: 28px; padding: 0 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 4px;">
+                      ${session ? 'Book Spot' : 'Register to Book'}
+                    </a>
+                  </div>
+                `;
+                rowsContainer.appendChild(row);
+              });
+              
+              const lastRow = rowsContainer.querySelector('.schedule-row:last-child');
+              if (lastRow) lastRow.style.borderBottom = 'none';
+
+              grid.appendChild(card);
+            });
+          }
+        } catch (e) {
+          console.error("Error loading dynamic schedule:", e);
+        }
+      };
+
+      loadDynamicSchedule();
+
       if (session) {
         // Fetch user profile info
         const { data: profile } = await supabaseClient

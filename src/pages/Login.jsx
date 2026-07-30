@@ -10,7 +10,24 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [infoMsg, setInfoMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  React.useEffect(() => {
+    const hash = window.location.hash;
+    const hashQuestionIndex = hash.indexOf('?');
+    let redirectTo = '';
+    if (hashQuestionIndex !== -1) {
+      const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
+      redirectTo = searchParams.get('redirectTo');
+    } else {
+      const searchParams = new URLSearchParams(window.location.search);
+      redirectTo = searchParams.get('redirectTo');
+    }
+    if (redirectTo === 'book') {
+      setInfoMsg('Please log in first to secure your session booking spot.');
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +43,25 @@ export const Login = () => {
       const data = await signIn({ email, password });
       
       if (data?.user) {
-        window.location.href = '/index.html';
+        const hash = window.location.hash;
+        const hashQuestionIndex = hash.indexOf('?');
+        let redirectTo = '';
+        let sessionId = '';
+        if (hashQuestionIndex !== -1) {
+          const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
+          redirectTo = searchParams.get('redirectTo');
+          sessionId = searchParams.get('sessionId');
+        } else {
+          const searchParams = new URLSearchParams(window.location.search);
+          redirectTo = searchParams.get('redirectTo');
+          sessionId = searchParams.get('sessionId');
+        }
+
+        if (redirectTo === 'book' && sessionId) {
+          window.location.href = `/portal.html#/dashboard?bookSessionId=${sessionId}`;
+        } else {
+          window.location.href = '/index.html';
+        }
       }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid login credentials. Please check your email and password.');
@@ -88,6 +123,25 @@ export const Login = () => {
         <h2 style={{ margin: '0 0 24px 0', fontSize: '22px', fontWeight: '700', color: '#ffffff', textAlign: 'center' }}>
           Welcome Back
         </h2>
+
+        {infoMsg && !errorMsg && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backgroundColor: 'rgba(202, 59, 36, 0.1)',
+            border: '1px solid rgba(202, 59, 36, 0.3)',
+            color: '#ff8a7a',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            marginBottom: '20px',
+            fontWeight: '600'
+          }}>
+            <ShieldCheck style={{ width: '18px', height: '18px', flexShrink: 0, color: '#ca3b24' }} />
+            <span>{infoMsg}</span>
+          </div>
+        )}
 
         {errorMsg && (
           <div style={{
