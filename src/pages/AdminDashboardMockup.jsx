@@ -22,7 +22,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
-  Eye
+  Eye,
+  Repeat
 } from 'lucide-react';
 
 export const AdminDashboardMockup = () => {
@@ -81,6 +82,31 @@ export const AdminDashboardMockup = () => {
   const [selectedScheduleSlot, setSelectedScheduleSlot] = useState(null);
   const [scheduleSlotModalOpen, setScheduleSlotModalOpen] = useState(false);
 
+  // Phase 3 States
+  const [sessionsPerPage, setSessionsPerPage] = useState(10);
+  const [sessionsPage, setSessionsPage] = useState(1);
+  const [clientsPerPage, setClientsPerPage] = useState(10);
+  const [clientsPage, setClientsPage] = useState(1);
+  const [bookingsPerPage, setBookingsPerPage] = useState(10);
+  const [bookingsPage, setBookingsPage] = useState(1);
+  const [notifsPerPage, setNotifsPerPage] = useState(10);
+  const [notifsPage, setNotifsPage] = useState(1);
+
+  const [sessionsViewMode, setSessionsViewMode] = useState('list'); // 'list' or 'calendar'
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [bookingSessionFilter, setBookingSessionFilter] = useState('all'); // 'all' or specific sessionId
+
+  // Recurring session states
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrencePattern, setRecurrencePattern] = useState('weekly'); // 'weekly' or 'daily'
+  const [recurrenceLimitType, setRecurrenceLimitType] = useState('count'); // 'count' or 'date'
+  const [recurrenceCount, setRecurrenceCount] = useState(5);
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
+
+  // Notifications states
+  const [notificationsList, setNotificationsList] = useState([]);
+  const [notifFilter, setNotifFilter] = useState('all'); // 'all', 'bookings', 'clients', 'system'
+
   // Activity state
   const [activityFilter, setActivityFilter] = useState('all'); // 'all', 'user', 'admin'
   const [activities, setActivities] = useState([
@@ -129,7 +155,7 @@ export const AdminDashboardMockup = () => {
       if (err3) throw err3;
       setSessionsList(sess || []);
 
-      // 4. Fetch bookings
+       // 4. Fetch bookings
       const { data: bks, error: err4 } = await supabase
         .from('bookings')
         .select(`
@@ -150,6 +176,14 @@ export const AdminDashboardMockup = () => {
         .order('created_at', { ascending: false });
       if (err4) throw err4;
       setBookingsList(bks || []);
+
+      // 5. Fetch notifications
+      const { data: notifs, error: err5 } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (err5) throw err5;
+      setNotificationsList(notifs || []);
 
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -292,29 +326,76 @@ export const AdminDashboardMockup = () => {
       const parentTypeObj = sessionTypes.find(st => st.id === newSchedule.session_type_id);
       const parentDesc = parentTypeObj?.description || '';
 
+      const inserts = [];
+      const recurringGroupId = isRecurring ? crypto.randomUUID() : null;
+
+      if (!isRecurring) {
+        inserts.push({
+          session_type_id: newSchedule.session_type_id,
+          datetime: new Date(newSchedule.datetime).toISOString(),
+          location: newSchedule.location,
+          price_usd: Number(newSchedule.price_usd),
+          max_slots: Number(newSchedule.max_slots),
+          description: parentDesc,
+          status: 'active',
+          is_recurring: false,
+          recurring_group_id: null
+        });
+      } else {
+        const startDateTime = new Date(newSchedule.datetime);
+        const maxInstances = recurrenceLimitType === 'count' ? recurrenceCount : 100;
+        const limitDate = recurrenceLimitType === 'date' && recurrenceEndDate ? new Date(recurrenceEndDate + 'T23:59:59') : null;
+
+        for (let i = 0; i < maxInstances; i++) {
+          const currentDateTime = new Date(startDateTime);
+          if (recurrencePattern === 'weekly') {
+            currentDateTime.setDate(startDateTime.getDate() + (i * 7));
+          } else {
+            currentDateTime.setDate(startDateTime.getDate() + i);
+          }
+
+          if (limitDate && currentDateTime > limitDate) {
+            break;
+          }
+
+          inserts.push({
+            session_type_id: newSchedule.session_type_id,
+            datetime: currentDateTime.toISOString(),
+            location: newSchedule.location,
+            price_usd: Number(newSchedule.price_usd),
+            max_slots: Number(newSchedule.max_slots),
+            description: parentDesc,
+            status: 'active',
+            is_recurring: true,
+            recurring_group_id: recurringGroupId
+          });
+        }
+      }
+
       const { error } = await supabase
         .from('sessions')
-        .insert([{
-          ...newSchedule,
-          description: parentDesc,
-          status: 'active'
-        }]);
+        .insert(inserts);
 
       if (error) throw error;
-      setFeedbackMsg('New class time slot scheduled in database.');
+      setFeedbackMsg(`Successfully scheduled ${inserts.length} class session slot(s).`);
 
       // Audit logging
       const stName = parentTypeObj?.title || 'Class';
       setActivities(prev => [{
         id: Date.now(),
         type: 'admin',
-        message: `Admin scheduled new slot for "${stName}" at ${new Date(newSchedule.datetime).toLocaleString()}`,
+        message: `Admin scheduled ${inserts.length} slot(s) for "${stName}" (Recurring: ${isRecurring ? 'Yes' : 'No'}) starting ${new Date(newSchedule.datetime).toLocaleString()}`,
         timestamp: 'Just now',
         badgeColor: '#2563eb'
       }, ...prev]);
 
       setShowAddScheduleModal(false);
       setNewSchedule({ session_type_id: '', datetime: '', location: '', price_usd: 25.0, max_slots: 15 });
+      setIsRecurring(false);
+      setRecurrencePattern('weekly');
+      setRecurrenceLimitType('count');
+      setRecurrenceCount(5);
+      setRecurrenceEndDate('');
       await fetchAllData();
     } catch (err) {
       setFeedbackMsg(`Failed to schedule class: ${err.message}`);
@@ -501,6 +582,191 @@ export const AdminDashboardMockup = () => {
     setScheduleSlotModalOpen(true);
   };
 
+  const handleAdminUploadAvatar = async (e, clientId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setFeedbackMsg('Uploading user image...');
+      const fileExt = file.name.split('.').pop();
+      const filePath = `avatars/${clientId}/avatar-${Date.now()}.${fileExt}`;
+      const { data, error: uploadErr } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadErr) throw uploadErr;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', clientId);
+
+      if (dbErr) throw dbErr;
+
+      setFeedbackMsg('User avatar updated successfully!');
+      
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin modified profile image for user ID: ${clientId.slice(0, 8)}`,
+        timestamp: 'Just now',
+        badgeColor: '#ca3b24'
+      }, ...prev]);
+
+      await fetchAllData();
+      
+      setSelectedClient(prev => ({ ...prev, avatar_url: publicUrl }));
+    } catch (err) {
+      setFeedbackMsg(`Failed to upload avatar: ${err.message}`);
+    }
+  };
+
+  const handleAdminRemoveAvatar = async (clientId) => {
+    if (!window.confirm("Remove this client's profile picture?")) return;
+    try {
+      setFeedbackMsg('Resetting user image...');
+      const { error: dbErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', clientId);
+
+      if (dbErr) throw dbErr;
+
+      setFeedbackMsg('User avatar reset successfully!');
+      
+      setActivities(prev => [{
+        id: Date.now(),
+        type: 'admin',
+        message: `Admin reset profile image for user ID: ${clientId.slice(0, 8)}`,
+        timestamp: 'Just now',
+        badgeColor: '#ca3b24'
+      }, ...prev]);
+
+      await fetchAllData();
+      
+      setSelectedClient(prev => ({ ...prev, avatar_url: null }));
+    } catch (err) {
+      setFeedbackMsg(`Failed to reset avatar: ${err.message}`);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      setFeedbackMsg('Marking all notifications as read...');
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('read', false);
+      if (error) throw error;
+      setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
+      setFeedbackMsg('All notifications marked as read!');
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Error: ${err.message}`);
+    }
+  };
+
+  const handleMarkSingleRead = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
+      if (error) throw error;
+      setNotificationsList(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+      await fetchAllData();
+    } catch (err) {
+      setFeedbackMsg(`Error: ${err.message}`);
+    }
+  };
+
+  const renderPaginationControls = (totalItems, currentPage, itemsPerPage, setCurrentPage, setItemsPerPage) => {
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: '20px',
+        paddingTop: '16px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#888' }}>
+          <span>Show:</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            style={{
+              backgroundColor: '#0a0a0a',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '6px',
+              padding: '4px 8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '12px',
+              outline: 'none'
+            }}
+          >
+            {[5, 10, 20, 50].map(size => (
+              <option key={size} value={size}>{size} rows</option>
+            ))}
+          </select>
+          <span>of {totalItems} entries</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            style={{
+              backgroundColor: currentPage === 1 ? 'transparent' : 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: currentPage === 1 ? '#444' : '#fff',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.2s',
+              outline: 'none'
+            }}
+          >
+            Prev
+          </button>
+          <span style={{ fontSize: '13px', color: '#ccc', minWidth: '80px', textAlign: 'center' }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage >= totalPages}
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            style={{
+              backgroundColor: currentPage >= totalPages ? 'transparent' : 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: currentPage >= totalPages ? '#444' : '#fff',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.2s',
+              outline: 'none'
+            }}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // Filter clients list
   const filteredClients = profilesList.filter(client => {
     const nameMatch = client.full_name?.toLowerCase().includes(clientSearchQuery.toLowerCase()) || 
@@ -565,7 +831,8 @@ export const AdminDashboardMockup = () => {
       }
     }
 
-    return searchMatch && statusMatch && typeMatch && dateMatch;
+    const sessionMatch = bookingSessionFilter === 'all' || b.session_id === bookingSessionFilter;
+    return searchMatch && statusMatch && typeMatch && dateMatch && sessionMatch;
   });
 
   // Sorted Bookings logic
@@ -592,6 +859,45 @@ export const AdminDashboardMockup = () => {
     if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
     return 0;
   });
+
+  // Paginated Sessions List (Schedules)
+  const paginatedSessions = sessionsList.slice(
+    (sessionsPage - 1) * sessionsPerPage,
+    sessionsPage * sessionsPerPage
+  );
+
+  // Paginated Clients list
+  const paginatedClients = filteredClients.slice(
+    (clientsPage - 1) * clientsPerPage,
+    clientsPage * clientsPerPage
+  );
+
+  // Paginated Bookings list
+  const paginatedBookings = sortedBookings.slice(
+    (bookingsPage - 1) * bookingsPerPage,
+    bookingsPage * bookingsPerPage
+  );
+
+  // Notification category classifier
+  const getCategory = (n) => {
+    const t = n.type?.toLowerCase() || '';
+    const title = n.title?.toLowerCase() || '';
+    const msg = n.message?.toLowerCase() || '';
+    if (t === 'booking' || title.includes('book') || title.includes('sched') || title.includes('session') || msg.includes('book') || msg.includes('session')) return 'bookings';
+    if (t === 'client' || title.includes('profile') || title.includes('client') || title.includes('user') || msg.includes('profile') || msg.includes('client')) return 'clients';
+    return 'system';
+  };
+
+  const filteredNotifications = notificationsList.filter(n => {
+    if (notifFilter === 'all') return true;
+    return getCategory(n) === notifFilter;
+  });
+
+  // Paginated Notifications list
+  const paginatedNotifications = filteredNotifications.slice(
+    (notifsPage - 1) * notifsPerPage,
+    notifsPage * notifsPerPage
+  );
 
   return (
     <AdminLayout activeTab={activeTab} setActiveTab={setActiveTab}>
@@ -1015,7 +1321,39 @@ export const AdminDashboardMockup = () => {
               </button>
             </div>
             
-            {activeSessionSubtab === 'types' ? (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {activeSessionSubtab === 'schedules' && (
+                <div style={{ display: 'inline-flex', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '3px', marginRight: '12px' }}>
+                  {[
+                    { id: 'list', label: 'List View' },
+                    { id: 'calendar', label: 'Calendar View' }
+                  ].map(view => {
+                    const active = sessionsViewMode === view.id;
+                    return (
+                      <button
+                        key={view.id}
+                        onClick={() => setSessionsViewMode(view.id)}
+                        style={{
+                          backgroundColor: active ? 'rgba(202, 59, 36, 0.15)' : 'transparent',
+                          border: 'none',
+                          color: active ? '#ff8a7a' : '#888',
+                          padding: '4px 12px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          outline: 'none'
+                        }}
+                      >
+                        {view.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {activeSessionSubtab === 'types' ? (
               <button 
                 onClick={() => setShowAddSessionTypeModal(true)}
                 style={{
@@ -1036,6 +1374,7 @@ export const AdminDashboardMockup = () => {
                 Schedule Session Slot
               </button>
             )}
+            </div>
           </div>
 
           {/* Table displaying Session Types */}
@@ -1107,7 +1446,7 @@ export const AdminDashboardMockup = () => {
           )}
 
           {/* Table displaying Scheduled time slots */}
-          {activeSessionSubtab === 'schedules' && (
+          {activeSessionSubtab === 'schedules' && sessionsViewMode === 'list' && (
             <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
@@ -1122,7 +1461,7 @@ export const AdminDashboardMockup = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sessionsList.map(s => (
+                    {paginatedSessions.map(s => (
                       <tr 
                         key={s.id} 
                         onClick={() => handleOpenScheduleSlotModal(s)}
@@ -1134,7 +1473,10 @@ export const AdminDashboardMockup = () => {
                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'; }}
                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                       >
-                        <td style={{ padding: '12px', fontWeight: '600' }}>{s.session_types?.title || 'Unknown Class'}</td>
+                        <td style={{ padding: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {s.is_recurring && <Repeat style={{ width: '14px', height: '14px', color: '#ca3b24' }} />}
+                          {s.session_types?.title || 'Unknown Class'}
+                        </td>
                         <td style={{ padding: '12px', color: '#ccc' }}>{new Date(s.datetime).toLocaleString()}</td>
                         <td style={{ padding: '12px', color: '#aaa' }}>{s.location}</td>
                         <td style={{ padding: '12px', color: '#ca3b24', fontWeight: '700' }}>${s.price_usd}</td>
@@ -1168,6 +1510,131 @@ export const AdminDashboardMockup = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              {renderPaginationControls(sessionsList.length, sessionsPage, sessionsPerPage, setSessionsPage, setSessionsPerPage)}
+            </div>
+          )}
+
+          {/* Calendar View displaying Scheduled time slots */}
+          {activeSessionSubtab === 'schedules' && sessionsViewMode === 'calendar' && (
+            <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
+              {/* Calendar Controls */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#fff' }}>
+                  {calendarDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                </h4>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                      padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                    }}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    onClick={() => setCalendarDate(new Date())}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                      padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                    }}
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => setCalendarDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+                      padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', outline: 'none'
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              {/* Calendar Month Grid */}
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#888', marginBottom: '10px' }}>
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d}>{d}</div>)}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', minHeight: '320px' }}>
+                  {(() => {
+                    const year = calendarDate.getFullYear();
+                    const month = calendarDate.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const totalDays = new Date(year, month + 1, 0).getDate();
+                    
+                    const cells = [];
+                    for (let i = 0; i < firstDay; i++) {
+                      cells.push(
+                        <div key={`pad-${i}`} style={{ backgroundColor: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.02)', borderRadius: '8px', minHeight: '80px' }} />
+                      );
+                    }
+                    for (let day = 1; day <= totalDays; day++) {
+                      const dateObj = new Date(year, month, day);
+                      const daySessions = sessionsList.filter(s => {
+                        if (!s.datetime) return false;
+                        const d = new Date(s.datetime);
+                        return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+                      });
+
+                      const isToday = new Date().toDateString() === dateObj.toDateString();
+
+                      cells.push(
+                        <div 
+                          key={`day-${day}`}
+                          style={{
+                            backgroundColor: isToday ? 'rgba(202, 59, 36, 0.05)' : 'rgba(255,255,255,0.02)',
+                            border: isToday ? '1px solid #ca3b24' : '1px solid rgba(255,255,255,0.05)',
+                            borderRadius: '8px',
+                            padding: '8px',
+                            minHeight: '80px',
+                            display: 'flex',
+                            flexDirection: 'column'
+                          }}
+                        >
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: isToday ? '#ff8a7a' : '#888' }}>
+                            {day}
+                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px', flex: 1, overflowY: 'auto' }}>
+                            {daySessions.map(s => (
+                              <div
+                                key={s.id}
+                                onClick={(e) => { e.stopPropagation(); handleOpenScheduleSlotModal(s); }}
+                                style={{
+                                  fontSize: '9px',
+                                  fontWeight: '700',
+                                  backgroundColor: 'rgba(202, 59, 36, 0.15)',
+                                  border: '1px solid rgba(202, 59, 36, 0.3)',
+                                  color: '#ff8a7a',
+                                  padding: '2px 4px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '2px'
+                                }}
+                                title={`${new Date(s.datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${s.session_types?.title}`}
+                              >
+                                {s.is_recurring && <Repeat style={{ width: '8px', height: '8px', color: '#ff8a7a' }} />}
+                                <span>
+                                  {new Date(s.datetime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - {s.session_types?.title}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return cells;
+                  })()}
+                </div>
               </div>
             </div>
           )}
@@ -1351,7 +1818,7 @@ export const AdminDashboardMockup = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredClients.map((p) => {
+                    {paginatedClients.map((p) => {
                       const isSelf = user && p.id === user.id;
                       return (
                         <tr 
@@ -1423,8 +1890,8 @@ export const AdminDashboardMockup = () => {
                               <button 
                                 onClick={(e) => { e.stopPropagation(); handleOpenClientModal(p); }}
                                 style={{
-                                  backgroundColor: 'rgba(255,255,255,0.05)',
-                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.1)',
                                   color: '#fff',
                                   padding: '8px',
                                   borderRadius: '6px',
@@ -1435,8 +1902,8 @@ export const AdminDashboardMockup = () => {
                                   outline: 'none',
                                   transition: 'background-color 0.2s'
                                 }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; }}
                                 title="View Profile"
                               >
                                 <Eye style={{ width: '16px', height: '16px', color: '#ccc' }} />
@@ -1450,6 +1917,7 @@ export const AdminDashboardMockup = () => {
                 </table>
               </div>
             )}
+            {renderPaginationControls(filteredClients.length, clientsPage, clientsPerPage, setClientsPage, setClientsPerPage)}
           </div>
         </div>
       )}
@@ -1473,6 +1941,36 @@ export const AdminDashboardMockup = () => {
               Schedule Appointment
             </button>
           </div>
+
+          {bookingSessionFilter !== 'all' && (
+            <div style={{
+              backgroundColor: 'rgba(37, 99, 235, 0.15)',
+              border: '1px solid #2563eb',
+              color: '#93c5fd',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>Filtering bookings for a selected session slot.</span>
+              <button 
+                onClick={() => setBookingSessionFilter('all')}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  color: '#3b82f6',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  outline: 'none'
+                }}
+              >
+                Clear Filter
+              </button>
+            </div>
+          )}
 
           {/* Bookings Filters Bar */}
           <div style={{
@@ -1751,7 +2249,7 @@ export const AdminDashboardMockup = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedBookings.map(b => (
+                  {paginatedBookings.map(b => (
                     <tr 
                       key={b.id} 
                       onClick={() => handleOpenBookingModal(b)}
@@ -1813,6 +2311,148 @@ export const AdminDashboardMockup = () => {
                 </tbody>
               </table>
             </div>
+            {renderPaginationControls(sortedBookings.length, bookingsPage, bookingsPerPage, setBookingsPage, setBookingsPerPage)}
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICATIONS SUB-VIEW */}
+      {activeTab === 'notifications' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>System Notifications Log</h1>
+            <p style={{ fontSize: '13px', color: '#888', margin: '4px 0 0 0' }}>Monitor client registration activity, scheduling changes, and system events</p>
+          </div>
+
+          {/* Filters and Actions */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+            backgroundColor: '#121212',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.06)'
+          }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {[
+                { id: 'all', label: 'All Log Entries' },
+                { id: 'bookings', label: 'Bookings' },
+                { id: 'clients', label: 'Clients' },
+                { id: 'system', label: 'System' }
+              ].map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setNotifFilter(item.id);
+                    setNotifsPage(1);
+                  }}
+                  style={{
+                    backgroundColor: notifFilter === item.id ? 'rgba(202, 59, 36, 0.15)' : 'transparent',
+                    color: notifFilter === item.id ? '#ff8a7a' : '#888',
+                    border: notifFilter === item.id ? '1px solid #ca3b24' : '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    outline: 'none'
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleMarkAllRead}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                fontSize: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                outline: 'none'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+            >
+              Mark All as Read
+            </button>
+          </div>
+
+          {/* Notifications Card */}
+          <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {paginatedNotifications.map(n => (
+                <div
+                  key={n.id}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px',
+                    backgroundColor: n.read ? 'rgba(255,255,255,0.01)' : 'rgba(202, 59, 36, 0.03)',
+                    border: '1px solid rgba(255,255,255,0.04)',
+                    borderRadius: '8px',
+                    borderLeft: `3px solid ${n.read ? 'rgba(255,255,255,0.1)' : '#ca3b24'}`
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
+                        {n.title}
+                      </span>
+                      {!n.read && (
+                        <span style={{
+                          backgroundColor: '#ca3b24', color: '#fff', fontSize: '9px', fontWeight: '800',
+                          padding: '1px 5px', borderRadius: '3px', textTransform: 'uppercase'
+                        }}>
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: '13px', color: '#ccc' }}>{n.message}</span>
+                    <span style={{ fontSize: '10px', color: '#555', marginTop: '4px' }}>
+                      Category: <span style={{ textTransform: 'uppercase', color: '#888', fontWeight: '600' }}>{getCategory(n)}</span> • {new Date(n.created_at).toLocaleString()}
+                    </span>
+                  </div>
+
+                  {!n.read && (
+                    <button
+                      onClick={() => handleMarkSingleRead(n.id)}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        color: '#ca3b24',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        outline: 'none'
+                      }}
+                    >
+                      Mark read
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              {filteredNotifications.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0', fontSize: '13px' }}>
+                  No notifications found.
+                </div>
+              )}
+            </div>
+
+            {/* Pagination controls */}
+            {renderPaginationControls(filteredNotifications.length, notifsPage, notifsPerPage, setNotifsPage, setNotifsPerPage)}
           </div>
         </div>
       )}
@@ -2280,14 +2920,26 @@ export const AdminDashboardMockup = () => {
                         <Users style={{ width: '14px', height: '14px', color: '#666' }} />
                         Reserved Spots
                       </span>
-                      <span style={{
-                        backgroundColor: booked >= selectedScheduleSlot.max_slots ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
-                        color: booked >= selectedScheduleSlot.max_slots ? '#fca5a5' : '#86efac',
-                        fontSize: '11px',
-                        fontWeight: '800',
-                        padding: '3px 8px',
-                        borderRadius: '4px'
-                      }}>
+                      <span 
+                        onClick={() => {
+                          setBookingSessionFilter(selectedScheduleSlot.id);
+                          setActiveTab('bookings');
+                          setScheduleSlotModalOpen(false);
+                        }}
+                        title="Click to view all bookings for this session"
+                        style={{
+                          backgroundColor: booked >= selectedScheduleSlot.max_slots ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                          color: booked >= selectedScheduleSlot.max_slots ? '#fca5a5' : '#86efac',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          transition: 'transform 0.1s ease'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      >
                         {booked} / {selectedScheduleSlot.max_slots} filled
                       </span>
                     </div>
@@ -2416,7 +3068,52 @@ export const AdminDashboardMockup = () => {
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '13px', color: '#888' }}>{selectedClient.email}</span>
+                  <span style={{ fontSize: '13px', color: '#888', display: 'block' }}>{selectedClient.email}</span>
+                  
+                  {/* Admin Moderation Over User Avatar */}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                    <input 
+                      type="file" 
+                      id={`admin-client-avatar-input-${selectedClient.id}`}
+                      accept="image/*"
+                      onChange={(e) => handleAdminUploadAvatar(e, selectedClient.id)}
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      onClick={() => document.getElementById(`admin-client-avatar-input-${selectedClient.id}`).click()}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '4px',
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        outline: 'none'
+                      }}
+                    >
+                      Change Avatar
+                    </button>
+                    {selectedClient.avatar_url && (
+                      <button
+                        onClick={() => handleAdminRemoveAvatar(selectedClient.id)}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid #ef4444',
+                          borderRadius: '4px',
+                          color: '#fca5a5',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          outline: 'none'
+                        }}
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -2737,6 +3434,69 @@ export const AdminDashboardMockup = () => {
                 />
               </div>
             </div>
+
+            {/* Recurring Settings Checkbox */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+              <input 
+                type="checkbox" 
+                id="is-recurring-checkbox"
+                checked={isRecurring}
+                onChange={e => setIsRecurring(e.target.checked)}
+                style={{ cursor: 'pointer', accentColor: '#ca3b24' }}
+              />
+              <label htmlFor="is-recurring-checkbox" style={{ fontSize: '13px', color: '#ccc', cursor: 'pointer', fontWeight: '600' }}>
+                Recurring Session
+              </label>
+            </div>
+
+            {isRecurring && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#888', marginBottom: '4px' }}>Repeat Pattern</label>
+                    <select
+                      value={recurrencePattern}
+                      onChange={e => setRecurrencePattern(e.target.value)}
+                      style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px', color: '#fff', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      <option value="weekly">Weekly</option>
+                      <option value="daily">Daily</option>
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#888', marginBottom: '4px' }}>Stop Condition</label>
+                    <select
+                      value={recurrenceLimitType}
+                      onChange={e => setRecurrenceLimitType(e.target.value)}
+                      style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px', color: '#fff', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      <option value="count">Repeat Count</option>
+                      <option value="date">End Date</option>
+                    </select>
+                  </div>
+                </div>
+
+                {recurrenceLimitType === 'count' ? (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#888', marginBottom: '4px' }}>Number of times to repeat</label>
+                    <input 
+                      type="number" min="1" max="50" required
+                      value={recurrenceCount} onChange={e => setRecurrenceCount(Number(e.target.value))}
+                      style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#888', marginBottom: '4px' }}>End Date</label>
+                    <input 
+                      type="date" required
+                      value={recurrenceEndDate} onChange={e => setRecurrenceEndDate(e.target.value)}
+                      style={{ width: '100%', backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '6px', color: '#fff', fontSize: '12px', outline: 'none' }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
             <button type="submit" style={{ backgroundColor: '#ca3b24', color: '#fff', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', marginTop: '10px' }}>
               Schedule Session

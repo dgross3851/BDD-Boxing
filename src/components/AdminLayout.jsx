@@ -95,6 +95,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
       case 'sessions': return 'Sessions & Categories';
       case 'clients': return 'Clients Management';
       case 'bookings': return 'Bookings & Schedule';
+      case 'notifications': return 'Notifications Log';
       default: return 'Dashboard';
     }
   };
@@ -118,7 +119,8 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'sessions', label: 'Sessions', icon: Calendar },
     { id: 'clients', label: 'Clients', icon: Users },
-    { id: 'bookings', label: 'Bookings', icon: BookOpen }
+    { id: 'bookings', label: 'Bookings', icon: BookOpen },
+    { id: 'notifications', label: 'Notifications', icon: Bell }
   ];
 
   return (
@@ -511,6 +513,33 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                           </div>
                         ))
                       )}
+                    </div>
+                    {/* View All Activity Footer Button */}
+                    <div style={{ padding: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                      <button
+                        onClick={() => {
+                          setActiveTab('notifications');
+                          setNotificationsOpen(false);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          backgroundColor: '#ca3b24',
+                          border: 'none',
+                          color: '#fff',
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          transition: 'background-color 0.2s',
+                          outline: 'none'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b0301c'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ca3b24'}
+                      >
+                        View All Activity
+                      </button>
                     </div>
                   </div>
                 </>
