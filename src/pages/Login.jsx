@@ -97,21 +97,17 @@ export const Login = () => {
       {/* Header Branding */}
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            backgroundColor: '#ca3b24',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: '900',
-            fontSize: '18px',
-            color: '#fff',
-            boxShadow: '0 0 20px rgba(202, 59, 36, 0.4)'
-          }}>
-            BDD
-          </div>
+          <img 
+            src="assets/bbd-boxing-logo-updated.jpeg" 
+            alt="BDD Boxing Logo" 
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              boxShadow: '0 0 20px rgba(202, 59, 36, 0.4)'
+            }} 
+          />
           <span style={{ fontSize: '24px', fontWeight: '800', color: '#ffffff', letterSpacing: '1px' }}>
             BDD BOXING
           </span>
