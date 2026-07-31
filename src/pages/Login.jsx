@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import logo from '../../assets/bbd-boxing-logo-updated.jpeg';
 
 export const Login = () => {
   const { signIn } = useAuth();
@@ -98,7 +99,7 @@ export const Login = () => {
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
           <img 
-            src="assets/bbd-boxing-logo-updated.jpeg" 
+            src={logo} 
             alt="BDD Boxing Logo" 
             style={{
               width: '48px',
