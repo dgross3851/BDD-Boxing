@@ -147,89 +147,13 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
       <header className="main-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', zIndex: 1000, backgroundColor: '#050505', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center' }}>
         <div className="nav-container" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', margin: '0 auto', maxWidth: '1300px' }}>
           <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
+            <img src="/assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" onError={(e) => { e.currentTarget.src = 'assets/bbd-boxing-logo-updated.jpeg'; }} style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
             <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
           </a>
-          
-          <button 
-            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`}>
-            <li><a href="index.html" className="nav-link">Home</a></li>
-            <li><a href="programs.html" className="nav-link">Programs</a></li>
-            <li><a href="about-coach.html" className="nav-link">About Coach</a></li>
-            <li><a href="training.html" className="nav-link">Training</a></li>
-            <li><a href="schedule.html" className="nav-link">Schedule</a></li>
-            <li><a href="events.html" className="nav-link">Events</a></li>
-            <li><a href="contact.html" className="nav-link">Contact</a></li>
-            
-            {/* Mobile Profile Section (Only visible on mobile) */}
-            <li className="mobile-only" style={{ marginTop: '1.5rem', width: '100%' }}>
-              <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', padding: '0 10px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ca3b24',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  boxShadow: '0 0 12px rgba(202, 59, 36, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  overflow: 'hidden',
-                  flexShrink: 0
-                }}>
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    profile?.full_name ? profile.full_name.trim().split(/\s+/)[0].slice(0, 2).toUpperCase() : 'U'
-                  )}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'left' }}>
-                  <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {profile?.full_name || 'Fighter'}
-                  </span>
-                  <span style={{ fontSize: '0.8rem', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '1px' }}>
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href={role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard'} onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Dashboard
-                </a>
-                <a href="portal.html#/profile" onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Profile Settings
-                </a>
-                <button 
-                  onClick={async () => {
-                    setMobileMenuOpen(false);
-                    await signOut();
-                    window.location.href = '/index.html';
-                  }} 
-                  className="mobile-logout-btn" 
-                  style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', color: '#ff8a7a', backgroundColor: 'rgba(202, 59, 36, 0.1)', border: '1px solid rgba(202, 59, 36, 0.3)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'all 0.2s', textAlign: 'center' }}
-                >
-                  Log Out
-                </button>
-              </div>
-            </li>
-          </ul>
 
           <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <AvatarDropdown />
-            <a href="contact.html" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
+            <a href={user ? "portal.html#/dashboard?bookGeneral=true" : "portal.html#/login?redirectTo=book"} className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
           </div>
         </div>
       </header>

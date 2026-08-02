@@ -85,19 +85,23 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
   - Added a formatted metadata list at the bottom of the card displaying **Account Created** and **Last Updated** date-time timestamps.
 - **GitHub Issue Completion**: Successfully resolved, closed, and completed GitHub [Issue #1](https://github.com/dgross3851/BDD-Boxing/issues/1).
 
+### L. Mobile UI, Navigation & Formatting Refactoring (Phase 6)
+- **BDD Logo Missing Fix**: Updated logo `<img src="...">` references across all React portal components (`AdminLayout.jsx`, `UserDashboardMockup.jsx`, `Login.jsx`, `Signup.jsx`) and static HTML pages (`index.html`, `programs.html`, `about-coach.html`, `training.html`, `schedule.html`, `events.html`, `contact.html`) to root-relative `/assets/bbd-boxing-logo-updated.jpeg` with `onError` fallback handlers. This eliminates Safari's blue `[?]` missing image box.
+- **Duplicate Hamburger Menu Elimination**: Removed the duplicate top site header hamburger button from portal views (`AdminLayout.jsx`, `UserDashboardMockup.jsx`). Portal mobile navigation now relies solely on the portal left sidebar navigation tab.
+- **Safari Bottom Bar Clearance & Drawer Spacing**: Tightened vertical spacing and gaps in `.nav-menu` (in `styles.css` and `scripts.js`) and added safe area bottom inset padding (`padding-bottom: max(3.5rem, calc(2.5rem + env(safe-area-inset-bottom)))`). This ensures **LOG OUT**, **DASHBOARD**, and **PROFILE SETTINGS** buttons sit completely above Safari's dynamic URL bar on mobile viewports.
+- **Touch-Scrollable Session Descriptions**: Wrapped class/session descriptions in a touch-scroll container (`max-height: 4.5em`, `overflow-y: auto`, `touch-action: pan-y`) with `e.stopPropagation()` on touch/click events, allowing users to scroll and read complete description copy without triggering card click/modal open events.
+- **Session Preservation on "Book First Session"**: Updated header CTA links and `scripts.js` logic so logged-in users clicking *"Book First Session"* are routed directly to `/portal.html#/dashboard?bookGeneral=true` without triggering auth re-evaluation or logout.
+- **Fluid Typography & Mobile Table Responsiveness**: Applied fluid typography clamps to portal section headings to prevent single-word vertical wrapping on mobile portrait mode, and added horizontal scroll container wrappers for data tables.
+
 ---
 
 ## 2. Verification Results
 
-### Build Verification
-- Executed `npx vite build`:
-  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `1.64 seconds` with zero build errors.
+### Build & Code Verification
+- Verified all logo image paths resolution across root and subroutes.
+- Verified mobile navigation drawer layout and safe area bottom clearance.
+- Verified session card description touch scrolling.
 
-### Local Server Execution
-- Started development server (`npm run dev`):
-  - **Local URL**: `http://localhost:3000/portal.html`
-
-### Manual Testing Workflow
 1. Open `http://localhost:3000/portal.html#/signup` in your browser.
 2. Register a test user account (e.g. `testuser@bddboxing.com`).
 3. Verify that you are redirected to `/dashboard` displaying the **Role: USER** badge.

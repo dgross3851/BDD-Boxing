@@ -99,7 +99,8 @@ export const Login = () => {
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
           <img 
-            src={logo} 
+            src={logo}
+            onError={(e) => { e.currentTarget.src = '/assets/bbd-boxing-logo-updated.jpeg'; }} 
             alt="BDD Boxing Logo" 
             style={{
               width: '48px',
