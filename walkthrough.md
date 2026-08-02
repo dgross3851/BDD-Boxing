@@ -86,6 +86,7 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **GitHub Issue Completion**: Successfully resolved, closed, and completed GitHub [Issue #1](https://github.com/dgross3851/BDD-Boxing/issues/1).
 
 ### L. Desktop & Mobile Header Clean-up, Sidebar Refactoring & Link Fixes (Phase 6)
+- **Fixed Dashboard Desktop Header Spacing**: Updated [AdminLayout.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/components/AdminLayout.jsx) and [UserDashboardMockup.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/pages/UserDashboardMockup.jsx) to structure the portal header with `.portal-header-inner` (`maxWidth: 1200px`), `.portal-header-left` (`gap: 32px`), `.portal-nav` (`gap: 24px`, `flex: 0 0 auto`), and `.portal-header-actions` (`flex: 0 0 auto`). This eliminates the huge 550px empty void between "Contact" and the avatar icon, creating a balanced, premium desktop header where nav links do not stretch awkwardly and the avatar dropdown stays right-aligned.
 - **Top Portal Header Clean-up (Desktop & Mobile)**: Removed the redundant red "Book First Session" button from top portal header bars across `/dashboard` and `/admin` views. The Avatar Dropdown now sits uncrowded on the far right with zero text overlap or crowding.
 - **Top Bar Hamburger Removal**: Removed top bar 3-line hamburger menu toggle icon (`☰`) on mobile portal views. The top mobile portal header now cleanly consists of only the logo on the left and the Avatar Dropdown on the right.
 - **Immediate Section Names in Mobile Sidebar Drawer**: Fixed the left sidebar drawer on mobile (`.admin-sidebar.mobile-open`). When opened on mobile, all section names (**Overview**, **Sessions**, **Clients**, **Bookings**, **Notifications**) display **immediately** next to their icons at full 260px drawer width.
@@ -93,7 +94,7 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **Fixed Contact Hero CTA Button (`contact.html`)**: Removed legacy `preventDefault()` listener in `scripts.js` that broke button click navigation on `contact.html`. The hero "Book Session" button now immediately opens the portal booking flow.
 - **Fixed Events Sponsorship CTA Button (`events.html`)**: Updated the "Contact About Sponsorship" button in `events.html` from `portal.html#/dashboard` to `contact.html#booking-section`, navigating users straight to Coach JRob's contact section on `contact.html`.
 - **ES Module Logo Bundling**: Imported `bbd-boxing-logo-updated.jpeg` directly via ES module in React (`import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg'`) in `AdminLayout.jsx` and `UserDashboardMockup.jsx` to guarantee Vite bundles the logo file cleanly for production.
-- **Mobile Stacked Card Adapters**: Converted wide data tables (**My Bookings Log**) into responsive stacked mobile cards on viewports <768px (`.portal-mobile-cards`), allowing users to read every detail in portrait mode without horizontal scrolling or turning their phone sideways.s.
+- **Mobile Stacked Card Adapters**: Converted wide data tables (**My Bookings Log**) into responsive stacked mobile cards on viewports <768px (`.portal-mobile-cards`), allowing users to read every detail in portrait mode without horizontal scrolling or turning their phone sideways.
 
 ---
 
