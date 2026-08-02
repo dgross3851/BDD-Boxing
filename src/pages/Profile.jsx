@@ -6,7 +6,7 @@ import { AvatarDropdown } from '../components/AvatarDropdown';
 import { User, Phone, Mail, Shield, Save, CheckCircle, AlertCircle, ArrowLeft, Camera, Loader2, Trash2 } from 'lucide-react';
 
 export const Profile = () => {
-  const { user, profile, role, avatarUrl, refreshProfile, refreshAvatar } = useAuth();
+  const { user, profile, role, avatarUrl, refreshProfile, refreshAvatar, signOut } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -163,6 +163,18 @@ export const Profile = () => {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -196,6 +208,62 @@ export const Profile = () => {
             <li><a href="schedule.html" className="nav-link">Schedule</a></li>
             <li><a href="events.html" className="nav-link">Events</a></li>
             <li><a href="contact.html" className="nav-link">Contact</a></li>
+            
+            {/* Mobile Profile Section (Only visible on mobile) */}
+            <li className="mobile-only" style={{ marginTop: '1.5rem', width: '100%' }}>
+              <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', padding: '0 10px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ca3b24',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: '700',
+                  fontSize: '14px',
+                  boxShadow: '0 0 12px rgba(202, 59, 36, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  overflow: 'hidden',
+                  flexShrink: 0
+                }}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    profile?.full_name ? profile.full_name.trim().split(/\s+/)[0].slice(0, 2).toUpperCase() : 'U'
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'left' }}>
+                  <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {profile?.full_name || 'Fighter'}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '1px' }}>
+                    {user?.email}
+                  </span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <a href={role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard'} onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
+                  Dashboard
+                </a>
+                <a href="portal.html#/profile" onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
+                  Profile Settings
+                </a>
+                <button 
+                  onClick={async () => {
+                    setMobileMenuOpen(false);
+                    await signOut();
+                    window.location.href = '/index.html';
+                  }} 
+                  className="mobile-logout-btn" 
+                  style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', color: '#ff8a7a', backgroundColor: 'rgba(202, 59, 36, 0.1)', border: '1px solid rgba(202, 59, 36, 0.3)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'all 0.2s', textAlign: 'center' }}
+                >
+                  Log Out
+                </button>
+              </div>
+            </li>
           </ul>
 
           <div className="header-cta">

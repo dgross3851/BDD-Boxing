@@ -574,7 +574,66 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         }
 
-        // Find header login button and replace it with the avatar dropdown
+        // --- MOBILE DRAWER PROFILE SECTION ---
+        const navMenu = document.querySelector('.nav-menu');
+        if (navMenu) {
+          // Hide mobile login button
+          const mobileLoginBtn = document.getElementById('mobile-login-btn');
+          if (mobileLoginBtn) {
+            const loginLi = mobileLoginBtn.closest('li');
+            if (loginLi) loginLi.style.display = 'none';
+          }
+
+          // Check if mobile profile block is already created
+          let mobileProfileSection = document.getElementById('mobile-profile-section');
+          if (!mobileProfileSection) {
+            mobileProfileSection = document.createElement('li');
+            mobileProfileSection.id = 'mobile-profile-section';
+            mobileProfileSection.className = 'mobile-only';
+            mobileProfileSection.style.cssText = 'margin-top: 1.5rem; width: 100%;';
+            navMenu.appendChild(mobileProfileSection);
+          }
+
+          let avatarImgHtmlMobile = `
+            <div class="avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; flex-shrink: 0;">
+              ${initials}
+            </div>
+          `;
+
+          if (profile?.avatar_url) {
+            avatarImgHtmlMobile = `
+              <div class="avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; background-color: #ca3b24; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; box-shadow: 0 0 12px rgba(202, 59, 36, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; flex-shrink: 0;">
+                <img src="${profile.avatar_url}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;" />
+              </div>
+            `;
+          }
+
+          mobileProfileSection.innerHTML = `
+            <div class="mobile-profile-divider" style="height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 1.5rem;"></div>
+            <div class="mobile-profile-info" style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; padding: 0 10px;">
+              ${avatarImgHtmlMobile}
+              <div class="mobile-profile-meta" style="display: flex; flex-direction: column; overflow: hidden; text-align: left;">
+                <span class="mobile-profile-name" style="font-weight: 700; font-size: 0.95rem; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${fullName}</span>
+                <span class="mobile-profile-email" style="font-size: 0.8rem; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px;">${email}</span>
+              </div>
+            </div>
+            <div class="mobile-profile-links" style="display: flex; flex-direction: column; gap: 10px;">
+              <a href="${dashboardUrl}" class="btn btn-secondary mobile-menu-cta" style="padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; width: 100%; text-align: center;">Dashboard</a>
+              <a href="portal.html#/profile" class="btn btn-secondary mobile-menu-cta" style="padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; width: 100%; text-align: center;">Profile Settings</a>
+              <button class="mobile-logout-btn" style="padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; width: 100%; color: #ff8a7a; background: rgba(202, 59, 36, 0.1); border: 1px solid rgba(202, 59, 36, 0.3); cursor: pointer; font-family: var(--font-headline); text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s; text-align: center;">Log Out</button>
+            </div>
+          `;
+
+          const mobileLogoutBtn = mobileProfileSection.querySelector('.mobile-logout-btn');
+          if (mobileLogoutBtn) {
+            mobileLogoutBtn.addEventListener('click', async () => {
+              await supabaseClient.auth.signOut();
+              window.location.href = '/index.html';
+            });
+          }
+        }
+
+        // Find header login button and replace it with the avatar dropdown (Desktop)
         const loginBtn = document.getElementById('header-login-btn');
         if (loginBtn) {
           const container = document.createElement('div');

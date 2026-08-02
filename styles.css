@@ -3263,6 +3263,7 @@ footer {
     gap: 1.75rem;
     transition: var(--transition-slow);
     z-index: 1000;
+    overflow-y: auto;
   }
   
   .nav-menu.open {
