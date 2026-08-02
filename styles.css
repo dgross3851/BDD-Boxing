@@ -4565,7 +4565,8 @@ body:has(.admin-sidebar) .main-header .mobile-menu-toggle {
 }
 
 @media (max-width: 992px) {
-  .portal-desktop-nav {
+  .portal-desktop-nav,
+  .portal-back-btn {
     display: none !important;
   }
 }
