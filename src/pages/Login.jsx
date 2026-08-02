@@ -20,10 +20,10 @@ export const Login = () => {
     let redirectTo = '';
     if (hashQuestionIndex !== -1) {
       const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
-      redirectTo = searchParams.get('redirectTo');
+      redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
     } else {
       const searchParams = new URLSearchParams(window.location.search);
-      redirectTo = searchParams.get('redirectTo');
+      redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
     }
     if (redirectTo === 'book') {
       setInfoMsg('Please log in first to secure your session booking spot.');
@@ -53,13 +53,13 @@ export const Login = () => {
         
         if (hashQuestionIndex !== -1) {
           const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
-          redirectTo = searchParams.get('redirectTo');
+          redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
           sessionId = searchParams.get('sessionId');
           programCategory = searchParams.get('programCategory');
           bookGeneral = searchParams.get('bookGeneral');
         } else {
           const searchParams = new URLSearchParams(window.location.search);
-          redirectTo = searchParams.get('redirectTo');
+          redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
           sessionId = searchParams.get('sessionId');
           programCategory = searchParams.get('programCategory');
           bookGeneral = searchParams.get('bookGeneral');
