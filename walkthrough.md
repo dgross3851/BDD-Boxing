@@ -86,13 +86,12 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
 - **GitHub Issue Completion**: Successfully resolved, closed, and completed GitHub [Issue #1](https://github.com/dgross3851/BDD-Boxing/issues/1).
 
 ### L. Desktop Header Formatting & Mobile Portal Refactoring (Phase 6)
-- **Desktop Portal Header Clean-up**: Retained all 7 navigation tabs (`HOME`, `PROGRAMS`, `ABOUT COACH`, `TRAINING`, `SCHEDULE`, `EVENTS`, `CONTACT`) in the desktop portal top bar with clean flex spacing (`gap: 1.25rem`) and a generous logo margin (`margin-right: 2rem`), preventing text collisions (`BDD BOXINGHOME` bug fixed).
-- **Redundant CTA Button Removal**: Removed the "Book First Session" button from the top portal header on `/dashboard` and `/admin` views. The Avatar Dropdown now sits uncrowded on the right side without overlapping text or blocking `BDD BOXING`.
+- **Main Website Header Alignment**: Synchronized the portal top navigation bar across [AdminLayout.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/components/AdminLayout.jsx) and [UserDashboardMockup.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/pages/UserDashboardMockup.jsx) to match the main website header layout from `index.html` (`HOME`, `PROGRAMS`, `ABOUT COACH`, `TRAINING`, `SCHEDULE`, `EVENTS`, `CONTACT`, `AvatarDropdown`, and `BOOK FIRST SESSION`).
+- **Immediate Section Names in Mobile Sidebar Drawer**: Fixed the left sidebar drawer on mobile (`.admin-sidebar.mobile-open`). When opened on mobile, all section names (**Overview**, **Sessions**, **Clients**, **Bookings**, **Notifications**) display **immediately** next to their icons at full 260px drawer width.
+- **Bottom Arrow Expand/Collapse Toggle**: Configured the bottom arrow button (`ChevronLeft` / `ChevronRight`) to toggle `collapsed` state cleanly, allowing users to swap between full section names (260px) and icons-only (70px).
+- **Single Mobile Drawer Toggle**: Removed the redundant top 3-line hamburger menu toggle on mobile portal views so only the left sidebar toggle button is present.
 - **ES Module Logo Bundling**: Imported `bbd-boxing-logo-updated.jpeg` directly via ES module in React (`import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg'`) in `AdminLayout.jsx` and `UserDashboardMockup.jsx` to guarantee Vite bundles the logo file cleanly for production.
 - **Mobile Stacked Card Adapters**: Converted wide data tables (**My Bookings Log**) into responsive stacked mobile cards on viewports <768px (`.portal-mobile-cards`), allowing users to read every detail in portrait mode without horizontal scrolling or turning their phone sideways.
-- **Single Sidebar Hamburger & Mobile Drawer**: Removed top bar hamburger button on mobile portal views, relying solely on the left sidebar toggle button (`☰`). The expanded mobile drawer displays clear text labels (**Overview**, **Sessions**, **Clients**, **Bookings**, **Notifications**) next to every icon.
-- **Safari URL Bar Clearance**: Added safe area bottom inset padding (`padding-bottom: max(3.5rem, calc(2.5rem + env(safe-area-inset-bottom)))`) to ensure **LOG OUT**, **DASHBOARD**, and **PROFILE SETTINGS** sit above Safari's dynamic bottom URL bar.
-- **Touch-Scrollable Descriptions**: Enabled touch scrolling (`max-height: 4.5em; overflow-y: auto; touch-action: pan-y; e.stopPropagation()`) on session descriptions so mobile users can swipe and read full text without triggering modal dialogs.
 
 ---
 

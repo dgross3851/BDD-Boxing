@@ -4547,6 +4547,20 @@ body:has(.admin-sidebar) .main-header .mobile-menu-toggle {
   display: none !important;
 }
 
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    width: 260px !important;
+  }
+  .admin-sidebar.mobile-open {
+    transform: translateX(0) !important;
+    width: 260px !important;
+  }
+  .admin-mobile-sidebar-toggle {
+    display: flex !important;
+  }
+}
+
 @media (max-width: 992px) {
   .portal-desktop-nav {
     display: none !important;

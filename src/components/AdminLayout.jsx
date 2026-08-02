@@ -153,7 +153,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
               <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', whiteSpace: 'nowrap' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
             </a>
 
-            {/* Desktop Navigation Links (Cleanly Spaced) */}
+            {/* Desktop Navigation Links (Matches index.html main site) */}
             <ul className="portal-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
               <li><a href="index.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Home</a></li>
               <li><a href="programs.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Programs</a></li>
@@ -167,6 +167,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
 
           <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
+            <a href="portal.html#/dashboard?bookGeneral=true" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
           </div>
         </div>
       </header>
@@ -194,7 +195,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
 
         {/* Sidebar Navigation */}
         <aside style={{
-          width: collapsed ? '70px' : '260px',
+          width: mobileOpen ? '260px' : (collapsed ? '70px' : '260px'),
           backgroundColor: '#121212',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
@@ -207,7 +208,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }} className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         
-        {/* Mobile Tab Toggle Button (Sticks out of the sidebar on mobile) */}
+        {/* Mobile Tab Toggle Button */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           style={{
@@ -241,6 +242,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
           {navItems.map(item => {
             const Icon = item.icon;
             const active = activeTab === item.id;
+            const isCollapsed = collapsed && !mobileOpen;
             return (
               <button
                 key={item.id}
@@ -251,9 +253,9 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: collapsed ? '0' : '12px',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  padding: '12px',
+                  gap: isCollapsed ? '0' : '12px',
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: '12px 16px',
                   backgroundColor: active ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
@@ -280,7 +282,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                 }}
               >
                 <Icon style={{ width: '20px', height: '20px', flexShrink: 0 }} />
-                {!collapsed && <span>{item.label}</span>}
+                {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
               </button>
             );
           })}
@@ -291,7 +293,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
           padding: '16px',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           display: 'flex',
-          justifyContent: collapsed ? 'center' : 'flex-end'
+          justify: (collapsed && !mobileOpen) ? 'center' : 'flex-end'
         }}>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -317,7 +319,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
               e.currentTarget.style.color = '#666';
             }}
           >
-            {collapsed ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
+            {(collapsed && !mobileOpen) ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
           </button>
         </div>
       </aside>

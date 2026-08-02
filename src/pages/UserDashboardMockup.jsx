@@ -493,7 +493,7 @@ export const UserDashboardMockup = () => {
               <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', whiteSpace: 'nowrap' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
             </a>
 
-            {/* Desktop Navigation Links (Cleanly Spaced) */}
+            {/* Desktop Navigation Links (Matches index.html main site) */}
             <ul className="portal-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
               <li><a href="index.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Home</a></li>
               <li><a href="programs.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Programs</a></li>
@@ -507,6 +507,7 @@ export const UserDashboardMockup = () => {
 
           <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
+            <a href="portal.html#/dashboard?bookGeneral=true" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
           </div>
         </div>
       </header>
@@ -534,7 +535,7 @@ export const UserDashboardMockup = () => {
 
         {/* Sidebar Navigation */}
         <aside style={{
-          width: collapsed ? '70px' : '260px',
+          width: mobileOpen ? '260px' : (collapsed ? '70px' : '260px'),
           backgroundColor: '#121212',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
@@ -581,6 +582,7 @@ export const UserDashboardMockup = () => {
           {navItems.map(item => {
             const Icon = item.icon;
             const active = activeTab === item.id;
+            const isCollapsed = collapsed && !mobileOpen;
             return (
               <button
                 key={item.id}
@@ -591,9 +593,9 @@ export const UserDashboardMockup = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: collapsed ? '0' : '12px',
-                  justifyContent: collapsed ? 'center' : 'space-between',
-                  padding: '12px',
+                  gap: isCollapsed ? '0' : '12px',
+                  justifyContent: isCollapsed ? 'center' : 'space-between',
+                  padding: '12px 16px',
                   backgroundColor: active ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
@@ -619,11 +621,11 @@ export const UserDashboardMockup = () => {
                   }
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: collapsed ? '0' : '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px' }}>
                   <Icon style={{ width: '20px', height: '20px', flexShrink: 0 }} />
-                  {!collapsed && <span>{item.label}</span>}
+                  {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
                 </div>
-                {!collapsed && item.badge > 0 && (
+                {!isCollapsed && item.badge > 0 && (
                   <span style={{
                     backgroundColor: '#ca3b24',
                     color: '#fff',
@@ -645,7 +647,7 @@ export const UserDashboardMockup = () => {
           padding: '16px',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           display: 'flex',
-          justifyContent: collapsed ? 'center' : 'flex-end'
+          justify: (collapsed && !mobileOpen) ? 'center' : 'flex-end'
         }}>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -671,7 +673,7 @@ export const UserDashboardMockup = () => {
               e.currentTarget.style.color = '#666';
             }}
           >
-            {collapsed ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
+            {(collapsed && !mobileOpen) ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
           </button>
         </div>
       </aside>
