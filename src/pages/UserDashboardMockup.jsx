@@ -507,7 +507,6 @@ export const UserDashboardMockup = () => {
 
           <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
-            <a href="portal.html#/dashboard?bookGeneral=true" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
           </div>
         </div>
       </header>
@@ -643,7 +642,7 @@ export const UserDashboardMockup = () => {
         </nav>
 
         {/* Collapse Sidebar Button at Bottom */}
-        <div style={{
+        <div className="sidebar-collapse-btn" style={{
           padding: '16px',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           display: 'flex',

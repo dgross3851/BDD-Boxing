@@ -4559,6 +4559,9 @@ body:has(.admin-sidebar) .main-header .mobile-menu-toggle {
   .admin-mobile-sidebar-toggle {
     display: flex !important;
   }
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
 }
 
 @media (max-width: 992px) {

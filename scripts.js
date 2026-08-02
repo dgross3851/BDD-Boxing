@@ -290,23 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const ctaButtons = [document.getElementById('hero-submit-cta'), document.getElementById('final-submit-cta')];
-  ctaButtons.forEach(btn => {
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = btn.getAttribute('href').substring(1);
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => {
-            const nameInput = document.getElementById('form-name');
-            if (nameInput) nameInput.focus();
-          }, 600);
-        }
-      });
-    }
-  });
+
 
   // 10. VIDEO LIGHTBOX MODAL
   const videoLightbox = document.getElementById('video-lightbox');
@@ -502,9 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
           '#final-cta-primary',
           '#hero-submit-cta',
           '#final-submit-cta',
-          '.hero-ctas a[href="contact.html"]',
+          '.hero-ctas a[href="contact.html"]:not(.event-cta-sponsorship)',
           '.not-sure-box a[href="contact.html"]',
-          'a[href="contact.html"]:not(.nav-link):not(.footer-links a)'
+          'a[href="contact.html"]:not(.nav-link):not(.footer-links a):not(.event-cta-sponsorship)'
         ];
 
         const generalButtons = document.querySelectorAll(generalSelectors.join(','));
