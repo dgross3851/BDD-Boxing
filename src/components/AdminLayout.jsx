@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { AvatarDropdown } from './AvatarDropdown';
+import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -146,14 +147,26 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
       {/* Website Navigation Header */}
       <header className="main-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', zIndex: 1000, backgroundColor: '#050505', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center' }}>
         <div className="nav-container" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', margin: '0 auto', maxWidth: '1300px' }}>
-          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" onError={(e) => { e.currentTarget.src = 'assets/bbd-boxing-logo-updated.jpeg'; }} style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
-            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+              <img src={logoImg} alt="BDD Boxing Logo" onError={(e) => { e.currentTarget.src = '/assets/bbd-boxing-logo-updated.jpeg'; }} style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
+              <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', whiteSpace: 'nowrap' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
+            </a>
 
-          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Desktop Navigation Links (Cleanly Spaced) */}
+            <ul className="portal-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
+              <li><a href="index.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Home</a></li>
+              <li><a href="programs.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Programs</a></li>
+              <li><a href="about-coach.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>About Coach</a></li>
+              <li><a href="training.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Training</a></li>
+              <li><a href="schedule.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Schedule</a></li>
+              <li><a href="events.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Events</a></li>
+              <li><a href="contact.html" className="nav-link" style={{ fontSize: '0.85rem', fontWeight: '700', textTransform: 'uppercase', color: '#ccc', textDecoration: 'none', whiteSpace: 'nowrap' }}>Contact</a></li>
+            </ul>
+          </div>
+
+          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
-            <a href={user ? "portal.html#/dashboard?bookGeneral=true" : "portal.html#/login?redirectTo=book"} className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
           </div>
         </div>
       </header>
