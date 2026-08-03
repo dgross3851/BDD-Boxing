@@ -85,19 +85,27 @@ Phase 1 of the BDD Boxing backend integration has been implemented and verified 
   - Added a formatted metadata list at the bottom of the card displaying **Account Created** and **Last Updated** date-time timestamps.
 - **GitHub Issue Completion**: Successfully resolved, closed, and completed GitHub [Issue #1](https://github.com/dgross3851/BDD-Boxing/issues/1).
 
+### L. Desktop & Mobile Header Clean-up, Sidebar Refactoring & Link Fixes (Phase 6)
+- **Dashboard Header Matched to Public Header**: Updated [AdminLayout.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/components/AdminLayout.jsx) and [UserDashboardMockup.jsx](file:///Users/davidgross/Desktop%20Coding%20Projects/BDD-Boxing/src/pages/UserDashboardMockup.jsx) to match the public header structure (`nav-container`, `maxWidth: 1300px`, `justifyContent: space-between`).
+- **Added "Back To Website" Button**: Placed a red action button (`<a href="index.html" class="btn btn-primary portal-back-btn">Back To Website</a>`) in the right-side `header-cta` next to the Avatar Dropdown. This mirrors the public website's right-side button, perfectly balancing the desktop dashboard header and eliminating the empty void after "Contact".
+- **Matched Nav Font & Spacing**: Updated portal nav links to match the public site's font treatment (`font-size: 0.95rem`, `font-weight: 700`, `letter-spacing: 0.08em`, uppercase, `gap: 1.25rem`).
+- **Top Bar Hamburger Removal**: Removed top bar 3-line hamburger menu toggle icon (`☰`) on mobile portal views. The top mobile portal header now cleanly consists of only the logo on the left and the Avatar Dropdown on the right.
+- **Immediate Section Names in Mobile Sidebar Drawer**: Fixed the left sidebar drawer on mobile (`.admin-sidebar.mobile-open`). When opened on mobile, all section names (**Overview**, **Sessions**, **Clients**, **Bookings**, **Notifications**) display **immediately** next to their icons at full 260px drawer width.
+- **Removed Bottom Arrow Collapse Buttons on Mobile**: Hid the bottom `< / >` collapse arrow button (`.sidebar-collapse-btn`) on mobile viewports (<1024px) via CSS.
+- **Fixed Contact Hero CTA Button (`contact.html`)**: Removed legacy `preventDefault()` listener in `scripts.js` that broke button click navigation on `contact.html`. The hero "Book Session" button now immediately opens the portal booking flow.
+- **Fixed Events Sponsorship CTA Button (`events.html`)**: Updated the "Contact About Sponsorship" button in `events.html` from `portal.html#/dashboard` to `contact.html#booking-section`, navigating users straight to Coach JRob's contact section on `contact.html`.
+- **ES Module Logo Bundling**: Imported `bbd-boxing-logo-updated.jpeg` directly via ES module in React (`import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg'`) in `AdminLayout.jsx` and `UserDashboardMockup.jsx` to guarantee Vite bundles the logo file cleanly for production.
+- **Mobile Stacked Card Adapters**: Converted wide data tables (**My Bookings Log**) into responsive stacked mobile cards on viewports <768px (`.portal-mobile-cards`), allowing users to read every detail in portrait mode without horizontal scrolling or turning their phone sideways.
+
 ---
 
 ## 2. Verification Results
 
-### Build Verification
-- Executed `npx vite build`:
-  - **Result**: Successfully transformed 1,654 modules and generated production bundles in `1.64 seconds` with zero build errors.
+### Build & Code Verification
+- Verified all logo image paths resolution across root and subroutes.
+- Verified mobile navigation drawer layout and safe area bottom clearance.
+- Verified session card description touch scrolling.
 
-### Local Server Execution
-- Started development server (`npm run dev`):
-  - **Local URL**: `http://localhost:3000/portal.html`
-
-### Manual Testing Workflow
 1. Open `http://localhost:3000/portal.html#/signup` in your browser.
 2. Register a test user account (e.g. `testuser@bddboxing.com`).
 3. Verify that you are redirected to `/dashboard` displaying the **Role: USER** badge.

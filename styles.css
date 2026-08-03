@@ -3253,17 +3253,19 @@ footer {
     position: fixed;
     top: 0;
     right: -100%;
-    width: 80%;
-    max-width: 350px;
-    height: 100vh;
+    width: 85%;
+    max-width: 320px;
+    height: 100dvh;
     background-color: var(--black);
     border-left: 1px solid var(--steel-gray);
     flex-direction: column;
-    padding: 7rem 2.5rem 2.5rem 2.5rem;
-    gap: 1.75rem;
+    padding: 4.5rem 1.5rem max(3.5rem, calc(2.5rem + env(safe-area-inset-bottom))) 1.5rem;
+    gap: 0.85rem;
     transition: var(--transition-slow);
     z-index: 1000;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
   }
   
   .nav-menu.open {
@@ -3271,7 +3273,8 @@ footer {
   }
   
   .nav-link {
-    font-size: 1.15rem;
+    font-size: 0.98rem;
+    padding: 0.2rem 0;
   }
   
   .mobile-only {
@@ -4536,6 +4539,64 @@ h1,
     flex-direction: column !important;
     align-items: center !important;
     gap: 14px !important;
+  }
+}
+
+/* --- PORTAL MOBILE RESPONSIVE OVERRIDES --- */
+body:has(.admin-sidebar) .main-header .mobile-menu-toggle {
+  display: none !important;
+}
+
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    width: 260px !important;
+  }
+  .admin-sidebar.mobile-open {
+    transform: translateX(0) !important;
+    width: 260px !important;
+  }
+  .admin-mobile-sidebar-toggle {
+    display: flex !important;
+  }
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .portal-desktop-nav,
+  .portal-back-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .portal-desktop-table {
+    display: none !important;
+  }
+  
+  .portal-mobile-cards {
+    display: flex !important;
+  }
+
+  .responsive-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .responsive-table-wrapper table {
+    min-width: 650px;
+  }
+
+  /* Fluid headings for portal headers */
+  .portal-page-title,
+  h1 {
+    font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+    word-break: break-word;
   }
 }
 

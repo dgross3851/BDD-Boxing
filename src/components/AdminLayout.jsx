@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { AvatarDropdown } from './AvatarDropdown';
+import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -146,90 +147,25 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
       {/* Website Navigation Header */}
       <header className="main-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', zIndex: 1000, backgroundColor: '#050505', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center' }}>
         <div className="nav-container" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', margin: '0 auto', maxWidth: '1300px' }}>
-          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
-            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
+          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', height: '50px', flexShrink: 0 }}>
+            <img src={logoImg} alt="BDD Boxing Logo" onError={(e) => { e.currentTarget.src = '/assets/bbd-boxing-logo-updated.jpeg'; }} style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
+            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
           </a>
-          
-          <button 
-            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
 
-          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`}>
-            <li><a href="index.html" className="nav-link">Home</a></li>
-            <li><a href="programs.html" className="nav-link">Programs</a></li>
-            <li><a href="about-coach.html" className="nav-link">About Coach</a></li>
-            <li><a href="training.html" className="nav-link">Training</a></li>
-            <li><a href="schedule.html" className="nav-link">Schedule</a></li>
-            <li><a href="events.html" className="nav-link">Events</a></li>
-            <li><a href="contact.html" className="nav-link">Contact</a></li>
-            
-            {/* Mobile Profile Section (Only visible on mobile) */}
-            <li className="mobile-only" style={{ marginTop: '1.5rem', width: '100%' }}>
-              <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', padding: '0 10px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ca3b24',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  boxShadow: '0 0 12px rgba(202, 59, 36, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  overflow: 'hidden',
-                  flexShrink: 0
-                }}>
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    profile?.full_name ? profile.full_name.trim().split(/\s+/)[0].slice(0, 2).toUpperCase() : 'U'
-                  )}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'left' }}>
-                  <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {profile?.full_name || 'Fighter'}
-                  </span>
-                  <span style={{ fontSize: '0.8rem', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '1px' }}>
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href={role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard'} onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Dashboard
-                </a>
-                <a href="portal.html#/profile" onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Profile Settings
-                </a>
-                <button 
-                  onClick={async () => {
-                    setMobileMenuOpen(false);
-                    await signOut();
-                    window.location.href = '/index.html';
-                  }} 
-                  className="mobile-logout-btn" 
-                  style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', color: '#ff8a7a', backgroundColor: 'rgba(202, 59, 36, 0.1)', border: '1px solid rgba(202, 59, 36, 0.3)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'all 0.2s', textAlign: 'center' }}
-                >
-                  Log Out
-                </button>
-              </div>
-            </li>
+          {/* Desktop Navigation Links (Matches index.html public header) */}
+          <ul className="nav-menu portal-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
+            <li><a href="index.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Home</a></li>
+            <li><a href="programs.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Programs</a></li>
+            <li><a href="about-coach.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>About Coach</a></li>
+            <li><a href="training.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Training</a></li>
+            <li><a href="schedule.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Schedule</a></li>
+            <li><a href="events.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Events</a></li>
+            <li><a href="contact.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Contact</a></li>
           </ul>
 
-          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
-            <a href="contact.html" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
+            <a href="index.html" className="btn btn-primary portal-back-btn" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.08em', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>Back To Website</a>
           </div>
         </div>
       </header>
@@ -257,7 +193,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
 
         {/* Sidebar Navigation */}
         <aside style={{
-          width: collapsed ? '70px' : '260px',
+          width: mobileOpen ? '260px' : (collapsed ? '70px' : '260px'),
           backgroundColor: '#121212',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
@@ -270,7 +206,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }} className={`admin-sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
         
-        {/* Mobile Tab Toggle Button (Sticks out of the sidebar on mobile) */}
+        {/* Mobile Tab Toggle Button */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           style={{
@@ -304,6 +240,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
           {navItems.map(item => {
             const Icon = item.icon;
             const active = activeTab === item.id;
+            const isCollapsed = collapsed && !mobileOpen;
             return (
               <button
                 key={item.id}
@@ -314,9 +251,9 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: collapsed ? '0' : '12px',
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                  padding: '12px',
+                  gap: isCollapsed ? '0' : '12px',
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  padding: '12px 16px',
                   backgroundColor: active ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
@@ -343,18 +280,18 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
                 }}
               >
                 <Icon style={{ width: '20px', height: '20px', flexShrink: 0 }} />
-                {!collapsed && <span>{item.label}</span>}
+                {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
               </button>
             );
           })}
         </nav>
 
         {/* Collapse Sidebar Button at Bottom */}
-        <div style={{
+        <div className="sidebar-collapse-btn" style={{
           padding: '16px',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           display: 'flex',
-          justifyContent: collapsed ? 'center' : 'flex-end'
+          justify: (collapsed && !mobileOpen) ? 'center' : 'flex-end'
         }}>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -380,7 +317,7 @@ const AdminLayout = ({ activeTab, setActiveTab, children }) => {
               e.currentTarget.style.color = '#666';
             }}
           >
-            {collapsed ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
+            {(collapsed && !mobileOpen) ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
           </button>
         </div>
       </aside>

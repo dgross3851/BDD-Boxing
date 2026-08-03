@@ -20,10 +20,10 @@ export const Login = () => {
     let redirectTo = '';
     if (hashQuestionIndex !== -1) {
       const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
-      redirectTo = searchParams.get('redirectTo');
+      redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
     } else {
       const searchParams = new URLSearchParams(window.location.search);
-      redirectTo = searchParams.get('redirectTo');
+      redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
     }
     if (redirectTo === 'book') {
       setInfoMsg('Please log in first to secure your session booking spot.');
@@ -53,13 +53,13 @@ export const Login = () => {
         
         if (hashQuestionIndex !== -1) {
           const searchParams = new URLSearchParams(hash.substring(hashQuestionIndex));
-          redirectTo = searchParams.get('redirectTo');
+          redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
           sessionId = searchParams.get('sessionId');
           programCategory = searchParams.get('programCategory');
           bookGeneral = searchParams.get('bookGeneral');
         } else {
           const searchParams = new URLSearchParams(window.location.search);
-          redirectTo = searchParams.get('redirectTo');
+          redirectTo = searchParams.get('redirectTo') || searchParams.get('redirect');
           sessionId = searchParams.get('sessionId');
           programCategory = searchParams.get('programCategory');
           bookGeneral = searchParams.get('bookGeneral');
@@ -99,7 +99,8 @@ export const Login = () => {
       <div style={{ textAlign: 'center', marginBottom: '32px' }}>
         <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '12px' }}>
           <img 
-            src={logo} 
+            src={logo}
+            onError={(e) => { e.currentTarget.src = '/assets/bbd-boxing-logo-updated.jpeg'; }} 
             alt="BDD Boxing Logo" 
             style={{
               width: '48px',

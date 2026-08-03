@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { AvatarDropdown } from '../components/AvatarDropdown';
+import logoImg from '../../assets/bbd-boxing-logo-updated.jpeg';
 import { 
   Users, 
   Calendar, 
@@ -486,90 +487,25 @@ export const UserDashboardMockup = () => {
       {/* Website Navigation Header */}
       <header className="main-header" style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', zIndex: 1000, backgroundColor: '#050505', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center' }}>
         <div className="nav-container" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', margin: '0 auto', maxWidth: '1300px' }}>
-          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="assets/bbd-boxing-logo-updated.jpeg" alt="BDD Boxing Logo" style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
-            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
+          <a href="index.html" className="nav-logo" id="header-logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem', height: '50px', flexShrink: 0 }}>
+            <img src={logoImg} alt="BDD Boxing Logo" onError={(e) => { e.currentTarget.src = '/assets/bbd-boxing-logo-updated.jpeg'; }} style={{ height: '50px', width: 'auto', borderRadius: '4px' }} />
+            <span className="nav-logo-text" style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', whiteSpace: 'nowrap', letterSpacing: '0.05em' }}>BDD <span style={{ color: '#ca3b24' }}>BOXING</span></span>
           </a>
-          
-          <button 
-            className={`mobile-menu-toggle ${mobileMenuOpen ? 'open' : ''}`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Navigation Menu"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
 
-          <ul className={`nav-menu ${mobileMenuOpen ? 'open' : ''}`}>
-            <li><a href="index.html" className="nav-link">Home</a></li>
-            <li><a href="programs.html" className="nav-link">Programs</a></li>
-            <li><a href="about-coach.html" className="nav-link">About Coach</a></li>
-            <li><a href="training.html" className="nav-link">Training</a></li>
-            <li><a href="schedule.html" className="nav-link">Schedule</a></li>
-            <li><a href="events.html" className="nav-link">Events</a></li>
-            <li><a href="contact.html" className="nav-link">Contact</a></li>
-            
-            {/* Mobile Profile Section (Only visible on mobile) */}
-            <li className="mobile-only" style={{ marginTop: '1.5rem', width: '100%' }}>
-              <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', padding: '0 10px' }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ca3b24',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  boxShadow: '0 0 12px rgba(202, 59, 36, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  overflow: 'hidden',
-                  flexShrink: 0
-                }}>
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    profile?.full_name ? profile.full_name.trim().split(/\s+/)[0].slice(0, 2).toUpperCase() : 'U'
-                  )}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', textAlign: 'left' }}>
-                  <span style={{ fontWeight: '700', fontSize: '0.95rem', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {profile?.full_name || 'Fighter'}
-                  </span>
-                  <span style={{ fontSize: '0.8rem', color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '1px' }}>
-                    {user?.email}
-                  </span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href={role === 'admin' ? 'portal.html#/admin' : 'portal.html#/dashboard'} onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Dashboard
-                </a>
-                <a href="portal.html#/profile" onClick={() => setMobileMenuOpen(false)} className="btn btn-secondary mobile-menu-cta" style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', textAlign: 'center' }}>
-                  Profile Settings
-                </a>
-                <button 
-                  onClick={async () => {
-                    setMobileMenuOpen(false);
-                    await signOut();
-                    window.location.href = '/index.html';
-                  }} 
-                  className="mobile-logout-btn" 
-                  style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', fontWeight: '700', width: '100%', color: '#ff8a7a', backgroundColor: 'rgba(202, 59, 36, 0.1)', border: '1px solid rgba(202, 59, 36, 0.3)', cursor: 'pointer', fontFamily: "'Outfit', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', transition: 'all 0.2s', textAlign: 'center' }}
-                >
-                  Log Out
-                </button>
-              </div>
-            </li>
+          {/* Desktop Navigation Links (Matches index.html public header) */}
+          <ul className="nav-menu portal-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', listStyle: 'none', margin: 0, padding: 0 }}>
+            <li><a href="index.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Home</a></li>
+            <li><a href="programs.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Programs</a></li>
+            <li><a href="about-coach.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>About Coach</a></li>
+            <li><a href="training.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Training</a></li>
+            <li><a href="schedule.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Schedule</a></li>
+            <li><a href="events.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Events</a></li>
+            <li><a href="contact.html" className="nav-link" style={{ fontSize: '0.95rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#aaa', textDecoration: 'none', whiteSpace: 'nowrap' }}>Contact</a></li>
           </ul>
 
-          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className="header-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
             <AvatarDropdown />
-            <a href="contact.html" className="btn btn-primary" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none' }}>Book First Session</a>
+            <a href="index.html" className="btn btn-primary portal-back-btn" id="header-cta-btn" style={{ padding: '8px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.08em', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#ca3b24', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}>Back To Website</a>
           </div>
         </div>
       </header>
@@ -597,7 +533,7 @@ export const UserDashboardMockup = () => {
 
         {/* Sidebar Navigation */}
         <aside style={{
-          width: collapsed ? '70px' : '260px',
+          width: mobileOpen ? '260px' : (collapsed ? '70px' : '260px'),
           backgroundColor: '#121212',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
@@ -644,6 +580,7 @@ export const UserDashboardMockup = () => {
           {navItems.map(item => {
             const Icon = item.icon;
             const active = activeTab === item.id;
+            const isCollapsed = collapsed && !mobileOpen;
             return (
               <button
                 key={item.id}
@@ -654,9 +591,9 @@ export const UserDashboardMockup = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: collapsed ? '0' : '12px',
-                  justifyContent: collapsed ? 'center' : 'space-between',
-                  padding: '12px',
+                  gap: isCollapsed ? '0' : '12px',
+                  justifyContent: isCollapsed ? 'center' : 'space-between',
+                  padding: '12px 16px',
                   backgroundColor: active ? 'rgba(202, 59, 36, 0.1)' : 'transparent',
                   border: 'none',
                   borderRadius: '8px',
@@ -682,11 +619,11 @@ export const UserDashboardMockup = () => {
                   }
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: collapsed ? '0' : '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isCollapsed ? '0' : '12px' }}>
                   <Icon style={{ width: '20px', height: '20px', flexShrink: 0 }} />
-                  {!collapsed && <span>{item.label}</span>}
+                  {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
                 </div>
-                {!collapsed && item.badge > 0 && (
+                {!isCollapsed && item.badge > 0 && (
                   <span style={{
                     backgroundColor: '#ca3b24',
                     color: '#fff',
@@ -704,11 +641,11 @@ export const UserDashboardMockup = () => {
         </nav>
 
         {/* Collapse Sidebar Button at Bottom */}
-        <div style={{
+        <div className="sidebar-collapse-btn" style={{
           padding: '16px',
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           display: 'flex',
-          justifyContent: collapsed ? 'center' : 'flex-end'
+          justify: (collapsed && !mobileOpen) ? 'center' : 'flex-end'
         }}>
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -734,7 +671,7 @@ export const UserDashboardMockup = () => {
               e.currentTarget.style.color = '#666';
             }}
           >
-            {collapsed ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
+            {(collapsed && !mobileOpen) ? <ChevronRight style={{ width: '18px', height: '18px' }} /> : <ChevronLeft style={{ width: '18px', height: '18px' }} />}
           </button>
         </div>
       </aside>
@@ -1107,7 +1044,21 @@ export const UserDashboardMockup = () => {
                             {s.session_types?.category || 'Group Class'}
                           </span>
                           <h3 style={{ margin: '10px 0 6px 0', fontSize: '18px', fontWeight: '700', color: '#fff' }}>{s.session_types?.title}</h3>
-                          <p style={{ margin: 0, fontSize: '12px', color: '#888', height: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <p 
+                            onClick={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}
+                            style={{ 
+                              margin: '4px 0 0 0', 
+                              fontSize: '12px', 
+                              color: '#888', 
+                              maxHeight: '4.5em', 
+                              overflowY: 'auto', 
+                              touchAction: 'pan-y',
+                              WebkitOverflowScrolling: 'touch',
+                              lineHeight: '1.4',
+                              paddingRight: '4px'
+                            }}
+                          >
                             {s.session_types?.description || 'No description provided.'}
                           </p>
                         </div>
@@ -1516,7 +1467,8 @@ export const UserDashboardMockup = () => {
               </div>
 
               <div style={{ backgroundColor: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
-                <div style={{ overflowX: 'auto' }}>
+                {/* Desktop Table View */}
+                <div className="portal-desktop-table" style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#888' }}>
@@ -1570,25 +1522,91 @@ export const UserDashboardMockup = () => {
                                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.2)'}
                                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
                                 >
-                                  Cancel Booking
+                                  Cancel Spot
                                 </button>
                               ) : (
-                                <span style={{ fontSize: '12px', color: '#555' }}>Locked</span>
+                                <span style={{ color: '#555', fontSize: '12px' }}>-</span>
                               )}
                             </td>
                           </tr>
                         );
                       })}
-
-                      {filteredMyBookings.length === 0 && (
+                      {paginatedMyBookings.length === 0 && (
                         <tr>
-                          <td colSpan="7" style={{ textAlign: 'center', color: '#666', padding: '32px 0' }}>
+                          <td colSpan="7" style={{ textAlign: 'center', padding: '32px', color: '#666' }}>
                             You have no historical booking entries.
                           </td>
                         </tr>
                       )}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Stacked Cards View (<768px) */}
+                <div className="portal-mobile-cards" style={{ display: 'none', flexDirection: 'column', gap: '14px' }}>
+                  {paginatedMyBookings.map(b => {
+                    const canCancel = b.status === 'booked' && b.sessions?.datetime && new Date(b.sessions.datetime) > new Date();
+                    return (
+                      <div key={b.id} style={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <span style={{ fontWeight: '800', fontSize: '15px', color: '#fff', display: 'block' }}>
+                              {b.sessions?.session_types?.title || 'Unknown Class'}
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#888', display: 'block', marginTop: '2px' }}>
+                              📍 {b.sessions?.location || 'Main Ring'}
+                            </span>
+                          </div>
+                          <span style={{ color: '#ca3b24', fontWeight: '800', fontSize: '16px' }}>
+                            ${b.sessions?.price_usd || '0.00'}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: '12px', color: '#ccc' }}>
+                          📅 {b.sessions?.datetime ? new Date(b.sessions.datetime).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <span style={{
+                              backgroundColor: b.status === 'attended' ? 'rgba(34, 197, 94, 0.15)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(202, 59, 36, 0.15)',
+                              border: `1px solid ${b.status === 'attended' ? '#22c55e' : b.status === 'cancelled' ? '#ef4444' : '#ca3b24'}`,
+                              color: b.status === 'attended' ? '#86efac' : b.status === 'cancelled' ? '#fca5a5' : '#ff8a7a',
+                              fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase'
+                            }}>
+                              {b.status}
+                            </span>
+                            <span style={{
+                              backgroundColor: b.payment_status === 'paid' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                              border: `1px solid ${b.payment_status === 'paid' ? '#22c55e' : '#ef4444'}`,
+                              color: b.payment_status === 'paid' ? '#86efac' : '#fca5a5',
+                              fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase'
+                            }}>
+                              {b.payment_status}
+                            </span>
+                          </div>
+
+                          {canCancel && (
+                            <button
+                              onClick={() => handleCancelBooking(b)}
+                              style={{
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#fca5a5',
+                                padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: '700', cursor: 'pointer',
+                                transition: 'background-color 0.2s', outline: 'none'
+                              }}
+                            >
+                              Cancel Spot
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {paginatedMyBookings.length === 0 && (
+                    <p style={{ textAlign: 'center', padding: '24px', color: '#666', fontSize: '13px', margin: 0 }}>
+                      You have no historical booking entries.
+                    </p>
+                  )}
                 </div>
 
                 {renderPaginationControls(filteredMyBookings.length, bookPage, bookPerPage, setBookPage, setBookPerPage)}
